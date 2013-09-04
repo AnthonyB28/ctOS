@@ -15,38 +15,44 @@
 //
 function krnBootstrap()      // Page 8.
 {
-    hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
+   hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
-    // Initialize our global queues.
-    _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
-    _KernelBuffers = new Array();         // Buffers... for the kernel.
-    _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
-    _Console = new CLIconsole();          // The command line interface / console I/O device.
+   // Initialize our global queues.
+   _KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
+   _KernelBuffers = new Array();         // Buffers... for the kernel.
+   _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
+   _Console = new CLIconsole();          // The command line interface / console I/O device.
 
-    // Initialize the CLIconsole.
-    _Console.init();
+   // Initialize the CLIconsole.
+   _Console.init();
 
-    // Initialize standard input and output to the _Console.
-    _StdIn  = _Console;
-    _StdOut = _Console;
+   // Initialize standard input and output to the _Console.
+   _StdIn  = _Console;
+   _StdOut = _Console;
 
-    // Load the Keyboard Device Driver
-    krnTrace("Loading the keyboard device driver.");
-    krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.  TODO: Should that have a _global-style name?
-    krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
-    krnTrace(krnKeyboardDriver.status);
+   // Load the Keyboard Device Driver
+   krnTrace("Loading the keyboard device driver.");
+   krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.  TODO: Should that have a _global-style name?
+   krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
+   krnTrace(krnKeyboardDriver.status);
 
-    // 
-    // ... more?
-    //
+   //
+   // ... more?
+   //
 
-    // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
-    krnTrace("Enabling the interrupts.");
-    krnEnableInterrupts();
-    // Launch the shell.
-    krnTrace("Creating and Launching the shell.");
-    _OsShell = new Shell();
-    _OsShell.init();
+   // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
+   krnTrace("Enabling the interrupts.");
+   krnEnableInterrupts();
+
+   // Launch the shell.
+   krnTrace("Creating and Launching the shell.");
+   _OsShell = new Shell();
+   _OsShell.init();
+
+   // Finally, initiate testing.
+   if (_GLaDOS) {
+      _GLaDOS.afterStartup();
+   }
 }
 
 function krnShutdown()

@@ -34,14 +34,20 @@ function hostInit()
 	document.getElementById("taLog").value="";
 
 	// Set focus on the start button.
-   document.getElementById("btnStartOS").focus();     // TODO: This does not seem to work.  Why?
+   document.getElementById("btnStartOS").focus();
+
+   // Check for our testing and enrichment core.
+   if (typeof Glados === "function") {
+      _GLaDOS = new Glados();
+      _GLaDOS.init();
+   };
+
 }
 
 function hostLog(msg, source)
 {
     // Check the source.
-    if (!source)
-    {
+    if (!source) {
         source = "?";
     }
 
