@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+   <meta name="author"             content="Alan G. Labouseur" />
+   <link rel="stylesheet" href="alanbbos.css" type="text/css" media="screen" />
+   <title>
+      AlanBBOS - a Browser-based virtual Operating System
+   </title>
+
+   <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+   <script type="text/javascript" src="globals.js"></script>	
+
+   <!-- Host (Hardware Simulation) Routines -->
+   <script type="text/javascript" src="scripts/host/control.js"></script>
+   <script type="text/javascript" src="scripts/host/devices.js"></script>
+   <script type="text/javascript" src="scripts/host/cpu.js"></script>
+
+   <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+   <script type="text/javascript" src="scripts/os/interrupt.js"></script>
+   <script type="text/javascript" src="scripts/os/canvastext.js"></script>	
+   <script type="text/javascript" src="scripts/os/console.js"></script>	
+   <script type="text/javascript" src="scripts/os/deviceDriver.js"></script>
+   <script type="text/javascript" src="scripts/os/deviceDriverKeyboard.js"></script>
+   <script type="text/javascript" src="scripts/os/queue.js"></script>
+   <script type="text/javascript" src="scripts/os/shell.js"></script>
+   <script type="text/javascript" src="scripts/os/kernel.js"></script>
+
+   <!-- Other Routines -->
+   <script type="text/javascript" src="scripts/utils.js"></script>	
+</head>
+
+<body onload="hostInit();">
+
+<div id="divMain" style="width:100%;">
+
+   <div id="divButtonBar" style="margin:4px;">
+      <input type="button"
+             id = "btnStartOS"
+             name="brnStartOS"
+             class="normal_button"
+             value="Start"
+             tabindex="0"
+             onclick="hostBtnStartOS_click(this);">
+
+      <input type="button"
+             id = "btnHaltOS"
+             name="brnHaltOS"
+             class="normal_button"
+             disabled="disabled"
+             value="Halt"
+             tabindex="1"
+             onclick="hostBtnHaltOS_click(this);">
+
+      <input type="button"
+             id = "btnReset"
+             name="brnReset"
+             class="normal_button"
+             disabled="disabled"
+             value="Reset"
+             tabindex="2"
+             onclick="hostBtnReset_click(this);">
+   </div>
+
+   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
+      <canvas id="display"
+              width="500px"
+              height="500px"
+              tabindex="3">
+      </canvas>
+   </div>
+
+   <div id="divLog" style="margin-left:520px;">
+      <label>
+      Control Log
+      <br>
+         <textarea name="taLog"
+                   id = "taLog"
+                   rows="36"
+                   cols="48"
+         ></textarea>
+      </label>
+   </div>
+
+</div>
+
+<p class="footerText" style="clear:both;">
+   <br>
+   Copyright &copy; 2008 - 2013 No Rights Reserved.
+   <br>
+   Reproduction is prohibited without the express written consent of
+   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+</p>
+
+</body>
+</html>
