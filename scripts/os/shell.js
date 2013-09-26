@@ -342,7 +342,7 @@ function shellRot13(args)
 {
     if (args.length > 0)
     {
-        _StdIn.putText(args[0] + " = '" + rot13(args[0]) +"'");     // Requires Utils.js for rot13() function.
+        _StdIn.putText(args.join(' ') + " = '" + rot13(args.join(' ')) +"'");     // Requires Utils.js for rot13() function.
     }
     else
     {
