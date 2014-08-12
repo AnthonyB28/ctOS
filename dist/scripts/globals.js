@@ -1,3 +1,4 @@
+///<reference path="host/control.ts" />
 /* ------------
 Globals.js
 Global CONSTANTS and _Variables.
@@ -61,3 +62,7 @@ var _hardwareClockID = null;
 // For testing...
 var _GLaDOS = null;
 var Glados = null;
+
+var onDocumentLoad = function () {
+    AlanBBOS.Control.hostInit();
+};

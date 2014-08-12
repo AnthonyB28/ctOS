@@ -104,12 +104,13 @@ module AlanBBOS {
             // iterate over the command list in attempt to find a match.  TODO: Is there a better way? Probably.
             var index = 0;
             var found = false;
+            var fn = undefined;
             while (!found && index < this.commandList.length)
             {
                 if (this.commandList[index].command === cmd)
                 {
                     found = true;
-                    var fn = this.commandList[index].function;
+                    fn = this.commandList[index].func;
                 }
                 else
                 {

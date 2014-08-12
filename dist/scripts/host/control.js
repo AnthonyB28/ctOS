@@ -20,7 +20,7 @@ var AlanBBOS;
     var Control = (function () {
         function Control() {
         }
-        Control.prototype.hostInit = function () {
+        Control.hostInit = function () {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
             _Canvas = document.getElementById('display');
 
@@ -66,7 +66,7 @@ var AlanBBOS;
         //
         // Control Events
         //
-        Control.prototype.hostBtnStartOS_click = function (btn) {
+        Control.hostBtnStartOS_click = function (btn) {
             // Disable the start button...
             btn.disabled = true;
 
@@ -89,7 +89,7 @@ var AlanBBOS;
             _Kernel.krnBootstrap();
         };
 
-        Control.prototype.hostBtnHaltOS_click = function (btn) {
+        Control.hostBtnHaltOS_click = function (btn) {
             Control.hostLog("emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
@@ -101,7 +101,7 @@ var AlanBBOS;
             // TODO: Is there anything else we need to do here?
         };
 
-        Control.prototype.hostBtnReset_click = function (btn) {
+        Control.hostBtnReset_click = function (btn) {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload(true);
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always

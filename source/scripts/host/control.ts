@@ -23,7 +23,7 @@
 //
 module AlanBBOS {
 	export class Control {
-		public hostInit()
+		public static hostInit()
 		{
 			// Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
 			_Canvas  = document.getElementById('display');
@@ -70,7 +70,7 @@ module AlanBBOS {
 		//
 		// Control Events
 		//
-		public hostBtnStartOS_click(btn)
+		public static hostBtnStartOS_click(btn)
 		{
 			// Disable the start button...
 			btn.disabled = true;
@@ -93,7 +93,7 @@ module AlanBBOS {
 			_Kernel.krnBootstrap();
 		}
 
-		public hostBtnHaltOS_click(btn)
+		public static hostBtnHaltOS_click(btn)
 		{
 			Control.hostLog("emergency halt", "host");
 			Control.hostLog("Attempting Kernel shutdown.", "host");
@@ -104,7 +104,7 @@ module AlanBBOS {
 			// TODO: Is there anything else we need to do here?
 		}
 
-		public hostBtnReset_click(btn)
+		public static hostBtnReset_click(btn)
 		{
 			// The easiest and most thorough way to do this is to reload (not refresh) the document.
 			location.reload(true);
