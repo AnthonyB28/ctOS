@@ -40,6 +40,7 @@ var _FontHeightMargin = 4;        // Additional space added to font size when ad
 var _Trace = true;
 
 // OS queues
+var _Kernel = null;
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
 var _KernelInputQueue = null;
@@ -57,6 +58,8 @@ var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var krnKeyboardDriver = null;
+
+var _hardwareClockID = null;
 
 // For testing...
 var _GLaDOS = null;

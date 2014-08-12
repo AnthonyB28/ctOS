@@ -1,3 +1,7 @@
+///<reference path="shellCommand.ts" />
+///<reference path="userCommand.ts" />
+///<reference path="../utils.ts" />
+
 /* ------------
    Shell.js
 
@@ -24,59 +28,51 @@ module AlanBBOS {
             // Load the command list.
 
             // ver
-            sc = new ShellCommand();
-            sc.command = "ver";
-            sc.description = "- Displays the current version data.";
-            sc.function = shellVer;
+            sc = new ShellCommand(this.shellVer,
+                                  "ver",
+                                  "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
             // help
-            sc = new ShellCommand();
-            sc.command = "help";
-            sc.description = "- This is the help command. Seek help.";
-            sc.function = shellHelp;
+            sc = new ShellCommand(this.shellHelp,
+                                  "help",
+                                  "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
-            sc = new ShellCommand();
-            sc.command = "shutdown";
-            sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running.";
-            sc.function = shellShutdown;
+            sc = new ShellCommand(this.shellShutdown,
+                                  "shutdown",
+                                  "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
             // cls
-            sc = new ShellCommand();
-            sc.command = "cls";
-            sc.description = "- Clears the screen and resets the cursor position.";
-            sc.function = shellCls;
+            sc = new ShellCommand(this.shellCls,
+                                  "cld",
+                                  "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
-            sc = new ShellCommand();
-            sc.command = "man";
-            sc.description = "<topic> - Displays the MANual page for <topic>.";
-            sc.function = shellMan;
+            sc = new ShellCommand(this.shellMan,
+                                  "man",
+                                  "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
             // trace <on | off>
-            sc = new ShellCommand();
-            sc.command = "trace";
-            sc.description = "<on | off> - Turns the OS trace on or off.";
-            sc.function = shellTrace;
+            sc = new ShellCommand(this.shellTrace,
+                                  "trace",
+                                  "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
-            sc = new ShellCommand();
-            sc.command = "rot13";
-            sc.description = "<string> - Does rot13 obfuscation on <string>.";
-            sc.function = shellRot13;
+            sc = new ShellCommand(this.shellRot13,
+                                  "rot13",
+                                  "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
             // prompt <string>
-            sc = new ShellCommand();
-            sc.command = "prompt";
-            sc.description = "<string> - Sets the prompt.";
-            sc.function = shellPrompt;
+            sc = new ShellCommand(this.shellPrompt,
+                                  "prompt",
+                                  "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -92,12 +88,12 @@ module AlanBBOS {
         }
 
         public handleInput(buffer) {
-            krnTrace("Shell Command~" + buffer);
+            _Kernel.krnTrace("Shell Command~" + buffer);
             //
             // Parse the input...
             //
             var userCommand = new UserCommand();
-            userCommand = shellParseInput(buffer);
+            userCommand = this.parseInput(buffer);
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
             var args = userCommand.args;
@@ -127,22 +123,23 @@ module AlanBBOS {
             else
             {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + rot13(cmd) + "]") >= 0)      // Check for curses.
+                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0)      // Check for curses.
                 {
-                    this.execute(shellCurse);
+                    this.execute(this.shellCurse);
                 }
                 else if (this.apologies.indexOf("[" + cmd + "]") >= 0)      // Check for apologies.
                 {
-                    this.execute(shellApology);
+                    this.execute(this.shellApology);
                 }
                 else    // It's just a bad command.
                 {
-                    this.execute(shellInvalidCommand);
+                    this.execute(this.shellInvalidCommand);
                 }
             }
         }
 
-        public execute(fn, args)
+        // args is an option parameter, ergo the ? which allows TypeScript to understand that
+        public execute(fn, args?)
         {
             // We just got a command, so advance the line...
             _StdIn.advanceLine();
@@ -162,7 +159,7 @@ module AlanBBOS {
             var retVal = new UserCommand();
 
             // 1. Remove leading and trailing spaces.
-            buffer = trim(buffer);
+            buffer = Utils.trim(buffer);
 
             // 2. Lower-case it.
             buffer = buffer.toLowerCase();
@@ -173,14 +170,14 @@ module AlanBBOS {
             // 4. Take the first (zeroth) element and use that as the command.
             var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript.  See the Queue class.
             // 4.1 Remove any left-over spaces.
-            cmd = trim(cmd);
+            cmd = Utils.trim(cmd);
             // 4.2 Record it in the return value.
             retVal.command = cmd;
 
             // 5. Now create the args array from what's left.
             for (var i in tempList)
             {
-                var arg = trim(tempList[i]);
+                var arg = Utils.trim(tempList[i]);
                 if (arg != "")
                 {
                     retVal.args[retVal.args.length] = tempList[i];
@@ -242,7 +239,7 @@ module AlanBBOS {
         {
              _StdIn.putText("Shutting down...");
              // Call Kernel shutdown routine.
-            krnShutdown();
+            _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
@@ -309,7 +306,7 @@ module AlanBBOS {
         {
             if (args.length > 0)
             {
-                _StdIn.putText(args.join(' ') + " = '" + rot13(args.join(' ')) +"'");     // Requires Utils.js for rot13() function.
+                _StdIn.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");     // Requires Utils.js for rot13() function.
             }
             else
             {

@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+
 /* ------------
 	 CPU.js
 
@@ -15,7 +17,12 @@
 
 module AlanBBOS {
 	export class Cpu {
-		constructor(public PC = 0, public Acc = 0, public Xreg = 0, public Yreg = 0, public Zflag = 0, isExecuting = false) {
+		constructor(public PC = 0,
+					public Acc = 0,
+					public Xreg = 0,
+					public Yreg = 0,
+					public Zflag = 0,
+					public isExecuting = false) {
 
 		}
 
@@ -29,7 +36,7 @@ module AlanBBOS {
 		}
 
 		public cycle() {
-			krnTrace('CPU cycle');
+			_Kernel.krnTrace('CPU cycle');
 			// TODO: Accumulate CPU usage and profiling statistics here.
 			// Do the real work here. Be sure to set this.isExecuting appropriately.
 		}

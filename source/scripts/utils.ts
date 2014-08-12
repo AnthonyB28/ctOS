@@ -6,7 +6,7 @@
 
 module AlanBBOS {
     export class Utils {
-        public trim(str) {     // Use a regular expression to remove leading and trailing spaces.
+        public static trim(str) {     // Use a regular expression to remove leading and trailing spaces.
             return str.replace(/^\s+ | \s+$/g, "");
             /*
             Huh?  Take a breath.  Here we go:
@@ -19,7 +19,7 @@ module AlanBBOS {
 
         }
 
-        public rot13(str) {   // An easy-to understand implementation of the famous and common Rot13 obfuscator.
+        public static rot13(str) {   // An easy-to understand implementation of the famous and common Rot13 obfuscator.
                                 // You can do this in three lines with a complex regular expression, but I'd have
             var retVal = "";    // trouble explaining it in the future.  There's a lot to be said for obvious code.
             for (var i in str) {

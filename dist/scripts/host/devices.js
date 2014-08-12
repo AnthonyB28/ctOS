@@ -14,35 +14,35 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var AlanBBOS;
 (function (AlanBBOS) {
     var Devices = (function () {
-        function Devices(_hardwareClockID) {
-            if (typeof _hardwareClockID === "undefined") { _hardwareClockID = -1; }
+        function Devices() {
+            _hardwareClockID = -1;
         }
         //
         // Hardware/Host Clock Pulse
         //
-        Devices.prototype.hostClockPulse = function () {
+        Devices.hostClockPulse = function () {
             // Increment the hardware (host) clock.
             _OSclock++;
 
             // Call the kernel clock pulse event handler.
-            krnOnCPUClockPulse();
+            _Kernel.krnOnCPUClockPulse();
         };
 
         //
         // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
         //
-        Devices.prototype.hostEnableKeyboardInterrupt = function () {
+        Devices.hostEnableKeyboardInterrupt = function () {
             // Listen for key press (keydown, actually) events in the Document
             // and call the simulation processor, which will in turn call the
             // OS interrupt handler.
-            document.addEventListener("keydown", hostOnKeypress, false);
+            document.addEventListener("keydown", Devices.hostOnKeypress, false);
         };
 
-        Devices.prototype.hostDisableKeyboardInterrupt = function () {
-            document.removeEventListener("keydown", hostOnKeypress, false);
+        Devices.hostDisableKeyboardInterrupt = function () {
+            document.removeEventListener("keydown", Devices.hostOnKeypress, false);
         };
 
-        Devices.prototype.hostOnKeypress = function (event) {
+        Devices.hostOnKeypress = function (event) {
             // The canvas element CAN receive focus if you give it a tab index, which we have.
             // Check that we are processing keystrokes only from the canvas's id (as set in index.html).
             if (event.target.id == "display") {

@@ -44,12 +44,8 @@ var AlanBBOS;
             ;
         };
 
-        Control.prototype.hostLog = function (msg, source) {
-            // Check the source.
-            if (!source) {
-                source = "?";
-            }
-
+        Control.hostLog = function (msg, source) {
+            if (typeof source === "undefined") { source = "?"; }
             // Note the OS CLOCK.
             var clock = _OSclock;
 
@@ -84,18 +80,19 @@ var AlanBBOS;
             _CPU.init();
 
             // ... then set the host clock pulse ...
-            _hardwareClockID = setInterval(hostClockPulse, CPU_CLOCK_INTERVAL);
+            _hardwareClockID = setInterval(AlanBBOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
 
             // .. and call the OS Kernel Bootstrap routine.
-            krnBootstrap();
+            _Kernel = new AlanBBOS.Kernel();
+            _Kernel.krnBootstrap();
         };
 
         Control.prototype.hostBtnHaltOS_click = function (btn) {
-            hostLog("emergency halt", "host");
-            hostLog("Attempting Kernel shutdown.", "host");
+            Control.hostLog("emergency halt", "host");
+            Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
-            krnShutdown();
+            _Kernel.krnShutdown();
 
             // Stop the JavaScript interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);

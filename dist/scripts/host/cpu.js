@@ -1,3 +1,4 @@
+///<reference path="../globals.ts" />
 /* ------------
 CPU.js
 Requires global.js.
@@ -24,6 +25,7 @@ var AlanBBOS;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
+            this.isExecuting = isExecuting;
         }
         Cpu.prototype.init = function () {
             this.PC = 0;
@@ -35,7 +37,7 @@ var AlanBBOS;
         };
 
         Cpu.prototype.cycle = function () {
-            krnTrace('CPU cycle');
+            _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
         };

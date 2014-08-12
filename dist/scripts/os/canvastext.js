@@ -176,7 +176,7 @@ var AlanBBOS;
             return total;
         };
 
-        CanvasTextFunctions.prototype.enable = function (ctx) {
+        CanvasTextFunctions.enable = function (ctx) {
             ctx.drawText = function (font, size, x, y, text) {
                 return this.draw(ctx, font, size, x, y, text);
             };

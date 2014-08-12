@@ -187,7 +187,7 @@ module AlanBBOS {
             return total;
         }
 
-        public enable(ctx)
+        public static enable(ctx)
         {
             ctx.drawText = function(font,size,x,y,text) { return this.draw( ctx, font,size,x,y,text); };
             ctx.measureText = function(font,size,text) { return this.measure( font,size,text); };

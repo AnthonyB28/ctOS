@@ -26,7 +26,7 @@ module AlanBBOS {
             // Parse the params.    TODO: Check that they are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
             // Check to see if we even want to deal with the key that was pressed.
             if ( ((keyCode >= 65) && (keyCode <= 90)) ||   // A..Z

@@ -7,7 +7,7 @@ var AlanBBOS;
     var Utils = (function () {
         function Utils() {
         }
-        Utils.prototype.trim = function (str) {
+        Utils.trim = function (str) {
             return str.replace(/^\s+ | \s+$/g, "");
             /*
             Huh?  Take a breath.  Here we go:
@@ -19,7 +19,7 @@ var AlanBBOS;
             */
         };
 
-        Utils.prototype.rot13 = function (str) {
+        Utils.rot13 = function (str) {
             // You can do this in three lines with a complex regular expression, but I'd have
             var retVal = "";
             for (var i in str) {

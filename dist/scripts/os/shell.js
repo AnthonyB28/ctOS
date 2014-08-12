@@ -1,3 +1,6 @@
+///<reference path="shellCommand.ts" />
+///<reference path="userCommand.ts" />
+///<reference path="../utils.ts" />
 /* ------------
 Shell.js
 The OS Shell - The "command line interface" (CLI) for the console.
@@ -19,59 +22,35 @@ var AlanBBOS;
             //
             // Load the command list.
             // ver
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "ver";
-            sc.description = "- Displays the current version data.";
-            sc.function = shellVer;
+            sc = new AlanBBOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
             // help
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "help";
-            sc.description = "- This is the help command. Seek help.";
-            sc.function = shellHelp;
+            sc = new AlanBBOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "shutdown";
-            sc.description = "- Shuts down the virtual OS but leaves the underlying hardware simulation running.";
-            sc.function = shellShutdown;
+            sc = new AlanBBOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
             // cls
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "cls";
-            sc.description = "- Clears the screen and resets the cursor position.";
-            sc.function = shellCls;
+            sc = new AlanBBOS.ShellCommand(this.shellCls, "cld", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "man";
-            sc.description = "<topic> - Displays the MANual page for <topic>.";
-            sc.function = shellMan;
+            sc = new AlanBBOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
             // trace <on | off>
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "trace";
-            sc.description = "<on | off> - Turns the OS trace on or off.";
-            sc.function = shellTrace;
+            sc = new AlanBBOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "rot13";
-            sc.description = "<string> - Does rot13 obfuscation on <string>.";
-            sc.function = shellRot13;
+            sc = new AlanBBOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
             // prompt <string>
-            sc = new AlanBBOS.ShellCommand();
-            sc.command = "prompt";
-            sc.description = "<string> - Sets the prompt.";
-            sc.function = shellPrompt;
+            sc = new AlanBBOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -86,13 +65,13 @@ var AlanBBOS;
         };
 
         Shell.prototype.handleInput = function (buffer) {
-            krnTrace("Shell Command~" + buffer);
+            _Kernel.krnTrace("Shell Command~" + buffer);
 
             //
             // Parse the input...
             //
             var userCommand = new AlanBBOS.UserCommand();
-            userCommand = shellParseInput(buffer);
+            userCommand = this.parseInput(buffer);
 
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
@@ -117,16 +96,17 @@ var AlanBBOS;
                 this.execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + rot13(cmd) + "]") >= 0) {
-                    this.execute(shellCurse);
+                if (this.curses.indexOf("[" + AlanBBOS.Utils.rot13(cmd) + "]") >= 0) {
+                    this.execute(this.shellCurse);
                 } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {
-                    this.execute(shellApology);
+                    this.execute(this.shellApology);
                 } else {
-                    this.execute(shellInvalidCommand);
+                    this.execute(this.shellInvalidCommand);
                 }
             }
         };
 
+        // args is an option parameter, ergo the ? which allows TypeScript to understand that
         Shell.prototype.execute = function (fn, args) {
             // We just got a command, so advance the line...
             _StdIn.advanceLine();
@@ -147,7 +127,7 @@ var AlanBBOS;
             var retVal = new AlanBBOS.UserCommand();
 
             // 1. Remove leading and trailing spaces.
-            buffer = trim(buffer);
+            buffer = AlanBBOS.Utils.trim(buffer);
 
             // 2. Lower-case it.
             buffer = buffer.toLowerCase();
@@ -159,13 +139,13 @@ var AlanBBOS;
             var cmd = tempList.shift();
 
             // 4.1 Remove any left-over spaces.
-            cmd = trim(cmd);
+            cmd = AlanBBOS.Utils.trim(cmd);
 
             // 4.2 Record it in the return value.
             retVal.command = cmd;
 
             for (var i in tempList) {
-                var arg = trim(tempList[i]);
+                var arg = AlanBBOS.Utils.trim(tempList[i]);
                 if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
                 }
@@ -217,7 +197,7 @@ var AlanBBOS;
             _StdIn.putText("Shutting down...");
 
             // Call Kernel shutdown routine.
-            krnShutdown();
+            _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         };
 
@@ -268,7 +248,7 @@ var AlanBBOS;
 
         Shell.prototype.shellRot13 = function (args) {
             if (args.length > 0) {
-                _StdIn.putText(args.join(' ') + " = '" + rot13(args.join(' ')) + "'"); // Requires Utils.js for rot13() function.
+                _StdIn.putText(args.join(' ') + " = '" + AlanBBOS.Utils.rot13(args.join(' ')) + "'"); // Requires Utils.js for rot13() function.
             } else {
                 _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
             }

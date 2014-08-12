@@ -14,13 +14,13 @@ var AlanBBOS;
         // OS Startup and Shutdown Routines
         //
         Kernel.prototype.krnBootstrap = function () {
-            hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
+            AlanBBOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
             _KernelInterruptQueue = new AlanBBOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
             _KernelBuffers = new Array(); // Buffers... for the kernel.
             _KernelInputQueue = new AlanBBOS.Queue(); // Where device input lands before being processed out somewhere.
-            _Console = new CLIconsole(); // The command line interface / console I/O device.
+            _Console = new AlanBBOS.Console(); // The command line interface / console I/O device.
 
             // Initialize the CLIconsole.
             _Console.init();
@@ -30,20 +30,20 @@ var AlanBBOS;
             _StdOut = _Console;
 
             // Load the Keyboard Device Driver
-            krnTrace("Loading the keyboard device driver.");
+            this.krnTrace("Loading the keyboard device driver.");
             krnKeyboardDriver = new AlanBBOS.DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
             krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
-            krnTrace(krnKeyboardDriver.status);
+            this.krnTrace(krnKeyboardDriver.status);
 
             //
             // ... more?
             //
             // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
-            krnTrace("Enabling the interrupts.");
-            krnEnableInterrupts();
+            this.krnTrace("Enabling the interrupts.");
+            this.krnEnableInterrupts();
 
             // Launch the shell.
-            krnTrace("Creating and Launching the shell.");
+            this.krnTrace("Creating and Launching the shell.");
             _OsShell = new AlanBBOS.Shell();
             _OsShell.init();
 
@@ -54,18 +54,18 @@ var AlanBBOS;
         };
 
         Kernel.prototype.krnShutdown = function () {
-            krnTrace("begin shutdown OS");
+            this.krnTrace("begin shutdown OS");
 
             // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...
             // ... Disable the Interrupts.
-            krnTrace("Disabling the interrupts.");
-            krnDisableInterrupts();
+            this.krnTrace("Disabling the interrupts.");
+            this.krnDisableInterrupts();
 
             //
             // Unload the Device Drivers?
             // More?
             //
-            krnTrace("end shutdown OS");
+            this.krnTrace("end shutdown OS");
         };
 
         Kernel.prototype.krnOnCPUClockPulse = function () {
@@ -78,11 +78,11 @@ var AlanBBOS;
                 // Process the first interrupt on the interrupt queue.
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
-                krnInterruptHandler(interrupt.irq, interrupt.params);
+                this.krnInterruptHandler(interrupt.irq, interrupt.params);
             } else if (_CPU.isExecuting) {
                 _CPU.cycle();
             } else {
-                krnTrace("Idle");
+                this.krnTrace("Idle");
             }
         };
 
@@ -91,30 +91,30 @@ var AlanBBOS;
         //
         Kernel.prototype.krnEnableInterrupts = function () {
             // Keyboard
-            hostEnableKeyboardInterrupt();
+            AlanBBOS.Devices.hostEnableKeyboardInterrupt();
             // Put more here.
         };
 
         Kernel.prototype.krnDisableInterrupts = function () {
             // Keyboard
-            hostDisableKeyboardInterrupt();
+            AlanBBOS.Devices.hostDisableKeyboardInterrupt();
             // Put more here.
         };
 
         Kernel.prototype.krnInterruptHandler = function (irq, params) {
             // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
-            krnTrace("Handling IRQ~" + irq);
+            this.krnTrace("Handling IRQ~" + irq);
 
             switch (irq) {
                 case TIMER_IRQ:
-                    krnTimerISR(); // Kernel built-in routine for timers (not the clock).
+                    this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
                 case KEYBOARD_IRQ:
                     krnKeyboardDriver.isr(params); // Kernel mode device driver
                     _StdIn.handleInput();
                     break;
                 default:
-                    krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
+                    this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
         };
 
@@ -145,19 +145,19 @@ var AlanBBOS;
                 if (msg === "Idle") {
                     // We can't log every idle clock pulse because it would lag the browser very quickly.
                     if (_OSclock % 10 == 0) {
-                        hostLog(msg, "OS");
+                        AlanBBOS.Control.hostLog(msg, "OS");
                     }
                 } else {
-                    hostLog(msg, "OS");
+                    AlanBBOS.Control.hostLog(msg, "OS");
                 }
             }
         };
 
         Kernel.prototype.krnTrapError = function (msg) {
-            hostLog("OS ERROR - TRAP: " + msg);
+            AlanBBOS.Control.hostLog("OS ERROR - TRAP: " + msg);
 
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
-            krnShutdown();
+            this.krnShutdown();
         };
         return Kernel;
     })();

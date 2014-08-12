@@ -38,22 +38,17 @@ module AlanBBOS {
 			document.getElementById("taLog").value="";
 
 			// Set focus on the start button.
-			 document.getElementById("btnStartOS").focus();
+			document.getElementById("btnStartOS").focus();
 
-			 // Check for our testing and enrichment core.
-			 if (typeof Glados === "function") {
-					_GLaDOS = new Glados();
-					_GLaDOS.init();
-			 };
+			// Check for our testing and enrichment core.
+			if (typeof Glados === "function") {
+				_GLaDOS = new Glados();
+				_GLaDOS.init();
+			};
 		}
 
-		public hostLog(msg, source)
+		public static hostLog(msg, source = "?")
 		{
-			// Check the source.
-			if (!source) {
-					source = "?";
-			}
-
 			// Note the OS CLOCK.
 			var clock = _OSclock;
 
@@ -90,17 +85,18 @@ module AlanBBOS {
 			_CPU.init();
 
 			// ... then set the host clock pulse ...
-			_hardwareClockID = setInterval(hostClockPulse, CPU_CLOCK_INTERVAL);
+			_hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
 			// .. and call the OS Kernel Bootstrap routine.
-			krnBootstrap();
+			_Kernel = new Kernel();
+			_Kernel.krnBootstrap();
 		}
 
 		public hostBtnHaltOS_click(btn)
 		{
-			hostLog("emergency halt", "host");
-			hostLog("Attempting Kernel shutdown.", "host");
+			Control.hostLog("emergency halt", "host");
+			Control.hostLog("Attempting Kernel shutdown.", "host");
 			// Call the OS shutdown routine.
-			krnShutdown();
+			_Kernel.krnShutdown();
 			// Stop the JavaScript interval that's simulating our clock pulse.
 			clearInterval(_hardwareClockID);
 			// TODO: Is there anything else we need to do here?
