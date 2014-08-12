@@ -10,6 +10,8 @@
  *  - fixed comma
  *  - added semi-colon.
  *
+ * Port to TypeScript by Bob Nisco.
+ *
  * ----------------- */
 
 module AlanBBOS {
