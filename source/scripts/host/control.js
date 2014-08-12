@@ -1,17 +1,19 @@
-/* ------------  
-   Control.js
+///<reference path="../globals.ts" />
 
-   Requires global.js.
-   
+/* ------------
+   Control.ts
+
+   Requires globals.ts.
+
    Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
    in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code that
-   hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in 
+   hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in
    both the host and client environments.
-   
-   This (and other host/simulation scripts) is the only place that we should see "web" code, like 
+
+   This (and other host/simulation scripts) is the only place that we should see "web" code, like
    DOM manipulation and JavaScript event handling, and so on.  (Index.html is the only place for markup.)
-   
-   This code references page numbers in the text book: 
+
+   This code references page numbers in the text book:
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
@@ -57,8 +59,8 @@ function hostLog(msg, source)
     // Note the REAL clock in milliseconds since January 1, 1970.
     var now = new Date().getTime();
 
-    // Build the log string.   
-    var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";    
+    // Build the log string.
+    var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
 
     // Update the log console.
     var taLog = document.getElementById("taLog");
@@ -74,14 +76,14 @@ function hostBtnStartOS_click(btn)
 {
     // Disable the start button...
     btn.disabled = true;
-    
+
     // .. enable the Halt and Reset buttons ...
     document.getElementById("btnHaltOS").disabled = false;
     document.getElementById("btnReset").disabled = false;
-    
-    // .. set focus on the OS console display ... 
+
+    // .. set focus on the OS console display ...
     document.getElementById("display").focus();
-    
+
     // ... Create and initialize the CPU ...
     _CPU = new Cpu();
     _CPU.init();
@@ -106,8 +108,8 @@ function hostBtnHaltOS_click(btn)
 function hostBtnReset_click(btn)
 {
     // The easiest and most thorough way to do this is to reload (not refresh) the document.
-    location.reload(true);  
+    location.reload(true);
     // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
-    // be reloaded from the server. If it is false or not specified, the browser may reload the 
+    // be reloaded from the server. If it is false or not specified, the browser may reload the
     // page from its cache, which is not what we want.
 }
