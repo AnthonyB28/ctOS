@@ -31,9 +31,11 @@ var AlanBBOS;
             AlanBBOS.CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
 
             // Clear the log text box.
+            // Use the TypeScript cast to HTMLInputElement
             document.getElementById("taLog").value = "";
 
             // Set focus on the start button.
+            // Use the TypeScript cast to HTMLInputElement
             document.getElementById("btnStartOS").focus();
 
             // Check for our testing and enrichment core.

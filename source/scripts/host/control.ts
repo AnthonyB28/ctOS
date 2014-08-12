@@ -35,10 +35,12 @@ module AlanBBOS {
 			CanvasTextFunctions.enable(_DrawingContext);   // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
 
 			// Clear the log text box.
-			document.getElementById("taLog").value="";
+			// Use the TypeScript cast to HTMLInputElement
+			(<HTMLInputElement> document.getElementById("taLog")).value="";
 
 			// Set focus on the start button.
-			document.getElementById("btnStartOS").focus();
+			// Use the TypeScript cast to HTMLInputElement
+			(<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
 			// Check for our testing and enrichment core.
 			if (typeof Glados === "function") {
@@ -59,7 +61,7 @@ module AlanBBOS {
 			var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
 
 			// Update the log console.
-			var taLog = document.getElementById("taLog");
+			var taLog = <HTMLInputElement> document.getElementById("taLog");
 			taLog.value = str + taLog.value;
 			// Optionally update a log database or some streaming service.
 		}
