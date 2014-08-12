@@ -22,7 +22,7 @@ Gulp will automatically:
 * Watch for changes in your source/scripts/ directory for changes to .ts files and run the TypeScript Compiler on it
 * Watch for changes to your source/styles/ directory for changes to .css files and copy them to the dist/ folder
 
-What's TypeScript?
+TypeScript FAQs
 ==================
 
 **What's TypeScript?**
