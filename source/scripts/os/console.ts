@@ -1,5 +1,7 @@
+///<reference path="../globals.ts" />
+
 /* ------------
-   Console.js
+   Console.ts
 
    Requires globals.js
 
@@ -7,30 +9,33 @@
    Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or interpreter for this console.
    ------------ */
 
-function CLIconsole() {
-    // Properties
-    this.CurrentFont      = _DefaultFontFamily;
-    this.CurrentFontSize  = _DefaultFontSize;
-    this.CurrentXPosition = 0;
-    this.CurrentYPosition = _DefaultFontSize;
-    this.buffer = "";
-    
+module AlanBBOS {
+  export class Console {
+
+    constructor(public currentFont = _DefaultFontFamily,
+                public currentFontSize = _DefaultFontSize,
+                public currentXPosition = 0,
+                public currentYPosition = _DefaultFontSize,
+                public buffer = "") {
+
+    }
+
     // Methods
-    this.init = function() {
-       this.clearScreen();
-       this.resetXY();
-    };
+    public init() {
+      this.clearScreen();
+      this.resetXY();
+    }
 
-    this.clearScreen = function() {
+    public clearScreen() {
        _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
-    };
+    }
 
-    this.resetXY = function() {
-       this.CurrentXPosition = 0;
-       this.CurrentYPosition = this.CurrentFontSize;
-    };
+    public resetXY() {
+       this.currentXPosition = 0;
+       this.currentYPosition = this.currentFontSize;
+    }
 
-    this.handleInput = function() {
+    public handleInput() {
        while (_KernelInputQueue.getSize() > 0)
        {
            // Get the next character from the kernel input queue.
@@ -54,9 +59,9 @@ function CLIconsole() {
                this.buffer += chr;
            }
        }
-    };
+    }
 
-    this.putText = function(text) {
+    public putText(text) {
        // My first inclination here was to write two functions: putChar() and putString().
        // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
        // between the two.  So rather than be like PHP and write two (or more) functions that
@@ -65,16 +70,17 @@ function CLIconsole() {
        if (text !== "")
        {
            // Draw the text at the current X and Y coordinates.
-           _DrawingContext.drawText(this.CurrentFont, this.CurrentFontSize, this.CurrentXPosition, this.CurrentYPosition, text);
+           _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
          // Move the current X position.
-           var offset = _DrawingContext.measureText(this.CurrentFont, this.CurrentFontSize, text);
-           this.CurrentXPosition = this.CurrentXPosition + offset;
+           var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+           this.currentXPosition = this.currentXPosition + offset;
        }
-    };
+    }
 
-    this.advanceLine = function() {
-       this.CurrentXPosition = 0;
-       this.CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
+    public advanceLine() {
+       this.currentXPosition = 0;
+       this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
        // TODO: Handle scrolling.
-    };
+    }
+  }
 }
