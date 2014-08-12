@@ -1,4 +1,5 @@
 ///<reference path="../globals.ts" />
+///<reference path="../os/canvastext.ts" />
 
 /* ------------
 	 Control.ts

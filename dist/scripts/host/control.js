@@ -1,4 +1,5 @@
 ///<reference path="../globals.ts" />
+///<reference path="../os/canvastext.ts" />
 /* ------------
 Control.ts
 Requires globals.ts.
@@ -27,7 +28,7 @@ var AlanBBOS;
             _DrawingContext = _Canvas.getContext('2d');
 
             // Enable the added-in canvas text functions (see canvastext.js for provenance and details).
-            CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
+            AlanBBOS.CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
 
             // Clear the log text box.
             document.getElementById("taLog").value = "";
