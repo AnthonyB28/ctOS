@@ -1,7 +1,7 @@
 ///<reference path="../globals.ts" />
 /* ------------
-CPU.js
-Requires global.js.
+CPU.ts
+Requires global.ts.
 Routines for the host CPU simulation, NOT for the OS itself.
 In this manner, it's A LITTLE BIT like a hypervisor,
 in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code

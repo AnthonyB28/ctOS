@@ -1,5 +1,5 @@
 /* ----------------- *
-*   CanvasText.js   *
+*   CanvasText.ts   *
 *
 * Downloaded from http://www.federated.com/~jim/canvastext.
 *

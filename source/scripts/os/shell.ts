@@ -264,7 +264,8 @@ module AlanBBOS {
 
         public shellRot13(args) {
             if (args.length > 0) {
-                _StdIn.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");     // Requires Utils.js for rot13() function.
+                // Requires Utils.ts for rot13() function.
+                _StdIn.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
             } else {
                 _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
             }

@@ -1,9 +1,9 @@
 ///<reference path="../globals.ts" />
 
 /* ------------
-     CPU.js
+     CPU.ts
 
-     Requires global.js.
+     Requires global.ts.
 
      Routines for the host CPU simulation, NOT for the OS itself.
      In this manner, it's A LITTLE BIT like a hypervisor,

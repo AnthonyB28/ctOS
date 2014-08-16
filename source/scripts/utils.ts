@@ -1,5 +1,5 @@
 /* --------
-   Utils.js
+   Utils.ts
 
    Utility functions.
    -------- */
