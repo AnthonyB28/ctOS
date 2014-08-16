@@ -27,8 +27,7 @@ module AlanBBOS {
 
         public dequeue() {
             var retVal = null;
-            if (this.q.length > 0)
-            {
+            if (this.q.length > 0) {
                 retVal = this.q.shift();
             }
             return retVal;
@@ -36,8 +35,7 @@ module AlanBBOS {
 
         public toString() {
             var retVal = "";
-            for (var i in this.q)
-            {
+            for (var i in this.q) {
                 retVal += "[" + this.q[i] + "] ";
             }
             return retVal;

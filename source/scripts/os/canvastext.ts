@@ -127,24 +127,20 @@ module AlanBBOS {
             return 7.0*size/25.0;
         }
 
-        public static measure(font, size, str)
-        {
+        public static measure(font, size, str) {
             var total = 0;
             var len = str.length;
 
-            for (var i = 0; i < len; i++)
-            {
+            for (var i = 0; i < len; i++) {
                 var c = CanvasTextFunctions.letter(str.charAt(i));
-                if (c)
-                {
+                if (c) {
                     total += c.width * size / 25.0;
                 }
             }
             return total;
         }
 
-        public static draw(ctx,font,size,x,y,str)
-        {
+        public static draw(ctx,font,size,x,y,str) {
             var total = 0;
             var len = str.length;
             var mag = size / 25.0;
@@ -154,31 +150,24 @@ module AlanBBOS {
             ctx.lineWidth = 2.0 * mag;
             ctx.strokeStyle = "black";
 
-            for (var i = 0; i < len; i++)
-            {
+            for (var i = 0; i < len; i++) {
                 var c = CanvasTextFunctions.letter(str.charAt(i));
-                if (!c)
-                {
+                if (!c) {
                     continue;
                 }
                 ctx.beginPath();
                 var penUp = true;
                 var needStroke = 0;
-                for (var j = 0; j < c.points.length; j++)
-                {
+                for (var j = 0; j < c.points.length; j++) {
                     var a = c.points[j];
-                    if (a[0] === -1 && a[1] === -1)
-                    {
+                    if (a[0] === -1 && a[1] === -1) {
                         penUp = true;
                         continue;
                     }
-                    if (penUp)
-                    {
+                    if (penUp) {
                         ctx.moveTo( x + a[0]*mag, y - a[1]*mag);
                         penUp = false;
-                    }
-                    else
-                    {
+                    } else {
                         ctx.lineTo( x + a[0]*mag, y - a[1]*mag);
                     }
                 }
@@ -189,8 +178,7 @@ module AlanBBOS {
             return total;
         }
 
-        public static enable(ctx)
-        {
+        public static enable(ctx) {
             ctx.drawText = function(font,size,x,y,text) { return CanvasTextFunctions.draw( ctx, font,size,x,y,text); };
             ctx.measureText = function(font,size,text) { return CanvasTextFunctions.measure( font,size,text); };
             ctx.fontAscent = function(font,size) { return CanvasTextFunctions.ascent(font,size); };

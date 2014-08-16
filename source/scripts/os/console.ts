@@ -36,13 +36,11 @@ module AlanBBOS {
     }
 
     public handleInput() {
-       while (_KernelInputQueue.getSize() > 0)
-       {
+       while (_KernelInputQueue.getSize() > 0) {
            // Get the next character from the kernel input queue.
            var chr = _KernelInputQueue.dequeue();
            // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-           if (chr == String.fromCharCode(13))  //     Enter key
-           {
+           if (chr == String.fromCharCode(13)) { //     Enter key {
                // The enter key marks the end of a console command, so ...
                // ... tell the shell ...
                _OsShell.handleInput(this.buffer);
@@ -50,8 +48,7 @@ module AlanBBOS {
                this.buffer = "";
            }
            // TODO: Write a case for Ctrl-C.
-           else
-           {
+           else {
                // This is a "normal" character, so ...
                // ... draw it on the screen...
                this.putText(chr);
@@ -67,8 +64,7 @@ module AlanBBOS {
        // between the two.  So rather than be like PHP and write two (or more) functions that
        // do the same thing, thereby encouraging confusion and decreasing readability, I
        // decided to write one function and use the term "text" to connote string or char.
-       if (text !== "")
-       {
+       if (text !== "") {
            // Draw the text at the current X and Y coordinates.
            _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
          // Move the current X position.

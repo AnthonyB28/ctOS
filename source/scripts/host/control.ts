@@ -23,8 +23,7 @@
 //
 module AlanBBOS {
 	export class Control {
-		public static hostInit()
-		{
+		public static hostInit() {
 			// Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
 			_Canvas  = document.getElementById('display');
 
@@ -49,8 +48,7 @@ module AlanBBOS {
 			};
 		}
 
-		public static hostLog(msg, source = "?")
-		{
+		public static hostLog(msg, source = "?") {
 			// Note the OS CLOCK.
 			var clock = _OSclock;
 
@@ -70,8 +68,7 @@ module AlanBBOS {
 		//
 		// Control Events
 		//
-		public static hostBtnStartOS_click(btn)
-		{
+		public static hostBtnStartOS_click(btn) {
 			// Disable the start button...
 			btn.disabled = true;
 
@@ -93,8 +90,7 @@ module AlanBBOS {
 			_Kernel.krnBootstrap();
 		}
 
-		public static hostBtnHaltOS_click(btn)
-		{
+		public static hostBtnHaltOS_click(btn) {
 			Control.hostLog("emergency halt", "host");
 			Control.hostLog("Attempting Kernel shutdown.", "host");
 			// Call the OS shutdown routine.
@@ -104,8 +100,7 @@ module AlanBBOS {
 			// TODO: Is there anything else we need to do here?
 		}
 
-		public static hostBtnReset_click(btn)
-		{
+		public static hostBtnReset_click(btn) {
 			// The easiest and most thorough way to do this is to reload (not refresh) the document.
 			location.reload(true);
 			// That boolean parameter is the 'forceget' flag. When it is true it causes the page to always

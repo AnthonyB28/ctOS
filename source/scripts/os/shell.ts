@@ -105,58 +105,43 @@ module AlanBBOS {
             var index = 0;
             var found = false;
             var fn = undefined;
-            while (!found && index < this.commandList.length)
-            {
-                if (this.commandList[index].command === cmd)
-                {
+            while (!found && index < this.commandList.length) {
+                if (this.commandList[index].command === cmd) {
                     found = true;
                     fn = this.commandList[index].func;
-                }
-                else
-                {
+                } else {
                     ++index;
                 }
             }
-            if (found)
-            {
+            if (found) {
                 this.execute(fn, args);
-            }
-            else
-            {
+            } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0)      // Check for curses.
-                {
+                if (this.curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
                     this.execute(this.shellCurse);
-                }
-                else if (this.apologies.indexOf("[" + cmd + "]") >= 0)      // Check for apologies.
-                {
+                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {    // Check for apologies. {
                     this.execute(this.shellApology);
-                }
-                else    // It's just a bad command.
-                {
+                } else { // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
                 }
             }
         }
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
-        public execute(fn, args?)
-        {
+        public execute(fn, args?) {
             // We just got a command, so advance the line...
             _StdIn.advanceLine();
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdIn.CurrentXPosition > 0)
-            {
+            if (_StdIn.CurrentXPosition > 0) {
                 _StdIn.advanceLine();
             }
             // ... and finally write the prompt again.
             this.putPrompt();
         }
 
-        public parseInput(buffer)
-        {
+        public parseInput(buffer) {
             var retVal = new UserCommand();
 
             // 1. Remove leading and trailing spaces.
@@ -176,11 +161,9 @@ module AlanBBOS {
             retVal.command = cmd;
 
             // 5. Now create the args array from what's left.
-            for (var i in tempList)
-            {
+            for (var i in tempList) {
                 var arg = Utils.trim(tempList[i]);
-                if (arg != "")
-                {
+                if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
                 }
             }
@@ -190,29 +173,23 @@ module AlanBBOS {
         //
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
-        public shellInvalidCommand()
-        {
+        public shellInvalidCommand() {
             _StdIn.putText("Invalid Command. ");
-            if (_SarcasticMode)
-            {
+            if (_SarcasticMode) {
                 _StdIn.putText("Duh. Go back to your Speak & Spell.");
-            }
-            else
-            {
+            } else {
                 _StdIn.putText("Type 'help' for, well... help.");
             }
         }
 
-        public shellCurse()
-        {
+        public shellCurse() {
             _StdIn.putText("Oh, so that's how it's going to be, eh? Fine.");
             _StdIn.advanceLine();
             _StdIn.putText("Bitch.");
             _SarcasticMode = true;
         }
 
-        public shellApology()
-        {
+        public shellApology() {
            if (_SarcasticMode) {
               _StdIn.putText("Okay. I forgive you. This time.");
               _SarcasticMode = false;
@@ -221,69 +198,53 @@ module AlanBBOS {
            }
         }
 
-        public shellVer(args)
-        {
+        public shellVer(args) {
             _StdIn.putText(APP_NAME + " version " + APP_VERSION);
         }
 
-        public shellHelp(args)
-        {
+        public shellHelp(args) {
             _StdIn.putText("Commands:");
-            for (var i in _OsShell.commandList)
-            {
+            for (var i in _OsShell.commandList) {
                 _StdIn.advanceLine();
                 _StdIn.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         }
 
-        public shellShutdown(args)
-        {
+        public shellShutdown(args) {
              _StdIn.putText("Shutting down...");
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
-        public shellCls(args)
-        {
+        public shellCls(args) {
             _StdIn.clearScreen();
             _StdIn.resetXY();
         }
 
-        public shellMan(args)
-        {
-            if (args.length > 0)
-            {
+        public shellMan(args) {
+            if (args.length > 0) {
                 var topic = args[0];
-                switch (topic)
-                {
+                switch (topic) {
                     case "help":
                         _StdIn.putText("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
                         _StdIn.putText("No manual entry for " + args[0] + ".");
                 }
-            }
-            else
-            {
+            } else {
                 _StdIn.putText("Usage: man <topic>  Please supply a topic.");
             }
         }
 
-        public shellTrace(args)
-        {
-            if (args.length > 0)
-            {
+        public shellTrace(args) {
+            if (args.length > 0) {
                 var setting = args[0];
-                switch (setting)
-                {
+                switch (setting) {
                     case "on":
-                        if (_Trace && _SarcasticMode)
-                        {
+                        if (_Trace && _SarcasticMode) {
                             _StdIn.putText("Trace is already on, dumbass.");
-                        }
-                        else
-                        {
+                        } else {
                             _Trace = true;
                             _StdIn.putText("Trace ON");
                         }
@@ -296,32 +257,23 @@ module AlanBBOS {
                     default:
                         _StdIn.putText("Invalid arguement.  Usage: trace <on | off>.");
                 }
-            }
-            else
-            {
+            } else {
                 _StdIn.putText("Usage: trace <on | off>");
             }
         }
 
-        public shellRot13(args)
-        {
-            if (args.length > 0)
-            {
+        public shellRot13(args) {
+            if (args.length > 0) {
                 _StdIn.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");     // Requires Utils.js for rot13() function.
-            }
-            else
-            {
+            } else {
                 _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
 
         public shellPrompt(args) {
-            if (args.length > 0)
-            {
+            if (args.length > 0) {
                 _OsShell.promptStr = args[0];
-            }
-            else
-            {
+            } else {
                 _StdIn.putText("Usage: prompt <string>  Please supply a string.");
             }
         }
