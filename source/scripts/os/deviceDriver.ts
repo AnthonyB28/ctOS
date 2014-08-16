@@ -1,18 +1,18 @@
 /* ------------------------------
-   DeviceDriver.js
+     DeviceDriver.ts
 
-   The "base class" (or 'prototype') for all Device Drivers.
-   ------------------------------ */
+     The "base class" for all Device Drivers.
+     ------------------------------ */
 
 module AlanBBOS {
-  export class DeviceDriver {
-    public version = '0.07';
-    public status = 'unloaded';
-    public preemptable = false;
+    export class DeviceDriver {
+        public version = '0.07';
+        public status = 'unloaded';
+        public preemptable = false;
 
-    constructor(public driverEntry = null,
-                public isr = null) {
+        constructor(public driverEntry = null,
+                    public isr = null) {
 
+        }
     }
-  }
 }

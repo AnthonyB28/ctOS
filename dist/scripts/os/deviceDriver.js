@@ -1,6 +1,6 @@
 /* ------------------------------
-DeviceDriver.js
-The "base class" (or 'prototype') for all Device Drivers.
+DeviceDriver.ts
+The "base class" for all Device Drivers.
 ------------------------------ */
 var AlanBBOS;
 (function (AlanBBOS) {

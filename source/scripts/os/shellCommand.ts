@@ -1,9 +1,9 @@
 module AlanBBOS {
-	export class ShellCommand {
-		constructor(public func: any,
-					public command = "",
-   					public description = "") {
+    export class ShellCommand {
+        constructor(public func: any,
+                    public command = "",
+                    public description = "") {
 
-		}
-	}
+        }
+    }
 }

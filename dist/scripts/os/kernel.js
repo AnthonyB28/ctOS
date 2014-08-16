@@ -1,6 +1,6 @@
 /* ------------
-Kernel.js
-Requires globals.js
+Kernel.ts
+Requires globals.ts
 Routines for the Operating System, NOT the host.
 This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
@@ -102,6 +102,7 @@ var AlanBBOS;
         };
 
         Kernel.prototype.krnInterruptHandler = function (irq, params) {
+            // This is the Interrupt Handler Routine.  Pages 8 and 560. {
             // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
             this.krnTrace("Handling IRQ~" + irq);
 
@@ -119,6 +120,7 @@ var AlanBBOS;
         };
 
         Kernel.prototype.krnTimerISR = function () {
+            // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
             // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
         };
 
@@ -145,6 +147,8 @@ var AlanBBOS;
                 if (msg === "Idle") {
                     // We can't log every idle clock pulse because it would lag the browser very quickly.
                     if (_OSclock % 10 == 0) {
+                        // Check the CPU_CLOCK_INTERVAL in globals.ts for an
+                        // idea of the tick rate and adjust this line accordingly.
                         AlanBBOS.Control.hostLog(msg, "OS");
                     }
                 } else {

@@ -6,8 +6,8 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /* ----------------------------------
-DeviceDriverKeyboard.js
-Requires deviceDriver.js
+DeviceDriverKeyboard.ts
+Requires deviceDriver.ts
 The Kernel Keyboard Device Driver.
 ---------------------------------- */
 var AlanBBOS;

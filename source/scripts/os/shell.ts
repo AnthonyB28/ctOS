@@ -3,7 +3,7 @@
 ///<reference path="../utils.ts" />
 
 /* ------------
-   Shell.js
+   Shell.ts
 
    The OS Shell - The "command line interface" (CLI) for the console.
    ------------ */

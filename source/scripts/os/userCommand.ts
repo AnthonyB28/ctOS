@@ -1,8 +1,8 @@
 module AlanBBOS {
-	export class UserCommand {
-		constructor(public command = "",
-    				public args = []) {
+    export class UserCommand {
+        constructor(public command = "",
+                    public args = []) {
 
-		}
-	}
+        }
+    }
 }
