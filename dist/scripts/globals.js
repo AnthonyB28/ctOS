@@ -1,6 +1,5 @@
-///<reference path="host/control.ts" />
 /* ------------
-Globals.js
+Globals.ts
 Global CONSTANTS and _Variables.
 (Global over both the OS and Hardware Simulation / Host.)
 This code references page numbers in the text book:
@@ -22,7 +21,8 @@ var KEYBOARD_IRQ = 1;
 //
 // Global Variables
 //
-var _CPU = null;
+// Utilize TypeScript's type system to ensure that _CPU is an instance of your Cpu class
+var _CPU;
 
 var _OSclock = 0;
 
@@ -38,7 +38,7 @@ var _FontHeightMargin = 4;
 var _Trace = true;
 
 // OS queues
-var _Kernel = null;
+var _Kernel;
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
 var _KernelInputQueue = null;
@@ -48,8 +48,8 @@ var _StdIn = null;
 var _StdOut = null;
 
 // UI
-var _Console = null;
-var _OsShell = null;
+var _Console;
+var _OsShell;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;

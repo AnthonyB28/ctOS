@@ -1,7 +1,5 @@
-///<reference path="host/control.ts" />
-
 /* ------------
-   Globals.js
+   Globals.ts
 
    Global CONSTANTS and _Variables.
    (Global over both the OS and Hardware Simulation / Host.)
@@ -26,7 +24,9 @@ var KEYBOARD_IRQ = 1;
 //
 // Global Variables
 //
-var _CPU = null;
+
+// Utilize TypeScript's type system to ensure that _CPU is an instance of your Cpu class
+var _CPU: AlanBBOS.Cpu;
 
 var _OSclock = 0;       // Page 23.
 
@@ -42,7 +42,7 @@ var _FontHeightMargin = 4;        // Additional space added to font size when ad
 var _Trace = true;
 
 // OS queues
-var _Kernel = null;
+var _Kernel: AlanBBOS.Kernel;
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
 var _KernelInputQueue = null;
@@ -52,8 +52,8 @@ var _StdIn  = null;
 var _StdOut = null;
 
 // UI
-var _Console = null;
-var _OsShell = null;
+var _Console: AlanBBOS.Console;
+var _OsShell: AlanBBOS.Shell;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
