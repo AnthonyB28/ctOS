@@ -11,8 +11,8 @@
      hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in
      both the host and client environments.
 
-     This (and other host/simulation scripts) is the only place that we should see "web" code, like
-     DOM manipulation and JavaScript event handling, and so on.  (Index.html is the only place for markup.)
+     This (and other host/simulation scripts) is the only place that we should see "web" code, such as
+     DOM manipulation and event handling, and so on.  (Index.html is -- obviously -- the only place for markup.)
 
      This code references page numbers in the text book:
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
@@ -25,7 +25,7 @@ module AlanBBOS {
     export class Control {
         public static hostInit() {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
-            _Canvas  = document.getElementById('display');
+            _Canvas = document.getElementById('display');
 
             // Get a global reference to the drawing context.
             _DrawingContext = _Canvas.getContext('2d');

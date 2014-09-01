@@ -10,7 +10,7 @@ var AlanBBOS;
         Utils.trim = function (str) {
             return str.replace(/^\s+ | \s+$/g, "");
             /*
-            Huh?  Take a breath.  Here we go:
+            Huh? WTF? Okay... take a breath. Here we go:
             - The "|" separates this into two expressions, as in A or B.
             - "^\s+" matches a sequence of one or more whitespace characters at the beginning of a string.
             - "\s+$" is the same thing, but at the end of the string.

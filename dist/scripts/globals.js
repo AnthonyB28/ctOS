@@ -8,7 +8,7 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 //
 // Global CONSTANTS
 //
-var APP_NAME = "AlanBBOS TypeScript2";
+var APP_NAME = "TSOS";
 var APP_VERSION = "0.07";
 
 var CPU_CLOCK_INTERVAL = 100;
