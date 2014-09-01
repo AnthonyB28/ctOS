@@ -2,8 +2,8 @@
 DeviceDriver.ts
 The "base class" for all Device Drivers.
 ------------------------------ */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var DeviceDriver = (function () {
         function DeviceDriver(driverEntry, isr) {
             if (typeof driverEntry === "undefined") { driverEntry = null; }
@@ -16,5 +16,5 @@ var AlanBBOS;
         }
         return DeviceDriver;
     })();
-    AlanBBOS.DeviceDriver = DeviceDriver;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.DeviceDriver = DeviceDriver;
+})(TSOS || (TSOS = {}));

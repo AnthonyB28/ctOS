@@ -5,8 +5,8 @@ Requires globals.ts
 The OS Console - stdIn and stdOut by default.
 Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or interpreter for this console.
 ------------ */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Console = (function () {
         function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
@@ -41,7 +41,7 @@ var AlanBBOS;
                 var chr = _KernelInputQueue.dequeue();
 
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr == String.fromCharCode(13)) {
+                if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
@@ -66,6 +66,7 @@ var AlanBBOS;
             // between the two.  So rather than be like PHP and write two (or more) functions that
             // do the same thing, thereby encouraging confusion and decreasing readability, I
             // decided to write one function and use the term "text" to connote string or char.
+            // UPDATE: Even though we are now workign in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
@@ -79,9 +80,9 @@ var AlanBBOS;
         Console.prototype.advanceLine = function () {
             this.currentXPosition = 0;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
-            // TODO: Handle scrolling.
+            // TODO: Handle scrolling. (Project 1)
         };
         return Console;
     })();
-    AlanBBOS.Console = Console;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Console = Console;
+})(TSOS || (TSOS = {}));

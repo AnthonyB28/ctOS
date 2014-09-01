@@ -1,8 +1,8 @@
 /* ------------
 Interrupt.ts
 ------------ */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Interrupt = (function () {
         function Interrupt(irq, params) {
             this.irq = irq;
@@ -10,5 +10,5 @@ var AlanBBOS;
         }
         return Interrupt;
     })();
-    AlanBBOS.Interrupt = Interrupt;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Interrupt = Interrupt;
+})(TSOS || (TSOS = {}));

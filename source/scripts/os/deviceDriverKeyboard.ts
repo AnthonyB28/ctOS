@@ -8,7 +8,7 @@
    The Kernel Keyboard Device Driver.
    ---------------------------------- */
 
-module AlanBBOS {
+module TSOS {
     // Extends DeviceDriver
     export class DeviceDriverKeyboard extends DeviceDriver {
         constructor() {

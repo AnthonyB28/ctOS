@@ -9,60 +9,62 @@
      Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or interpreter for this console.
      ------------ */
 
-     module AlanBBOS {
-        export class Console {
+module TSOS {
 
-            constructor(public currentFont = _DefaultFontFamily,
-                        public currentFontSize = _DefaultFontSize,
-                        public currentXPosition = 0,
-                        public currentYPosition = _DefaultFontSize,
-                        public buffer = "") {
+    export class Console {
 
-            }
+        constructor(public currentFont = _DefaultFontFamily,
+                    public currentFontSize = _DefaultFontSize,
+                    public currentXPosition = 0,
+                    public currentYPosition = _DefaultFontSize,
+                    public buffer = "") {
+
+        }
 
         // Methods
-        public init() {
+        public init(): void {
             this.clearScreen();
             this.resetXY();
         }
 
-        public clearScreen() {
-           _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
-       }
+        public clearScreen(): void {
+            _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+        }
 
-       public resetXY() {
-           this.currentXPosition = 0;
-           this.currentYPosition = this.currentFontSize;
-       }
+        public resetXY(): void {
+            this.currentXPosition = 0;
+            this.currentYPosition = this.currentFontSize;
+        }
 
-       public handleInput() {
-           while (_KernelInputQueue.getSize() > 0) {
+        public handleInput(): void {
+            while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr == String.fromCharCode(13)) { //     Enter key {
-                // The enter key marks the end of a console command, so ...
-                // ... tell the shell ...
-                _OsShell.handleInput(this.buffer);
-                // ... and reset our buffer.
-                this.buffer = "";
+                if (chr === String.fromCharCode(13)) { //     Enter key
+                    // The enter key marks the end of a console command, so ...
+                    // ... tell the shell ...
+                    _OsShell.handleInput(this.buffer);
+                    // ... and reset our buffer.
+                    this.buffer = "";
                 } else {
-                // This is a "normal" character, so ...
-                // ... draw it on the screen...
-                this.putText(chr);
-                // ... and add it to our buffer.
-                this.buffer += chr;
-            }
+                    // This is a "normal" character, so ...
+                    // ... draw it on the screen...
+                    this.putText(chr);
+                    // ... and add it to our buffer.
+                    this.buffer += chr;
+                }
                 // TODO: Write a case for Ctrl-C.
             }
         }
 
-        public putText(text) {
+        public putText(text): void {
             // My first inclination here was to write two functions: putChar() and putString().
             // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
             // between the two.  So rather than be like PHP and write two (or more) functions that
             // do the same thing, thereby encouraging confusion and decreasing readability, I
             // decided to write one function and use the term "text" to connote string or char.
+            // UPDATE: Even though we are now workign in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
@@ -72,10 +74,10 @@
             }
          }
 
-        public advanceLine() {
+        public advanceLine(): void {
             this.currentXPosition = 0;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
-            // TODO: Handle scrolling.
+            // TODO: Handle scrolling. (Project 1)
         }
-     }
+    }
  }

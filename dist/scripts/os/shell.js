@@ -6,8 +6,8 @@ Shell.ts
 The OS Shell - The "command line interface" (CLI) for the console.
 ------------ */
 // TODO: Write a base class / prototype for system services and let Shell inherit from it.
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Shell = (function () {
         function Shell() {
             // Properties
@@ -22,35 +22,35 @@ var AlanBBOS;
             //
             // Load the command list.
             // ver
-            sc = new AlanBBOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
+            sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
             // help
-            sc = new AlanBBOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
+            sc = new TSOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
 
             // shutdown
-            sc = new AlanBBOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
+            sc = new TSOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
             this.commandList[this.commandList.length] = sc;
 
             // cls
-            sc = new AlanBBOS.ShellCommand(this.shellCls, "cld", "- Clears the screen and resets the cursor position.");
+            sc = new TSOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
             // man <topic>
-            sc = new AlanBBOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
+            sc = new TSOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
             this.commandList[this.commandList.length] = sc;
 
             // trace <on | off>
-            sc = new AlanBBOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
+            sc = new TSOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
             this.commandList[this.commandList.length] = sc;
 
             // rot13 <string>
-            sc = new AlanBBOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
+            sc = new TSOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
             this.commandList[this.commandList.length] = sc;
 
             // prompt <string>
-            sc = new AlanBBOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -61,7 +61,7 @@ var AlanBBOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            _StdIn.putText(this.promptStr);
+            _StdOut.putText(this.promptStr);
         };
 
         Shell.prototype.handleInput = function (buffer) {
@@ -70,7 +70,7 @@ var AlanBBOS;
             //
             // Parse the input...
             //
-            var userCommand = new AlanBBOS.UserCommand();
+            var userCommand = new TSOS.UserCommand();
             userCommand = this.parseInput(buffer);
 
             // ... and assign the command and args to local variables.
@@ -97,7 +97,7 @@ var AlanBBOS;
                 this.execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + AlanBBOS.Utils.rot13(cmd) + "]") >= 0) {
+                if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) {
                     this.execute(this.shellCurse);
                 } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {
                     this.execute(this.shellApology);
@@ -110,14 +110,14 @@ var AlanBBOS;
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         Shell.prototype.execute = function (fn, args) {
             // We just got a command, so advance the line...
-            _StdIn.advanceLine();
+            _StdOut.advanceLine();
 
             // ... call the command function passing in the args...
             fn(args);
 
             // Check to see if we need to advance the line again
-            if (_StdIn.CurrentXPosition > 0) {
-                _StdIn.advanceLine();
+            if (_StdOut.currentXPosition > 0) {
+                _StdOut.advanceLine();
             }
 
             // ... and finally write the prompt again.
@@ -125,10 +125,10 @@ var AlanBBOS;
         };
 
         Shell.prototype.parseInput = function (buffer) {
-            var retVal = new AlanBBOS.UserCommand();
+            var retVal = new TSOS.UserCommand();
 
             // 1. Remove leading and trailing spaces.
-            buffer = AlanBBOS.Utils.trim(buffer);
+            buffer = TSOS.Utils.trim(buffer);
 
             // 2. Lower-case it.
             buffer = buffer.toLowerCase();
@@ -140,13 +140,13 @@ var AlanBBOS;
             var cmd = tempList.shift();
 
             // 4.1 Remove any left-over spaces.
-            cmd = AlanBBOS.Utils.trim(cmd);
+            cmd = TSOS.Utils.trim(cmd);
 
             // 4.2 Record it in the return value.
             retVal.command = cmd;
 
             for (var i in tempList) {
-                var arg = AlanBBOS.Utils.trim(tempList[i]);
+                var arg = TSOS.Utils.trim(tempList[i]);
                 if (arg != "") {
                     retVal.args[retVal.args.length] = tempList[i];
                 }
@@ -158,44 +158,44 @@ var AlanBBOS;
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
         Shell.prototype.shellInvalidCommand = function () {
-            _StdIn.putText("Invalid Command. ");
+            _StdOut.putText("Invalid Command. ");
             if (_SarcasticMode) {
-                _StdIn.putText("Duh. Go back to your Speak & Spell.");
+                _StdOut.putText("Duh. Go back to your Speak & Spell.");
             } else {
-                _StdIn.putText("Type 'help' for, well... help.");
+                _StdOut.putText("Type 'help' for, well... help.");
             }
         };
 
         Shell.prototype.shellCurse = function () {
-            _StdIn.putText("Oh, so that's how it's going to be, eh? Fine.");
-            _StdIn.advanceLine();
-            _StdIn.putText("Bitch.");
+            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            _StdOut.advanceLine();
+            _StdOut.putText("Bitch.");
             _SarcasticMode = true;
         };
 
         Shell.prototype.shellApology = function () {
             if (_SarcasticMode) {
-                _StdIn.putText("Okay. I forgive you. This time.");
+                _StdOut.putText("Okay. I forgive you. This time.");
                 _SarcasticMode = false;
             } else {
-                _StdIn.putText("For what?");
+                _StdOut.putText("For what?");
             }
         };
 
         Shell.prototype.shellVer = function (args) {
-            _StdIn.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         };
 
         Shell.prototype.shellHelp = function (args) {
-            _StdIn.putText("Commands:");
+            _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
-                _StdIn.advanceLine();
-                _StdIn.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                _StdOut.advanceLine();
+                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         };
 
         Shell.prototype.shellShutdown = function (args) {
-            _StdIn.putText("Shutting down...");
+            _StdOut.putText("Shutting down...");
 
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
@@ -203,8 +203,8 @@ var AlanBBOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-            _StdIn.clearScreen();
-            _StdIn.resetXY();
+            _StdOut.clearScreen();
+            _StdOut.resetXY();
         };
 
         Shell.prototype.shellMan = function (args) {
@@ -212,13 +212,13 @@ var AlanBBOS;
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        _StdIn.putText("Help displays a list of (hopefully) valid commands.");
+                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
-                        _StdIn.putText("No manual entry for " + args[0] + ".");
+                        _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
             } else {
-                _StdIn.putText("Usage: man <topic>  Please supply a topic.");
+                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
             }
         };
 
@@ -228,31 +228,31 @@ var AlanBBOS;
                 switch (setting) {
                     case "on":
                         if (_Trace && _SarcasticMode) {
-                            _StdIn.putText("Trace is already on, dumbass.");
+                            _StdOut.putText("Trace is already on, dumbass.");
                         } else {
                             _Trace = true;
-                            _StdIn.putText("Trace ON");
+                            _StdOut.putText("Trace ON");
                         }
 
                         break;
                     case "off":
                         _Trace = false;
-                        _StdIn.putText("Trace OFF");
+                        _StdOut.putText("Trace OFF");
                         break;
                     default:
-                        _StdIn.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
                 }
             } else {
-                _StdIn.putText("Usage: trace <on | off>");
+                _StdOut.putText("Usage: trace <on | off>");
             }
         };
 
         Shell.prototype.shellRot13 = function (args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                _StdIn.putText(args.join(' ') + " = '" + AlanBBOS.Utils.rot13(args.join(' ')) + "'");
+                _StdOut.putText(args.join(' ') + " = '" + TSOS.Utils.rot13(args.join(' ')) + "'");
             } else {
-                _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
+                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         };
 
@@ -260,10 +260,10 @@ var AlanBBOS;
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                _StdIn.putText("Usage: prompt <string>  Please supply a string.");
+                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
         };
         return Shell;
     })();
-    AlanBBOS.Shell = Shell;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Shell = Shell;
+})(TSOS || (TSOS = {}));

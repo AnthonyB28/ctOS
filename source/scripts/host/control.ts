@@ -8,8 +8,8 @@
 
      Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
      in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code that
-     hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in
-     both the host and client environments.
+     hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using TypeScript/JavaScript
+     in both the host and client environments.
 
      This (and other host/simulation scripts) is the only place that we should see "web" code, such as
      DOM manipulation and event handling, and so on.  (Index.html is -- obviously -- the only place for markup.)
@@ -21,11 +21,13 @@
 //
 // Control Services
 //
-module AlanBBOS {
+module TSOS {
+
     export class Control {
-        public static hostInit() {
+
+        public static hostInit(): void {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
-            _Canvas = document.getElementById('display');
+            _Canvas = <HTMLCanvasElement>document.getElementById('display');
 
             // Get a global reference to the drawing context.
             _DrawingContext = _Canvas.getContext('2d');
@@ -45,18 +47,18 @@ module AlanBBOS {
             if (typeof Glados === "function") {
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
-            };
+            }
         }
 
-        public static hostLog(msg, source = "?") {
+        public static hostLog(msg: string, source: string = "?"): void {
             // Note the OS CLOCK.
-            var clock = _OSclock;
+            var clock: number = _OSclock;
 
             // Note the REAL clock in milliseconds since January 1, 1970.
-            var now = new Date().getTime();
+            var now: number = new Date().getTime();
 
             // Build the log string.
-            var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
+            var str: string = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
 
             // Update the log console.
             var taLog = <HTMLInputElement> document.getElementById("taLog");
@@ -68,8 +70,8 @@ module AlanBBOS {
         //
         // Control Events
         //
-        public static hostBtnStartOS_click(btn) {
-            // Disable the start button...
+        public static hostBtnStartOS_click(btn): void {
+            // Disable the (passed-in) start button...
             btn.disabled = true;
 
             // .. enable the Halt and Reset buttons ...
@@ -90,21 +92,21 @@ module AlanBBOS {
             _Kernel.krnBootstrap();
         }
 
-        public static hostBtnHaltOS_click(btn) {
-            Control.hostLog("emergency halt", "host");
+        public static hostBtnHaltOS_click(btn): void {
+            Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
             // Call the OS shutdown routine.
             _Kernel.krnShutdown();
-            // Stop the JavaScript interval that's simulating our clock pulse.
+            // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
             // TODO: Is there anything else we need to do here?
         }
 
-        public static hostBtnReset_click(btn) {
+        public static hostBtnReset_click(btn): void {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload(true);
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
-            // be reloaded from the server. If it is false or not specified, the browser may reload the
+            // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
     }

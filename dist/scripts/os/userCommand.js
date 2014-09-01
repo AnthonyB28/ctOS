@@ -1,5 +1,5 @@
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var UserCommand = (function () {
         function UserCommand(command, args) {
             if (typeof command === "undefined") { command = ""; }
@@ -9,5 +9,5 @@ var AlanBBOS;
         }
         return UserCommand;
     })();
-    AlanBBOS.UserCommand = UserCommand;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.UserCommand = UserCommand;
+})(TSOS || (TSOS = {}));

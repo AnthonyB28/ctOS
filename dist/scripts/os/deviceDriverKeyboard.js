@@ -10,8 +10,8 @@ DeviceDriverKeyboard.ts
 Requires deviceDriver.ts
 The Kernel Keyboard Device Driver.
 ---------------------------------- */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     // Extends DeviceDriver
     var DeviceDriverKeyboard = (function (_super) {
         __extends(DeviceDriverKeyboard, _super);
@@ -51,6 +51,6 @@ var AlanBBOS;
             }
         };
         return DeviceDriverKeyboard;
-    })(AlanBBOS.DeviceDriver);
-    AlanBBOS.DeviceDriverKeyboard = DeviceDriverKeyboard;
-})(AlanBBOS || (AlanBBOS = {}));
+    })(TSOS.DeviceDriver);
+    TSOS.DeviceDriverKeyboard = DeviceDriverKeyboard;
+})(TSOS || (TSOS = {}));

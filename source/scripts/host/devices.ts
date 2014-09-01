@@ -17,8 +17,10 @@
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
 
-module AlanBBOS {
+module TSOS {
+
     export class Devices {
+
         constructor() {
             _hardwareClockID = -1
         }
@@ -26,7 +28,7 @@ module AlanBBOS {
         //
         // Hardware/Host Clock Pulse
         //
-        public static hostClockPulse() {
+        public static hostClockPulse(): void {
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.
@@ -37,18 +39,18 @@ module AlanBBOS {
         //
         // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
         //
-        public static hostEnableKeyboardInterrupt() {
+        public static hostEnableKeyboardInterrupt(): void {
             // Listen for key press (keydown, actually) events in the Document
             // and call the simulation processor, which will in turn call the
             // OS interrupt handler.
             document.addEventListener("keydown", Devices.hostOnKeypress, false);
         }
 
-        public static hostDisableKeyboardInterrupt() {
+        public static hostDisableKeyboardInterrupt(): void {
             document.removeEventListener("keydown", Devices.hostOnKeypress, false);
         }
 
-        public static hostOnKeypress(event) {
+        public static hostOnKeypress(event): void {
             // The canvas element CAN receive focus if you give it a tab index, which we have.
             // Check that we are processing keystrokes only from the canvas's id (as set in index.html).
             if (event.target.id === "display") {

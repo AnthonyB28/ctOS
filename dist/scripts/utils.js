@@ -2,12 +2,13 @@
 Utils.ts
 Utility functions.
 -------- */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Utils = (function () {
         function Utils() {
         }
         Utils.trim = function (str) {
+            // Use a regular expression to remove leading and trailing spaces.
             return str.replace(/^\s+ | \s+$/g, "");
             /*
             Huh? WTF? Okay... take a breath. Here we go:
@@ -20,7 +21,11 @@ var AlanBBOS;
         };
 
         Utils.rot13 = function (str) {
-            // You can do this in three lines with a complex regular expression, but I'd have
+            /*
+            This is an easy-to understand implementation of the famous and common Rot13 obfuscator.
+            You can do this in three lines with a complex regular expression, but I'd have
+            trouble explaining it in the future.  There's a lot to be said for obvious code.
+            */
             var retVal = "";
             for (var i in str) {
                 var ch = str[i];
@@ -39,5 +44,5 @@ var AlanBBOS;
         };
         return Utils;
     })();
-    AlanBBOS.Utils = Utils;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Utils = Utils;
+})(TSOS || (TSOS = {}));

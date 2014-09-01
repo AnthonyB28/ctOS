@@ -5,8 +5,8 @@ Routines for the Operating System, NOT the host.
 This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Kernel = (function () {
         function Kernel() {
         }
@@ -14,13 +14,13 @@ var AlanBBOS;
         // OS Startup and Shutdown Routines
         //
         Kernel.prototype.krnBootstrap = function () {
-            AlanBBOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
+            TSOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
-            _KernelInterruptQueue = new AlanBBOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
+            _KernelInterruptQueue = new TSOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
             _KernelBuffers = new Array(); // Buffers... for the kernel.
-            _KernelInputQueue = new AlanBBOS.Queue(); // Where device input lands before being processed out somewhere.
-            _Console = new AlanBBOS.Console(); // The command line interface / console I/O device.
+            _KernelInputQueue = new TSOS.Queue(); // Where device input lands before being processed out somewhere.
+            _Console = new TSOS.Console(); // The command line interface / console I/O device.
 
             // Initialize the CLIconsole.
             _Console.init();
@@ -31,7 +31,7 @@ var AlanBBOS;
 
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
-            krnKeyboardDriver = new AlanBBOS.DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
+            krnKeyboardDriver = new TSOS.DeviceDriverKeyboard(); // Construct it.  TODO: Should that have a _global-style name?
             krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.krnTrace(krnKeyboardDriver.status);
 
@@ -44,7 +44,7 @@ var AlanBBOS;
 
             // Launch the shell.
             this.krnTrace("Creating and Launching the shell.");
-            _OsShell = new AlanBBOS.Shell();
+            _OsShell = new TSOS.Shell();
             _OsShell.init();
 
             // Finally, initiate testing.
@@ -91,13 +91,13 @@ var AlanBBOS;
         //
         Kernel.prototype.krnEnableInterrupts = function () {
             // Keyboard
-            AlanBBOS.Devices.hostEnableKeyboardInterrupt();
+            TSOS.Devices.hostEnableKeyboardInterrupt();
             // Put more here.
         };
 
         Kernel.prototype.krnDisableInterrupts = function () {
             // Keyboard
-            AlanBBOS.Devices.hostDisableKeyboardInterrupt();
+            TSOS.Devices.hostDisableKeyboardInterrupt();
             // Put more here.
         };
 
@@ -149,21 +149,21 @@ var AlanBBOS;
                     if (_OSclock % 10 == 0) {
                         // Check the CPU_CLOCK_INTERVAL in globals.ts for an
                         // idea of the tick rate and adjust this line accordingly.
-                        AlanBBOS.Control.hostLog(msg, "OS");
+                        TSOS.Control.hostLog(msg, "OS");
                     }
                 } else {
-                    AlanBBOS.Control.hostLog(msg, "OS");
+                    TSOS.Control.hostLog(msg, "OS");
                 }
             }
         };
 
         Kernel.prototype.krnTrapError = function (msg) {
-            AlanBBOS.Control.hostLog("OS ERROR - TRAP: " + msg);
+            TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
 
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
             this.krnShutdown();
         };
         return Kernel;
     })();
-    AlanBBOS.Kernel = Kernel;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Kernel = Kernel;
+})(TSOS || (TSOS = {}));

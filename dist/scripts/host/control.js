@@ -5,8 +5,8 @@ Control.ts
 Requires globals.ts.
 Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
 in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code that
-hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using JavaScript in
-both the host and client environments.
+hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using TypeScript/JavaScript
+in both the host and client environments.
 This (and other host/simulation scripts) is the only place that we should see "web" code, such as
 DOM manipulation and event handling, and so on.  (Index.html is -- obviously -- the only place for markup.)
 This code references page numbers in the text book:
@@ -15,8 +15,8 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 //
 // Control Services
 //
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var Control = (function () {
         function Control() {
         }
@@ -28,7 +28,7 @@ var AlanBBOS;
             _DrawingContext = _Canvas.getContext('2d');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            AlanBBOS.CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
+            TSOS.CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
@@ -43,7 +43,6 @@ var AlanBBOS;
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
-            ;
         };
 
         Control.hostLog = function (msg, source) {
@@ -67,7 +66,7 @@ var AlanBBOS;
         // Control Events
         //
         Control.hostBtnStartOS_click = function (btn) {
-            // Disable the start button...
+            // Disable the (passed-in) start button...
             btn.disabled = true;
 
             // .. enable the Halt and Reset buttons ...
@@ -78,25 +77,25 @@ var AlanBBOS;
             document.getElementById("display").focus();
 
             // ... Create and initialize the CPU ...
-            _CPU = new AlanBBOS.Cpu();
+            _CPU = new TSOS.Cpu();
             _CPU.init();
 
             // ... then set the host clock pulse ...
-            _hardwareClockID = setInterval(AlanBBOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
 
             // .. and call the OS Kernel Bootstrap routine.
-            _Kernel = new AlanBBOS.Kernel();
+            _Kernel = new TSOS.Kernel();
             _Kernel.krnBootstrap();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
-            Control.hostLog("emergency halt", "host");
+            Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
             _Kernel.krnShutdown();
 
-            // Stop the JavaScript interval that's simulating our clock pulse.
+            // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
             // TODO: Is there anything else we need to do here?
         };
@@ -105,10 +104,10 @@ var AlanBBOS;
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload(true);
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
-            // be reloaded from the server. If it is false or not specified, the browser may reload the
+            // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         };
         return Control;
     })();
-    AlanBBOS.Control = Control;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.Control = Control;
+})(TSOS || (TSOS = {}));

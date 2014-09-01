@@ -15,8 +15,10 @@
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
 
-module AlanBBOS {
+module TSOS {
+
     export class Cpu {
+
         constructor(public PC = 0,
                     public Acc = 0,
                     public Xreg = 0,
@@ -26,7 +28,7 @@ module AlanBBOS {
 
         }
 
-        public init() {
+        public init(): void {
             this.PC = 0;
             this.Acc = 0;
             this.Xreg = 0;
@@ -35,7 +37,7 @@ module AlanBBOS {
             this.isExecuting = false;
         }
 
-        public cycle() {
+        public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.

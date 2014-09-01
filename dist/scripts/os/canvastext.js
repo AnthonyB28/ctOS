@@ -13,8 +13,8 @@
 * Port to TypeScript by Bob Nisco.
 *
 * ----------------- */
-var AlanBBOS;
-(function (AlanBBOS) {
+var TSOS;
+(function (TSOS) {
     var CanvasTextFunctions = (function () {
         function CanvasTextFunctions() {
         }
@@ -202,5 +202,5 @@ var AlanBBOS;
         };
         return CanvasTextFunctions;
     })();
-    AlanBBOS.CanvasTextFunctions = CanvasTextFunctions;
-})(AlanBBOS || (AlanBBOS = {}));
+    TSOS.CanvasTextFunctions = CanvasTextFunctions;
+})(TSOS || (TSOS = {}));

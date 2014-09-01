@@ -14,7 +14,7 @@
  *
  * ----------------- */
 
-module AlanBBOS {
+module TSOS {
     export class CanvasTextFunctions {
         public static letters = {
             ' ': { width: 16, points: [] },

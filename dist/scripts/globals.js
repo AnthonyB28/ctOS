@@ -37,7 +37,7 @@ var _FontHeightMargin = 4;
 // Default the OS trace to be on.
 var _Trace = true;
 
-// OS queues
+// The OS Kernel and its queues.
 var _Kernel;
 var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
@@ -64,5 +64,5 @@ var _GLaDOS = null;
 var Glados = null;
 
 var onDocumentLoad = function () {
-    AlanBBOS.Control.hostInit();
+    TSOS.Control.hostInit();
 };

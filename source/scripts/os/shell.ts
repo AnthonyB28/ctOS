@@ -10,7 +10,7 @@
 
 // TODO: Write a base class / prototype for system services and let Shell inherit from it.
 
-module AlanBBOS {
+module TSOS {
     export class Shell {
         // Properties
         public promptStr = ">";
@@ -47,7 +47,7 @@ module AlanBBOS {
 
             // cls
             sc = new ShellCommand(this.shellCls,
-                                  "cld",
+                                  "cls",
                                   "- Clears the screen and resets the cursor position.");
             this.commandList[this.commandList.length] = sc;
 
@@ -84,7 +84,7 @@ module AlanBBOS {
         }
 
         public putPrompt() {
-            _StdIn.putText(this.promptStr);
+            _StdOut.putText(this.promptStr);
         }
 
         public handleInput(buffer) {
@@ -130,12 +130,12 @@ module AlanBBOS {
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         public execute(fn, args?) {
             // We just got a command, so advance the line...
-            _StdIn.advanceLine();
+            _StdOut.advanceLine();
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdIn.CurrentXPosition > 0) {
-                _StdIn.advanceLine();
+            if (_StdOut.currentXPosition > 0) {
+                _StdOut.advanceLine();
             }
             // ... and finally write the prompt again.
             this.putPrompt();
@@ -174,52 +174,52 @@ module AlanBBOS {
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
         public shellInvalidCommand() {
-            _StdIn.putText("Invalid Command. ");
+            _StdOut.putText("Invalid Command. ");
             if (_SarcasticMode) {
-                _StdIn.putText("Duh. Go back to your Speak & Spell.");
+                _StdOut.putText("Duh. Go back to your Speak & Spell.");
             } else {
-                _StdIn.putText("Type 'help' for, well... help.");
+                _StdOut.putText("Type 'help' for, well... help.");
             }
         }
 
         public shellCurse() {
-            _StdIn.putText("Oh, so that's how it's going to be, eh? Fine.");
-            _StdIn.advanceLine();
-            _StdIn.putText("Bitch.");
+            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            _StdOut.advanceLine();
+            _StdOut.putText("Bitch.");
             _SarcasticMode = true;
         }
 
         public shellApology() {
            if (_SarcasticMode) {
-              _StdIn.putText("Okay. I forgive you. This time.");
+              _StdOut.putText("Okay. I forgive you. This time.");
               _SarcasticMode = false;
            } else {
-              _StdIn.putText("For what?");
+              _StdOut.putText("For what?");
            }
         }
 
         public shellVer(args) {
-            _StdIn.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         }
 
         public shellHelp(args) {
-            _StdIn.putText("Commands:");
+            _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
-                _StdIn.advanceLine();
-                _StdIn.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                _StdOut.advanceLine();
+                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         }
 
         public shellShutdown(args) {
-             _StdIn.putText("Shutting down...");
+             _StdOut.putText("Shutting down...");
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
         public shellCls(args) {
-            _StdIn.clearScreen();
-            _StdIn.resetXY();
+            _StdOut.clearScreen();
+            _StdOut.resetXY();
         }
 
         public shellMan(args) {
@@ -227,13 +227,13 @@ module AlanBBOS {
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        _StdIn.putText("Help displays a list of (hopefully) valid commands.");
+                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
-                        _StdIn.putText("No manual entry for " + args[0] + ".");
+                        _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
             } else {
-                _StdIn.putText("Usage: man <topic>  Please supply a topic.");
+                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
             }
         }
 
@@ -243,31 +243,31 @@ module AlanBBOS {
                 switch (setting) {
                     case "on":
                         if (_Trace && _SarcasticMode) {
-                            _StdIn.putText("Trace is already on, dumbass.");
+                            _StdOut.putText("Trace is already on, dumbass.");
                         } else {
                             _Trace = true;
-                            _StdIn.putText("Trace ON");
+                            _StdOut.putText("Trace ON");
                         }
 
                         break;
                     case "off":
                         _Trace = false;
-                        _StdIn.putText("Trace OFF");
+                        _StdOut.putText("Trace OFF");
                         break;
                     default:
-                        _StdIn.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
                 }
             } else {
-                _StdIn.putText("Usage: trace <on | off>");
+                _StdOut.putText("Usage: trace <on | off>");
             }
         }
 
         public shellRot13(args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                _StdIn.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
+                _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
             } else {
-                _StdIn.putText("Usage: rot13 <string>  Please supply a string.");
+                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
 
@@ -275,7 +275,7 @@ module AlanBBOS {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
-                _StdIn.putText("Usage: prompt <string>  Please supply a string.");
+                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
         }
 
