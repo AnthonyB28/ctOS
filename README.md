@@ -15,7 +15,7 @@ Setup TypeScript/Gulp
 Your Workflow
 =============
 
-Just run `gulp` at the command line in the root directory of this project! Edit your TypeScript files in the source/scripts directory in your favorite editor. Visual Studio has some additional tools that make debugging, syntax highlighting, and more very easy!
+Just run `gulp` at the command line in the root directory of this project! Edit your TypeScript files in the source/scripts directory in your favorite editor. Visual Studio has some additional tools that make debugging, syntax highlighting, and more very easy. WebStorm looks like a nice option as well.
 
 Gulp will automatically:
 
@@ -44,7 +44,7 @@ Gulp is a tool that allows you to automate tons of workflow tasks. In this insta
 Well, in this case, it pretty much is, but it keeps your development consistent. You keep your source in the source directory, and you keep what you want to output to the user in the dist directory. In more mature front-end environments, you may be utilizing a CSS-preprocessor like LESS or SASS. This setup would allow you to keep your .less or .scss files in the source/styles directory, then output the compiled css folders to the dist/styles directory.
 
 **What other cool things can I do with Gulp?**
-If you were in a production environment where you wanted to obfuscate your code, you can use Gulp to automatically run things like [Uglify](https://github.com/terinjokes/gulp-uglify) on your JS/CSS. Or if you wanted to [minify your CSS](https://www.npmjs.org/package/gulp-minify-css). It is NOT recommended to do this for this project as you'll need to debug this code and allow Glados to run code against yours.
+If you were in a production environment where you wanted to obfuscate your code, you can use Gulp to automatically run things like [Uglify](https://github.com/terinjokes/gulp-uglify) on your JS/CSS. Or if you wanted to [minify your CSS](https://www.npmjs.org/package/gulp-minify-css). It is NOT recommended to do this for this project as you and Alan will need to read and debug this code, and allow GLaDOS to run code against yours.
 
 **Where can I get more info on Gulp?**
 [Right this way!](http://gulpjs.com/)
