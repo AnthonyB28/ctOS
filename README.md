@@ -8,7 +8,7 @@ Setup TypeScript/Gulp
 =====================
 
 1. Install [npm](https://www.npmjs.org/), if you don't already have it
-1. `npm install tsc` to get the TypeScript Compiler
+1. `npm install -g typescript` to get the TypeScript Compiler
 1. `npm install gulp` to get the Gulp Task Runner
 1. `npm install gulp-tsc` to get the Gulp TypeScript plugin
 
