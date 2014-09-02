@@ -10,6 +10,7 @@
      ------------ */
 
 module TSOS {
+
     export class Kernel {
         //
         // OS Startup and Shutdown Routines
@@ -23,7 +24,7 @@ module TSOS {
             _KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
             _Console = new Console();          // The command line interface / console I/O device.
 
-            // Initialize the CLIconsole.
+            // Initialize the console.
             _Console.init();
 
             // Initialize standard input and output to the _Console.
@@ -32,9 +33,9 @@ module TSOS {
 
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
-            krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.  TODO: Should that have a _global-style name?
-            krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
-            this.krnTrace(krnKeyboardDriver.status);
+            _krnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.
+            _krnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
+            this.krnTrace(_krnKeyboardDriver.status);
 
             //
             // ... more?
@@ -118,7 +119,7 @@ module TSOS {
                     this.krnTimerISR();              // Kernel built-in routine for timers (not the clock).
                     break;
                 case KEYBOARD_IRQ:
-                    krnKeyboardDriver.isr(params);   // Kernel mode device driver
+                    _krnKeyboardDriver.isr(params);   // Kernel mode device driver
                     _StdIn.handleInput();
                     break;
                 default:

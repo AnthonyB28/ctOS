@@ -6,7 +6,8 @@ This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
 //
-// Global CONSTANTS
+// Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
+// TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var APP_NAME = "TSOS";
 var APP_VERSION = "0.07";
@@ -21,7 +22,6 @@ var KEYBOARD_IRQ = 1;
 //
 // Global Variables
 //
-// Utilize TypeScript's type system to ensure that _CPU is an instance of your Cpu class
 var _CPU;
 
 var _OSclock = 0;
@@ -34,7 +34,6 @@ var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;
 
-// Default the OS trace to be on.
 var _Trace = true;
 
 // The OS Kernel and its queues.
@@ -55,7 +54,7 @@ var _OsShell;
 var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
-var krnKeyboardDriver = null;
+var _krnKeyboardDriver = null;
 
 var _hardwareClockID = null;
 

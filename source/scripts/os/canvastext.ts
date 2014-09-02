@@ -1,5 +1,5 @@
 /* ----------------- *
- *   CanvasText.ts   *
+ * CanvasText.ts   *
  *
  * Downloaded from http://www.federated.com/~jim/canvastext.
  *
@@ -11,11 +11,12 @@
  *  - added semi-colon.
  *
  * Port to TypeScript by Bob Nisco.
- *
  * ----------------- */
 
 module TSOS {
+
     export class CanvasTextFunctions {
+
         public static letters = {
             ' ': { width: 16, points: [] },
             '!': { width: 10, points: [[5,21],[5,7],[-1,-1],[5,2],[4,1],[5,0],[6,1],[5,2]] },
@@ -140,7 +141,7 @@ module TSOS {
             return total;
         }
 
-        public static draw(ctx,font,size,x,y,str) {
+        public static draw(ctx, font, size, x, y, str) {
             var total = 0;
             var len = str.length;
             var mag = size / 25.0;

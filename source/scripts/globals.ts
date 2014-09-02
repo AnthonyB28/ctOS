@@ -9,7 +9,8 @@
    ------------ */
 
 //
-// Global CONSTANTS
+// Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
+// TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var APP_NAME: string    = "TSOS";   // 'cause Bob and I were at a loss for a better name.
 var APP_VERSION: string = "0.07";   // What did you expect?
@@ -24,9 +25,7 @@ var KEYBOARD_IRQ: number = 1;
 //
 // Global Variables
 //
-
-// Utilize TypeScript's type system to ensure that _CPU is an instance of your Cpu class
-var _CPU: TSOS.Cpu;
+var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 
 var _OSclock: number = 0;  // Page 23.
 
@@ -38,13 +37,13 @@ var _DefaultFontFamily = "sans";        // Ignored, I think. The was just a plac
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
 
-// Default the OS trace to be on.
-var _Trace: boolean = true;
+
+var _Trace: boolean = true;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;
 var _KernelInterruptQueue = null;
-var _KernelBuffers = null;
+var _KernelBuffers: any[] = null;
 var _KernelInputQueue = null;
 
 // Standard input and output
@@ -59,7 +58,7 @@ var _OsShell: TSOS.Shell;
 var _SarcasticMode: boolean = false;
 
 // Global Device Driver Objects - page 12
-var krnKeyboardDriver = null;
+var _krnKeyboardDriver = null;
 
 var _hardwareClockID: number = null;
 

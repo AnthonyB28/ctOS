@@ -20,7 +20,6 @@ var TSOS;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
         }
-        // Methods
         Console.prototype.init = function () {
             this.clearScreen();
             this.resetXY();
@@ -66,7 +65,7 @@ var TSOS;
             // between the two.  So rather than be like PHP and write two (or more) functions that
             // do the same thing, thereby encouraging confusion and decreasing readability, I
             // decided to write one function and use the term "text" to connote string or char.
-            // UPDATE: Even though we are now workign in TypeScript, char and string remain undistinguished.
+            // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);

@@ -3,9 +3,11 @@
 /* ------------
 Control.ts
 Requires globals.ts.
-Routines for the hardware simulation, NOT for our client OS itself. In this manner, it's A LITTLE BIT like a hypervisor,
-in that the Document environment inside a browser is the "bare metal" (so to speak) for which we write code that
-hosts our client OS. But that analogy only goes so far, and the lines are blurred, because we are using TypeScript/JavaScript
+Routines for the hardware simulation, NOT for our client OS itself.
+These are static because we are never going to instantiate them, because they represent the hardware.
+In this manner, it's A LITTLE BIT like a hypervisor, in that the Document environment inside a browser
+is the "bare metal" (so to speak) for which we write code that hosts our client OS.
+But that analogy only goes so far, and the lines are blurred, because we are using TypeScript/JavaScript
 in both the host and client environments.
 This (and other host/simulation scripts) is the only place that we should see "web" code, such as
 DOM manipulation and event handling, and so on.  (Index.html is -- obviously -- the only place for markup.)
@@ -28,11 +30,11 @@ var TSOS;
             _DrawingContext = _Canvas.getContext('2d');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            TSOS.CanvasTextFunctions.enable(_DrawingContext); // TODO: Text functionality is now built in to the HTML5 canvas. Consider using that instead.
+            TSOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
-            document.getElementById("taLog").value = "";
+            document.getElementById("taHostLog").value = "";
 
             // Set focus on the start button.
             // Use the TypeScript cast to HTMLInputElement
@@ -57,13 +59,13 @@ var TSOS;
             var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now + " })" + "\n";
 
             // Update the log console.
-            var taLog = document.getElementById("taLog");
+            var taLog = document.getElementById("taHostLog");
             taLog.value = str + taLog.value;
             // Optionally update a log database or some streaming service.
         };
 
         //
-        // Control Events
+        // Host Events
         //
         Control.hostBtnStartOS_click = function (btn) {
             // Disable the (passed-in) start button...
@@ -76,7 +78,7 @@ var TSOS;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
 
-            // ... Create and initialize the CPU ...
+            // ... Create and initialize the CPU (because it's part of the hardware)  ...
             _CPU = new TSOS.Cpu();
             _CPU.init();
 

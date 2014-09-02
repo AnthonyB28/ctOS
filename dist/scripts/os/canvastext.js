@@ -1,5 +1,5 @@
 /* ----------------- *
-*   CanvasText.ts   *
+* CanvasText.ts   *
 *
 * Downloaded from http://www.federated.com/~jim/canvastext.
 *
@@ -11,7 +11,6 @@
 *  - added semi-colon.
 *
 * Port to TypeScript by Bob Nisco.
-*
 * ----------------- */
 var TSOS;
 (function (TSOS) {

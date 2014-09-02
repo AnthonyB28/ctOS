@@ -9,8 +9,10 @@
    ---------------------------------- */
 
 module TSOS {
+
     // Extends DeviceDriver
     export class DeviceDriverKeyboard extends DeviceDriver {
+
         constructor() {
             // Override the base method pointers.
             super(this.krnKbdDriverEntry, this.krnKbdDispatchKeyPress);
@@ -47,6 +49,5 @@ module TSOS {
                 _KernelInputQueue.enqueue(chr);
             }
         }
-
     }
 }
