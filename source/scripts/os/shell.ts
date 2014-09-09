@@ -75,8 +75,62 @@ module CTOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            // Date
+            sc = new ShellCommand(this.shellDate,
+                "date",
+                "- Displays the current Date & Time.");
+            this.commandList[this.commandList.length] = sc;
+
+            // Date
+            sc = new ShellCommand(this.shellWhereAmI,
+                "whereami",
+                "- Displays the users current location. (Lie)");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
+
+
+
+            /* ---
+                Silly stuff cause I can do this all day.
+               --- */
+
+            // Insanity
+            sc = new ShellCommand(this.shellAssassin,
+                "assassin!",
+                "- Are there assassins hiding?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Assasin
+            sc = new ShellCommand(this.shellAssassin,
+                "assassin!",
+                "- Are there assassins hiding?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Templar
+            sc = new ShellCommand(this.shellTemplar,
+                "templar!",
+                "- Are there any Templar schemes afoot?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Ezio
+            sc = new ShellCommand(this.shellEzio,
+                "ezio!",
+                "- Clearly the best Assassin.");
+            this.commandList[this.commandList.length] = sc;
+
+            // Insanity
+            sc = new ShellCommand(this.shellInsanity,
+                "insanity?",
+                "- What is it?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Watch_Dogs
+            sc = new ShellCommand(this.shellWatchDogs,
+                "Watch_Dogs",
+                "- DeadSec is here?");
+            this.commandList[this.commandList.length] = sc;
 
             //
             // Display the initial prompt.
@@ -173,33 +227,35 @@ module CTOS {
         //
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
-        public shellInvalidCommand() {
+
+        public shellInvalidCommand() 
+        {
             _StdOut.putText("Invalid Command. ");
-            if (_SarcasticMode) {
+            if (_SarcasticMode)
+            {
                 _StdOut.putText("Duh. Go back to your Speak & Spell.");
-            } else {
+            } else
+            {
                 _StdOut.putText("Type 'help' for, well... help.");
             }
         }
 
-        public shellCurse() {
-            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Bitch.");
-            _SarcasticMode = true;
+        public shellDate()
+        {
+            var currentDate = new Date();
+            _StdOut.putText(currentDate.toString());
         }
 
-        public shellApology() {
-           if (_SarcasticMode) {
-              _StdOut.putText("Okay. I forgive you. This time.");
-              _SarcasticMode = false;
-           } else {
-              _StdOut.putText("For what?");
-           }
+        public shellWhereAmI()
+        {
+            _StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         }
 
-        public shellVer(args) {
+        public shellVer(args) 
+        {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.advanceLine();
+            _StdOut.putText("Improving New York City. Ensuring the future through " + APP_NAME);
         }
 
         public shellHelp(args) {
@@ -276,6 +332,60 @@ module CTOS {
                 _OsShell.promptStr = args[0];
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        }
+
+        /* --- 
+            Silly stuff because I can do this all day.
+           --- */
+
+        public shellInsanity()
+        {
+            _StdOut.putText("Did I ever tell you what the definition of insanity is?");
+            _StdOut.advanceLine();
+            _StdOut.putText("Insanity is doing the exact... same fucking thing...");
+            _StdOut.advanceLine();
+            _StdOut.putText("over and over again expecting shit to change...");
+            _StdOut.advanceLine();
+            _StdOut.putText("That. Is. Crazy.");
+        }
+
+        public shellWatchDogs()
+        {
+            _StdOut.putText("_we are watching _we are all connected");
+            _StdOut.advanceLine();
+            _StdOut.putText("_hacking is our weapon _Connection is power");
+        }
+
+        public shellAssassin()
+        {
+        }
+
+        public shellTemplar()
+        {
+        }
+
+        public shellEzio()
+        {
+        }
+
+        public shellCurse() 
+        {
+            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            _StdOut.advanceLine();
+            _StdOut.putText("Bitch.");
+            _SarcasticMode = true;
+        }
+
+        public shellApology() 
+        {
+            if (_SarcasticMode)
+            {
+                _StdOut.putText("Okay. I forgive you. This time.");
+                _SarcasticMode = false;
+            } else
+            {
+                _StdOut.putText("For what?");
             }
         }
 

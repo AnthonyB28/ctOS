@@ -53,8 +53,43 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            // Date
+            sc = new CTOS.ShellCommand(this.shellDate, "date", "- Displays the current Date & Time.");
+            this.commandList[this.commandList.length] = sc;
+
+            // Date
+            sc = new CTOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays the users current location. (Lie)");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
+            /* ---
+            Silly stuff cause I can do this all day.
+            --- */
+            // Insanity
+            sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Assasin
+            sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Templar
+            sc = new CTOS.ShellCommand(this.shellTemplar, "templar!", "- Are there any Templar schemes afoot?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Ezio
+            sc = new CTOS.ShellCommand(this.shellEzio, "ezio!", "- Clearly the best Assassin.");
+            this.commandList[this.commandList.length] = sc;
+
+            // Insanity
+            sc = new CTOS.ShellCommand(this.shellInsanity, "insanity?", "- What is it?");
+            this.commandList[this.commandList.length] = sc;
+
+            // Watch_Dogs
+            sc = new CTOS.ShellCommand(this.shellWatchDogs, "Watch_Dogs", "- DeadSec is here?");
+            this.commandList[this.commandList.length] = sc;
+
             //
             // Display the initial prompt.
             this.putPrompt();
@@ -166,24 +201,19 @@ var CTOS;
             }
         };
 
-        Shell.prototype.shellCurse = function () {
-            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Bitch.");
-            _SarcasticMode = true;
+        Shell.prototype.shellDate = function () {
+            var currentDate = new Date();
+            _StdOut.putText(currentDate.toString());
         };
 
-        Shell.prototype.shellApology = function () {
-            if (_SarcasticMode) {
-                _StdOut.putText("Okay. I forgive you. This time.");
-                _SarcasticMode = false;
-            } else {
-                _StdOut.putText("For what?");
-            }
+        Shell.prototype.shellWhereAmI = function () {
+            _StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         };
 
         Shell.prototype.shellVer = function (args) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.advanceLine();
+            _StdOut.putText("Improving New York City. Ensuring the future through " + APP_NAME);
         };
 
         Shell.prototype.shellHelp = function (args) {
@@ -261,6 +291,50 @@ var CTOS;
                 _OsShell.promptStr = args[0];
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        };
+
+        /* ---
+        Silly stuff because I can do this all day.
+        --- */
+        Shell.prototype.shellInsanity = function () {
+            _StdOut.putText("Did I ever tell you what the definition of insanity is?");
+            _StdOut.advanceLine();
+            _StdOut.putText("Insanity is doing the exact... same fucking thing...");
+            _StdOut.advanceLine();
+            _StdOut.putText("over and over again expecting shit to change...");
+            _StdOut.advanceLine();
+            _StdOut.putText("That. Is. Crazy.");
+        };
+
+        Shell.prototype.shellWatchDogs = function () {
+            _StdOut.putText("_we are watching _we are all connected");
+            _StdOut.advanceLine();
+            _StdOut.putText("_hacking is our weapon _Connection is power");
+        };
+
+        Shell.prototype.shellAssassin = function () {
+        };
+
+        Shell.prototype.shellTemplar = function () {
+        };
+
+        Shell.prototype.shellEzio = function () {
+        };
+
+        Shell.prototype.shellCurse = function () {
+            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            _StdOut.advanceLine();
+            _StdOut.putText("Bitch.");
+            _SarcasticMode = true;
+        };
+
+        Shell.prototype.shellApology = function () {
+            if (_SarcasticMode) {
+                _StdOut.putText("Okay. I forgive you. This time.");
+                _SarcasticMode = false;
+            } else {
+                _StdOut.putText("For what?");
             }
         };
         return Shell;

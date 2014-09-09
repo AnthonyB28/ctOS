@@ -10,7 +10,7 @@ var CTOS;
             if (typeof isr === "undefined") { isr = null; }
             this.driverEntry = driverEntry;
             this.isr = isr;
-            this.version = '0.07';
+            this.version = '0.06';
             this.status = 'unloaded';
             this.preemptable = false;
         }
