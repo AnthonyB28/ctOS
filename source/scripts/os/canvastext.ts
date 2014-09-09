@@ -151,7 +151,9 @@ module CTOS {
             ctx.lineWidth = 2.0 * mag;
             ctx.strokeStyle = "black";
 
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < len; i++)
+            {
+                
                 var c = CanvasTextFunctions.letter(str.charAt(i));
                 if (!c) {
                     continue;

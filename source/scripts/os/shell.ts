@@ -96,12 +96,6 @@ module CTOS {
                 Silly stuff cause I can do this all day.
                --- */
 
-            // Insanity
-            sc = new ShellCommand(this.shellAssassin,
-                "assassin!",
-                "- Are there assassins hiding?");
-            this.commandList[this.commandList.length] = sc;
-
             // Assasin
             sc = new ShellCommand(this.shellAssassin,
                 "assassin!",
@@ -128,7 +122,7 @@ module CTOS {
 
             // Watch_Dogs
             sc = new ShellCommand(this.shellWatchDogs,
-                "Watch_Dogs",
+                "watch_dogs",
                 "- DeadSec is here?");
             this.commandList[this.commandList.length] = sc;
 
@@ -255,7 +249,7 @@ module CTOS {
         {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
             _StdOut.advanceLine();
-            _StdOut.putText("Improving New York City. Ensuring the future through " + APP_NAME);
+            _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
         }
 
         public shellHelp(args) {

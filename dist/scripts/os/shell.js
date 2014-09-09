@@ -66,10 +66,6 @@ var CTOS;
             /* ---
             Silly stuff cause I can do this all day.
             --- */
-            // Insanity
-            sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
-            this.commandList[this.commandList.length] = sc;
-
             // Assasin
             sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
             this.commandList[this.commandList.length] = sc;
@@ -87,7 +83,7 @@ var CTOS;
             this.commandList[this.commandList.length] = sc;
 
             // Watch_Dogs
-            sc = new CTOS.ShellCommand(this.shellWatchDogs, "Watch_Dogs", "- DeadSec is here?");
+            sc = new CTOS.ShellCommand(this.shellWatchDogs, "watch_dogs", "- DeadSec is here?");
             this.commandList[this.commandList.length] = sc;
 
             //
@@ -213,7 +209,7 @@ var CTOS;
         Shell.prototype.shellVer = function (args) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
             _StdOut.advanceLine();
-            _StdOut.putText("Improving New York City. Ensuring the future through " + APP_NAME);
+            _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
         };
 
         Shell.prototype.shellHelp = function (args) {
