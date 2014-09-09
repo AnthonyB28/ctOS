@@ -203,3 +203,4 @@ var TSOS;
     })();
     TSOS.CanvasTextFunctions = CanvasTextFunctions;
 })(TSOS || (TSOS = {}));
+//# sourceMappingURL=canvastext.js.map

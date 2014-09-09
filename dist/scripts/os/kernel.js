@@ -167,3 +167,4 @@ var TSOS;
     })();
     TSOS.Kernel = Kernel;
 })(TSOS || (TSOS = {}));
+//# sourceMappingURL=kernel.js.map

@@ -11,3 +11,4 @@ var TSOS;
     })();
     TSOS.UserCommand = UserCommand;
 })(TSOS || (TSOS = {}));
+//# sourceMappingURL=userCommand.js.map

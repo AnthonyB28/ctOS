@@ -65,3 +65,4 @@ var Glados = null;
 var onDocumentLoad = function () {
     TSOS.Control.hostInit();
 };
+//# sourceMappingURL=globals.js.map

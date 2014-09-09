@@ -85,3 +85,4 @@ var TSOS;
     })();
     TSOS.Console = Console;
 })(TSOS || (TSOS = {}));
+//# sourceMappingURL=console.js.map

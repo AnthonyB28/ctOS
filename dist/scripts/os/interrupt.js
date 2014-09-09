@@ -12,3 +12,4 @@ var TSOS;
     })();
     TSOS.Interrupt = Interrupt;
 })(TSOS || (TSOS = {}));
+//# sourceMappingURL=interrupt.js.map
