@@ -23,7 +23,7 @@
 //
 // Control Services
 //
-module TSOS {
+module CTOS {
 
     export class Control {
 

@@ -5,8 +5,8 @@ Routines for the Operating System, NOT the host.
 This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var Kernel = (function () {
         function Kernel() {
         }
@@ -14,13 +14,13 @@ var TSOS;
         // OS Startup and Shutdown Routines
         //
         Kernel.prototype.krnBootstrap = function () {
-            TSOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
+            CTOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
-            _KernelInterruptQueue = new TSOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
+            _KernelInterruptQueue = new CTOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
             _KernelBuffers = new Array(); // Buffers... for the kernel.
-            _KernelInputQueue = new TSOS.Queue(); // Where device input lands before being processed out somewhere.
-            _Console = new TSOS.Console(); // The command line interface / console I/O device.
+            _KernelInputQueue = new CTOS.Queue(); // Where device input lands before being processed out somewhere.
+            _Console = new CTOS.Console(); // The command line interface / console I/O device.
 
             // Initialize the console.
             _Console.init();
@@ -31,7 +31,7 @@ var TSOS;
 
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
-            _krnKeyboardDriver = new TSOS.DeviceDriverKeyboard(); // Construct it.
+            _krnKeyboardDriver = new CTOS.DeviceDriverKeyboard(); // Construct it.
             _krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.krnTrace(_krnKeyboardDriver.status);
 
@@ -44,7 +44,7 @@ var TSOS;
 
             // Launch the shell.
             this.krnTrace("Creating and Launching the shell.");
-            _OsShell = new TSOS.Shell();
+            _OsShell = new CTOS.Shell();
             _OsShell.init();
 
             // Finally, initiate testing.
@@ -91,13 +91,13 @@ var TSOS;
         //
         Kernel.prototype.krnEnableInterrupts = function () {
             // Keyboard
-            TSOS.Devices.hostEnableKeyboardInterrupt();
+            CTOS.Devices.hostEnableKeyboardInterrupt();
             // Put more here.
         };
 
         Kernel.prototype.krnDisableInterrupts = function () {
             // Keyboard
-            TSOS.Devices.hostDisableKeyboardInterrupt();
+            CTOS.Devices.hostDisableKeyboardInterrupt();
             // Put more here.
         };
 
@@ -149,22 +149,22 @@ var TSOS;
                     if (_OSclock % 10 == 0) {
                         // Check the CPU_CLOCK_INTERVAL in globals.ts for an
                         // idea of the tick rate and adjust this line accordingly.
-                        TSOS.Control.hostLog(msg, "OS");
+                        CTOS.Control.hostLog(msg, "OS");
                     }
                 } else {
-                    TSOS.Control.hostLog(msg, "OS");
+                    CTOS.Control.hostLog(msg, "OS");
                 }
             }
         };
 
         Kernel.prototype.krnTrapError = function (msg) {
-            TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
+            CTOS.Control.hostLog("OS ERROR - TRAP: " + msg);
 
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
             this.krnShutdown();
         };
         return Kernel;
     })();
-    TSOS.Kernel = Kernel;
-})(TSOS || (TSOS = {}));
+    CTOS.Kernel = Kernel;
+})(CTOS || (CTOS = {}));
 //# sourceMappingURL=kernel.js.map

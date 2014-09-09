@@ -1,8 +1,8 @@
 /* ------------
 Interrupt.ts
 ------------ */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var Interrupt = (function () {
         function Interrupt(irq, params) {
             this.irq = irq;
@@ -10,6 +10,6 @@ var TSOS;
         }
         return Interrupt;
     })();
-    TSOS.Interrupt = Interrupt;
-})(TSOS || (TSOS = {}));
+    CTOS.Interrupt = Interrupt;
+})(CTOS || (CTOS = {}));
 //# sourceMappingURL=interrupt.js.map

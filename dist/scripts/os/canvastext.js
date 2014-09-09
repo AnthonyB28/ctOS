@@ -12,8 +12,8 @@
 *
 * Port to TypeScript by Bob Nisco.
 * ----------------- */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var CanvasTextFunctions = (function () {
         function CanvasTextFunctions() {
         }
@@ -201,6 +201,6 @@ var TSOS;
         };
         return CanvasTextFunctions;
     })();
-    TSOS.CanvasTextFunctions = CanvasTextFunctions;
-})(TSOS || (TSOS = {}));
+    CTOS.CanvasTextFunctions = CanvasTextFunctions;
+})(CTOS || (CTOS = {}));
 //# sourceMappingURL=canvastext.js.map

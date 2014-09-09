@@ -12,8 +12,8 @@
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
-var APP_NAME: string    = "TSOS";   // 'cause Bob and I were at a loss for a better name.
-var APP_VERSION: string = "0.07";   // What did you expect?
+var APP_NAME: string    = "ctOS";   // 'cause washDogs
+var APP_VERSION: string = "2.0";   // What did you expect? ... Everything
 
 var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
@@ -25,7 +25,7 @@ var KEYBOARD_IRQ: number = 1;
 //
 // Global Variables
 //
-var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+var _CPU: CTOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 
 var _OSclock: number = 0;  // Page 23.
 
@@ -41,7 +41,7 @@ var _FontHeightMargin = 4;              // Additional space added to font size w
 var _Trace: boolean = true;  // Default the OS trace to be on.
 
 // The OS Kernel and its queues.
-var _Kernel: TSOS.Kernel;
+var _Kernel: CTOS.Kernel;
 var _KernelInterruptQueue = null;
 var _KernelBuffers: any[] = null;
 var _KernelInputQueue = null;
@@ -51,8 +51,8 @@ var _StdIn  = null;
 var _StdOut = null;
 
 // UI
-var _Console: TSOS.Console;
-var _OsShell: TSOS.Shell;
+var _Console: CTOS.Console;
+var _OsShell: CTOS.Shell;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;
@@ -67,5 +67,5 @@ var _GLaDOS: any = null;
 var Glados: any = null;
 
 var onDocumentLoad = function() {
-	TSOS.Control.hostInit();
+	CTOS.Control.hostInit();
 };

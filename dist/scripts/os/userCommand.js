@@ -1,5 +1,5 @@
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var UserCommand = (function () {
         function UserCommand(command, args) {
             if (typeof command === "undefined") { command = ""; }
@@ -9,6 +9,6 @@ var TSOS;
         }
         return UserCommand;
     })();
-    TSOS.UserCommand = UserCommand;
-})(TSOS || (TSOS = {}));
+    CTOS.UserCommand = UserCommand;
+})(CTOS || (CTOS = {}));
 //# sourceMappingURL=userCommand.js.map

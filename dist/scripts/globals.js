@@ -9,8 +9,8 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
-var APP_NAME = "TSOS";
-var APP_VERSION = "0.07";
+var APP_NAME = "ctOS";
+var APP_VERSION = "2.0";
 
 var CPU_CLOCK_INTERVAL = 100;
 
@@ -63,6 +63,6 @@ var _GLaDOS = null;
 var Glados = null;
 
 var onDocumentLoad = function () {
-    TSOS.Control.hostInit();
+    CTOS.Control.hostInit();
 };
 //# sourceMappingURL=globals.js.map
