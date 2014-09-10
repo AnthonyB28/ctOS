@@ -51,19 +51,19 @@ module CTOS {
             }
 
             else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
-                                          (keyCode == 32) ||   // space
-                                          (keyCode == 13))     // enter
+                (keyCode == 32) ||   // space
+                (keyCode == 13))     // enter
             {
                 if (isShifted)
                 {
                     var shiftedNumbers = {
-                         49: "!", 50: "@", 51: "#", 52: "$", 53: "%", 54: "^", 55: "&", 56: "*", 57: "(", 48: ")"
+                        49: "!", 50: "@", 51: "#", 52: "$", 53: "%", 54: "^", 55: "&", 56: "*", 57: "(", 48: ")"
                     };
 
                     chr = shiftedNumbers[keyCode];
 
                     if (!chr)
-                    { 
+                    {
                         chr = "";
                     }
                 }
@@ -100,6 +100,13 @@ module CTOS {
                     chr = "";
                 }
 
+                _KernelInputQueue.enqueue(chr);
+            }
+
+            //backspace
+            else if (keyCode == 8)
+            {
+                chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
         }

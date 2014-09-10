@@ -1,4 +1,4 @@
-///<reference path="../globals.ts" />
+﻿///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -31,7 +31,7 @@ var CTOS;
 
         Console.prototype.resetXY = function () {
             this.currentXPosition = 0;
-            this.currentYPosition = this.currentFontSize;
+            this.currentYPosition = this.currentFontSize + _FontHeightMargin;
         };
 
         Console.prototype.handleInput = function () {
@@ -47,6 +47,8 @@ var CTOS;
 
                     // ... and reset our buffer.
                     this.buffer = "";
+                } else if (chr === String.fromCharCode(8) && this.buffer.length > 0) {
+                    this.eraseLastCharacter();
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -57,6 +59,17 @@ var CTOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        // Removes the last character on the buffer from the canvas & the buffer itself
+        Console.prototype.eraseLastCharacter = function () {
+            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
+            var xBeginningPos = this.currentXPosition - offset;
+            var yBeginningPos = this.currentYPosition + 1 - this.currentFontSize;
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
+            this.currentXPosition = xBeginningPos;
+
+            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
         };
 
         Console.prototype.putText = function (text) {

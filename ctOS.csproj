@@ -85,7 +85,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptOutDir>D:\Anthony\Documents\Dropbox\Documents\School\College\Senior Fall\OS\TSOS-2014\dist\scripts</TypeScriptOutDir>
+    <TypeScriptOutDir>$(ProjectDir)\dist\scripts</TypeScriptOutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

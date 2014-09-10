@@ -32,13 +32,14 @@ module CTOS {
 
         private resetXY(): void {
             this.currentXPosition = 0;
-            this.currentYPosition = this.currentFontSize;
+            this.currentYPosition = this.currentFontSize + _FontHeightMargin;
         }
 
         public handleInput(): void {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
+
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
                 if (chr === String.fromCharCode(13)) { //     Enter key
                     // The enter key marks the end of a console command, so ...
@@ -46,7 +47,17 @@ module CTOS {
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
                     this.buffer = "";
-                } else {
+                }
+
+                // Backspace
+                // Erase last character from the canvas and buffer
+                else if(chr === String.fromCharCode(8) && this.buffer.length > 0)
+                {
+                    this.eraseLastCharacter();
+                }
+
+                else
+                {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
                     this.putText(chr);
@@ -55,6 +66,18 @@ module CTOS {
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        }
+
+        // Removes the last character on the buffer from the canvas & the buffer itself
+        public eraseLastCharacter(): void
+        {
+            var offset: number = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
+            var xBeginningPos: number = this.currentXPosition - offset;
+            var yBeginningPos: number = this.currentYPosition + 1 - this.currentFontSize; //height is the same as font size, dont need measure
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
+            this.currentXPosition = xBeginningPos;
+
+            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
         }
 
         public putText(text): void {
@@ -73,7 +96,8 @@ module CTOS {
             }
          }
 
-        public advanceLine(): void {
+        public advanceLine(): void 
+        {
             this.currentXPosition = 0;
             this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)

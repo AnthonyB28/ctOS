@@ -78,6 +78,9 @@ var CTOS;
                 }
 
                 _KernelInputQueue.enqueue(chr);
+            } else if (keyCode == 8) {
+                chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
             }
         };
         return DeviceDriverKeyboard;
