@@ -28,8 +28,12 @@ var _OSclock = 0;
 
 var _Mode = 0;
 
+// Initialized in hostInit().
 var _Canvas = null;
+var _Status = null;
+var _Time = null;
 var _DrawingContext = null;
+
 var _DefaultFontFamily = "sans";
 var _DefaultFontSize = 13;
 var _FontHeightMargin = 4;

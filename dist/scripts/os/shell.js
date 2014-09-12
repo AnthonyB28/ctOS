@@ -57,8 +57,12 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellDate, "date", "- Displays the current Date & Time.");
             this.commandList[this.commandList.length] = sc;
 
-            // Date
+            // WhereAmI
             sc = new CTOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays the users current location. (Lie)");
+            this.commandList[this.commandList.length] = sc;
+
+            // Status
+            sc = new CTOS.ShellCommand(this.shellStatus, "status", "<string> - Sets the status message");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -93,6 +97,27 @@ var CTOS;
 
         Shell.prototype.putPrompt = function () {
             _StdOut.putText(this.promptStr);
+        };
+
+        // Command suggesting
+        Shell.prototype.handleTab = function (buffer) {
+            //
+            // Parse the input...
+            //
+            var userCommand = new CTOS.UserCommand();
+            userCommand = this.parseInput(buffer);
+
+            // ... and assign the command and args to local variables.
+            var cmd = userCommand.command;
+
+            for (var i = 0; i < this.commandList.length; ++i) {
+                if (this.commandList[i].command.indexOf(userCommand.command) == 0) {
+                    return this.commandList[i].command;
+                }
+            }
+
+            // Failed to find at least one
+            return "";
         };
 
         Shell.prototype.handleInput = function (buffer) {
@@ -199,7 +224,7 @@ var CTOS;
 
         Shell.prototype.shellDate = function () {
             var currentDate = new Date();
-            _StdOut.putText(currentDate.toString());
+            _StdOut.putText(currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString());
         };
 
         Shell.prototype.shellWhereAmI = function () {
@@ -287,6 +312,20 @@ var CTOS;
                 _OsShell.promptStr = args[0];
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+            }
+        };
+
+        Shell.prototype.shellStatus = function (args) {
+            if (args.length > 0) {
+                var status = "";
+                for (var i = 0; i < args.length; ++i) {
+                    status += args[i] + " ";
+                }
+
+                _Status.textContent = "Status : " + status;
+                _StdOut.putText("Status updated to: " + status);
+            } else {
+                _StdOut.putText("Usage: status <string> Please supply a string.");
             }
         };
 

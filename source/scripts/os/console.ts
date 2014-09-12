@@ -56,6 +56,19 @@ module CTOS {
                     this.eraseLastCharacter();
                 }
 
+                // Tab
+                // Suggest a command
+                else if (chr == String.fromCharCode(9) && this.buffer.length > 0)
+                {
+                    var suggestedCommand: string = _OsShell.handleTab(this.buffer);
+                    if (suggestedCommand != "")
+                    {
+                        this.eraseLine();
+                        this.putText(suggestedCommand);
+                        this.buffer = suggestedCommand;
+                    }
+                }
+
                 else
                 {
                     // This is a "normal" character, so ...
@@ -66,6 +79,17 @@ module CTOS {
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        }
+
+        public eraseLine(): void
+        {
+            var offset: number = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
+            var xBeginningPos: number = this.currentXPosition - offset;
+            var yBeginningPos: number = this.currentYPosition + 1 - this.currentFontSize; //height is the same as font size, dont need measure
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
+            this.currentXPosition = xBeginningPos;
+
+            this.buffer = "";
         }
 
         // Removes the last character on the buffer from the canvas & the buffer itself

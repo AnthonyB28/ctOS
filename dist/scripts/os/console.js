@@ -1,4 +1,4 @@
-﻿///<reference path="../globals.ts" />
+///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -49,6 +49,13 @@ var CTOS;
                     this.buffer = "";
                 } else if (chr === String.fromCharCode(8) && this.buffer.length > 0) {
                     this.eraseLastCharacter();
+                } else if (chr == String.fromCharCode(9) && this.buffer.length > 0) {
+                    var suggestedCommand = _OsShell.handleTab(this.buffer);
+                    if (suggestedCommand != "") {
+                        this.eraseLine();
+                        this.putText(suggestedCommand);
+                        this.buffer = suggestedCommand;
+                    }
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -59,6 +66,16 @@ var CTOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        Console.prototype.eraseLine = function () {
+            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
+            var xBeginningPos = this.currentXPosition - offset;
+            var yBeginningPos = this.currentYPosition + 1 - this.currentFontSize;
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
+            this.currentXPosition = xBeginningPos;
+
+            this.buffer = "";
         };
 
         // Removes the last character on the buffer from the canvas & the buffer itself

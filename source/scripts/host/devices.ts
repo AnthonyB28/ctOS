@@ -33,6 +33,11 @@ module CTOS {
         public static hostClockPulse(): void {
             // Increment the hardware (host) clock.
             _OSclock++;
+
+            //Update the time GUI
+            var currentDate: Date = new Date();
+            _Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+
             // Call the kernel clock pulse event handler.
             _Kernel.krnOnCPUClockPulse();
         }

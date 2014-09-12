@@ -26,6 +26,10 @@ var CTOS;
             // Increment the hardware (host) clock.
             _OSclock++;
 
+            //Update the time GUI
+            var currentDate = new Date();
+            _Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+
             // Call the kernel clock pulse event handler.
             _Kernel.krnOnCPUClockPulse();
         };

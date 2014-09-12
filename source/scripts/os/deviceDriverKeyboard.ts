@@ -103,8 +103,8 @@ module CTOS {
                 _KernelInputQueue.enqueue(chr);
             }
 
-            //backspace
-            else if (keyCode == 8)
+            //backspace & tab
+            else if (keyCode == 8 || keyCode == 9)
             {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);

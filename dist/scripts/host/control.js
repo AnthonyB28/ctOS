@@ -29,6 +29,10 @@ var CTOS;
             // Get a global reference to the drawing context.
             _DrawingContext = _Canvas.getContext('2d');
 
+            // Get the status bar
+            _Status = document.getElementById('statusLabel');
+            _Time = document.getElementById('timeLabel');
+
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CTOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 

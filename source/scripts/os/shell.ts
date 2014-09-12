@@ -22,7 +22,8 @@ module CTOS {
 
         }
 
-        public init() {
+        public init(): void
+        {
             var sc = null;
             //
             // Load the command list.
@@ -81,16 +82,20 @@ module CTOS {
                 "- Displays the current Date & Time.");
             this.commandList[this.commandList.length] = sc;
 
-            // Date
+            // WhereAmI
             sc = new ShellCommand(this.shellWhereAmI,
                 "whereami",
                 "- Displays the users current location. (Lie)");
             this.commandList[this.commandList.length] = sc;
 
+            // Status
+            sc = new ShellCommand(this.shellStatus,
+                "status",
+                "<string> - Sets the status message");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
-
-
 
             /* ---
                 Silly stuff cause I can do this all day.
@@ -131,11 +136,37 @@ module CTOS {
             this.putPrompt();
         }
 
-        public putPrompt() {
+        public putPrompt(): void
+        {
             _StdOut.putText(this.promptStr);
         }
 
-        public handleInput(buffer) {
+        // Command suggesting
+        public handleTab(buffer): string
+        {
+            //
+            // Parse the input...
+            //
+            var userCommand = new UserCommand();
+            userCommand = this.parseInput(buffer);
+            // ... and assign the command and args to local variables.
+            var cmd = userCommand.command;
+
+            // Attempt to match the command substring
+            for (var i: number = 0; i < this.commandList.length; ++i)
+            {
+                if (this.commandList[i].command.indexOf(userCommand.command) == 0)
+                {
+                    return this.commandList[i].command;
+                }
+            }
+
+            // Failed to find at least one
+            return "";
+        }
+
+        public handleInput(buffer): void
+        {
             _Kernel.krnTrace("Shell Command~" + buffer);
             //
             // Parse the input...
@@ -176,7 +207,8 @@ module CTOS {
         }
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
-        public execute(fn, args?) {
+        public execute(fn, args?): void
+        {
             // We just got a command, so advance the line...
             _StdOut.advanceLine();
             // ... call the command function passing in the args...
@@ -189,7 +221,8 @@ module CTOS {
             this.putPrompt();
         }
 
-        public parseInput(buffer) {
+        public parseInput(buffer) : UserCommand
+        {
             var retVal = new UserCommand();
 
             // 1. Remove leading and trailing spaces.
@@ -222,7 +255,7 @@ module CTOS {
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
 
-        public shellInvalidCommand() 
+        public shellInvalidCommand(): void 
         {
             _StdOut.putText("Invalid Command. ");
             if (_SarcasticMode)
@@ -234,25 +267,26 @@ module CTOS {
             }
         }
 
-        public shellDate()
+        public shellDate() : void
         {
-            var currentDate = new Date();
-            _StdOut.putText(currentDate.toString());
+            var currentDate: Date = new Date();
+            _StdOut.putText(currentDate.toLocaleDateString() + " " +currentDate.toLocaleTimeString());
         }
 
-        public shellWhereAmI()
+        public shellWhereAmI() : void
         {
             _StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         }
 
-        public shellVer(args) 
+        public shellVer(args): void
         {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
             _StdOut.advanceLine();
             _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
         }
 
-        public shellHelp(args) {
+        public shellHelp(args): void
+        {
             _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
@@ -260,19 +294,22 @@ module CTOS {
             }
         }
 
-        public shellShutdown(args) {
+        public shellShutdown(args): void
+        {
              _StdOut.putText("Shutting down...");
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
-        public shellCls(args) {
+        public shellCls(args): void
+        {
             _StdOut.clearScreen();
             _StdOut.resetXY();
         }
 
-        public shellMan(args) {
+        public shellMan(args): void
+        {
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
@@ -287,7 +324,8 @@ module CTOS {
             }
         }
 
-        public shellTrace(args) {
+        public shellTrace(args): void
+        {
             if (args.length > 0) {
                 var setting = args[0];
                 switch (setting) {
@@ -312,7 +350,8 @@ module CTOS {
             }
         }
 
-        public shellRot13(args) {
+        public shellRot13(args): void
+        {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
                 _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
@@ -321,7 +360,8 @@ module CTOS {
             }
         }
 
-        public shellPrompt(args) {
+        public shellPrompt(args): void
+        {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
             } else {
@@ -329,11 +369,30 @@ module CTOS {
             }
         }
 
+        public shellStatus(args): void
+        {
+            if (args.length > 0)
+            {
+                var status: string = "";
+                for (var i: number = 0; i < args.length; ++i)
+                {
+                    status += args[i] + " ";
+                }
+
+                _Status.textContent = "Status : " + status;
+                _StdOut.putText("Status updated to: " + status);
+            }
+            else
+            {
+                _StdOut.putText("Usage: status <string> Please supply a string.");
+            }
+        }
+
         /* --- 
             Silly stuff because I can do this all day.
            --- */
 
-        public shellInsanity()
+        public shellInsanity(): void
         {
             _StdOut.putText("Did I ever tell you what the definition of insanity is?");
             _StdOut.advanceLine();
@@ -344,26 +403,26 @@ module CTOS {
             _StdOut.putText("That. Is. Crazy.");
         }
 
-        public shellWatchDogs()
+        public shellWatchDogs(): void
         {
             _StdOut.putText("_we are watching _we are all connected");
             _StdOut.advanceLine();
             _StdOut.putText("_hacking is our weapon _Connection is power");
         }
 
-        public shellAssassin()
+        public shellAssassin(): void
         {
         }
 
-        public shellTemplar()
+        public shellTemplar(): void
         {
         }
 
-        public shellEzio()
+        public shellEzio(): void
         {
         }
 
-        public shellCurse() 
+        public shellCurse(): void
         {
             _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
             _StdOut.advanceLine();
@@ -371,7 +430,7 @@ module CTOS {
             _SarcasticMode = true;
         }
 
-        public shellApology() 
+        public shellApology(): void
         {
             if (_SarcasticMode)
             {
