@@ -1,4 +1,4 @@
-///<reference path="../globals.ts" />
+﻿///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -68,6 +68,7 @@ var CTOS;
             }
         };
 
+        // Removes the entire buffer from the canvas and clears itself
         Console.prototype.eraseLine = function () {
             var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
             var xBeginningPos = this.currentXPosition - offset;
@@ -75,6 +76,7 @@ var CTOS;
             _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
             this.currentXPosition = xBeginningPos;
 
+            // Clear buffer, important
             this.buffer = "";
         };
 
@@ -86,6 +88,7 @@ var CTOS;
             _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
             this.currentXPosition = xBeginningPos;
 
+            // Strip last character off the buffer
             this.buffer = this.buffer.substr(0, this.buffer.length - 1);
         };
 
