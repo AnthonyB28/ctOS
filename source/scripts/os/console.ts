@@ -13,14 +13,14 @@ module CTOS {
 
     export class Console {
 
-        constructor(public currentFont : string = _DefaultFontFamily,
-                    public currentFontSize : number = _DefaultFontSize,
-                    public currentXPosition : number = 0,
-                    public currentYPosition : number = _DefaultFontSize,
-                    public buffer: string = "",
-                    public cmdHistory: Array<string> = [],
-                    public cmdHistoryIndex: number = 0,
-                    public cmdHistoryMovedOnce: boolean = false)
+        constructor(public m_CurrentFont : string = _DefaultFontFamily,
+                    public m_CurrentFontSize : number = _DefaultFontSize,
+                    public m_CurrentXPosition : number = 0,
+                    public m_CurrentYPosition : number = _DefaultFontSize,
+                    public m_Buffer: string = "",
+                    public m_CmdHistory: Array<string> = [],
+                    public m_CmdHistoryIndex: number = 0,
+                    public m_CmdHistoryMovedOnce: boolean = false)
         {
 
         }
@@ -35,8 +35,8 @@ module CTOS {
         }
 
         private resetXY(): void {
-            this.currentXPosition = 0;
-            this.currentYPosition = this.currentFontSize + _FontHeightMargin;
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition = this.m_CurrentFontSize + _FontHeightMargin;
         }
 
         public handleInput(): void {
@@ -48,47 +48,47 @@ module CTOS {
                 if (chr === String.fromCharCode(13)) { //     Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    _OsShell.handleInput(this.buffer);
+                    _OsShell.handleInput(this.m_Buffer);
                     // ... and reset our buffer.
-                    if (this.cmdHistory.length > MAX_COMMAND_HISTORY)
+                    if (this.m_CmdHistory.length > MAX_COMMAND_HISTORY)
                     {
-                        this.cmdHistory.shift();
+                        this.m_CmdHistory.shift();
                     }
-                    this.cmdHistory.push(this.buffer);
-                    this.cmdHistoryIndex = this.cmdHistory.length - 1;
-                    this.buffer = "";
+                    this.m_CmdHistory.push(this.m_Buffer);
+                    this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
+                    this.m_Buffer = "";
                 }
 
                 // Backspace
                 // Erase last character from the canvas and buffer
-                else if(chr === String.fromCharCode(8) && this.buffer.length > 0)
+                else if(chr === String.fromCharCode(8) && this.m_Buffer.length > 0)
                 {
                     this.eraseLastCharacter();
                 }
 
-                // Tab
+                // Tab & right arrow
                 // Suggest a command
-                else if (chr == String.fromCharCode(9) && this.buffer.length > 0)
+                else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0)
                 {
-                    var suggestedCmd: string = _OsShell.handleTab(this.buffer);
+                    var suggestedCmd: string = _OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "")
                     {
                         this.eraseLine();
                         this.putText(suggestedCmd);
-                        this.buffer = suggestedCmd;
+                        this.m_Buffer = suggestedCmd;
                     }
                 }
 
                 // Up
                 // History of commands
-                else if (chr == String.fromCharCode(38) && this.cmdHistory.length > 0)
+                else if (chr == String.fromCharCode(38) && this.m_CmdHistory.length > 0)
                 {
                     this.CmdHistoryLookup(true);
                 }
 
                 // Down
                 // History of commands
-                else if (chr == String.fromCharCode(40) && this.cmdHistory.length > 0)
+                else if (chr == String.fromCharCode(40) && this.m_CmdHistory.length > 0)
                 {
                     this.CmdHistoryLookup(false);
                 }
@@ -99,7 +99,7 @@ module CTOS {
                     // ... draw it on the screen...
                     this.putText(chr);
                     // ... and add it to our buffer.
-                    this.buffer += chr;
+                    this.m_Buffer += chr;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
@@ -113,60 +113,59 @@ module CTOS {
             if (up)
             {
                 // Don't go out of bounds
-                if (this.cmdHistoryIndex != 0)
+                if (this.m_CmdHistoryIndex != 0)
                 {
                     // Make sure we've moved before, otherwise we'll skip an index
-                    if (this.cmdHistoryMovedOnce)
+                    if (this.m_CmdHistoryMovedOnce)
                     {
-                        --this.cmdHistoryIndex;
+                        --this.m_CmdHistoryIndex;
                     }
                 }
             }
             else // Go back in history
             {
                 // Don't go out of bounds
-                if (this.cmdHistoryIndex != this.cmdHistory.length - 1)
+                if (this.m_CmdHistoryIndex != this.m_CmdHistory.length - 1)
                 {
                     // Make sure we've moved before, otherwise we skip an index
-                    if (this.cmdHistoryMovedOnce)
+                    if (this.m_CmdHistoryMovedOnce)
                     {
-                        ++this.cmdHistoryIndex;
+                        ++this.m_CmdHistoryIndex;
                     }
                 }
             }
 
             this.eraseLine();
-            var cmd: string = this.cmdHistory[this.cmdHistoryIndex];
+            var cmd: string = this.m_CmdHistory[this.m_CmdHistoryIndex];
             this.putText(cmd);
-            this.buffer = cmd;
-
-            this.cmdHistoryMovedOnce = true;
+            this.m_Buffer = cmd;
+            this.m_CmdHistoryMovedOnce = true;
         }
 
         // Removes the entire buffer from the canvas and clears itself
         public eraseLine(): void
         {
-            var offset: number = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
-            var xBeginningPos: number = this.currentXPosition - offset;
-            var yBeginningPos: number = this.currentYPosition + 1 - this.currentFontSize; //height is the same as font size, dont need measure
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
-            this.currentXPosition = xBeginningPos;
+            var offset: number = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
+            var xBeginningPos: number = this.m_CurrentXPosition - offset;
+            var yBeginningPos: number = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize; //height is the same as font size, dont need measure
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            this.m_CurrentXPosition = xBeginningPos;
 
             // Clear buffer, important
-            this.buffer = "";
+            this.m_Buffer = "";
         }
 
         // Removes the last character on the buffer from the canvas & the buffer itself
         public eraseLastCharacter(): void
         {
-            var offset: number = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
-            var xBeginningPos: number = this.currentXPosition - offset;
-            var yBeginningPos: number = this.currentYPosition + 1 - this.currentFontSize; //height is the same as font size, dont need measure
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
-            this.currentXPosition = xBeginningPos;
+            var offset: number = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
+            var xBeginningPos: number = this.m_CurrentXPosition - offset;
+            var yBeginningPos: number = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize; //height is the same as font size, dont need measure
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            this.m_CurrentXPosition = xBeginningPos;
 
             // Strip last character off the buffer
-            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+            this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
         }
 
         public putText(text): void {
@@ -178,17 +177,17 @@ module CTOS {
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
+                this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
          }
 
         public advanceLine(): void 
         {
-            this.currentXPosition = 0;
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)
         }
     }

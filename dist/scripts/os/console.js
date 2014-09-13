@@ -8,23 +8,23 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var CTOS;
 (function (CTOS) {
     var Console = (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdHistory, cmdHistoryIndex, cmdHistoryMovedOnce) {
-            if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
-            if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
-            if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
-            if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
-            if (typeof buffer === "undefined") { buffer = ""; }
-            if (typeof cmdHistory === "undefined") { cmdHistory = []; }
-            if (typeof cmdHistoryIndex === "undefined") { cmdHistoryIndex = 0; }
-            if (typeof cmdHistoryMovedOnce === "undefined") { cmdHistoryMovedOnce = false; }
-            this.currentFont = currentFont;
-            this.currentFontSize = currentFontSize;
-            this.currentXPosition = currentXPosition;
-            this.currentYPosition = currentYPosition;
-            this.buffer = buffer;
-            this.cmdHistory = cmdHistory;
-            this.cmdHistoryIndex = cmdHistoryIndex;
-            this.cmdHistoryMovedOnce = cmdHistoryMovedOnce;
+        function Console(m_CurrentFont, m_CurrentFontSize, m_CurrentXPosition, m_CurrentYPosition, m_Buffer, m_CmdHistory, m_CmdHistoryIndex, m_CmdHistoryMovedOnce) {
+            if (typeof m_CurrentFont === "undefined") { m_CurrentFont = _DefaultFontFamily; }
+            if (typeof m_CurrentFontSize === "undefined") { m_CurrentFontSize = _DefaultFontSize; }
+            if (typeof m_CurrentXPosition === "undefined") { m_CurrentXPosition = 0; }
+            if (typeof m_CurrentYPosition === "undefined") { m_CurrentYPosition = _DefaultFontSize; }
+            if (typeof m_Buffer === "undefined") { m_Buffer = ""; }
+            if (typeof m_CmdHistory === "undefined") { m_CmdHistory = []; }
+            if (typeof m_CmdHistoryIndex === "undefined") { m_CmdHistoryIndex = 0; }
+            if (typeof m_CmdHistoryMovedOnce === "undefined") { m_CmdHistoryMovedOnce = false; }
+            this.m_CurrentFont = m_CurrentFont;
+            this.m_CurrentFontSize = m_CurrentFontSize;
+            this.m_CurrentXPosition = m_CurrentXPosition;
+            this.m_CurrentYPosition = m_CurrentYPosition;
+            this.m_Buffer = m_Buffer;
+            this.m_CmdHistory = m_CmdHistory;
+            this.m_CmdHistoryIndex = m_CmdHistoryIndex;
+            this.m_CmdHistoryMovedOnce = m_CmdHistoryMovedOnce;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -36,8 +36,8 @@ var CTOS;
         };
 
         Console.prototype.resetXY = function () {
-            this.currentXPosition = 0;
-            this.currentYPosition = this.currentFontSize + _FontHeightMargin;
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition = this.m_CurrentFontSize + _FontHeightMargin;
         };
 
         Console.prototype.handleInput = function () {
@@ -49,27 +49,27 @@ var CTOS;
                 if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    _OsShell.handleInput(this.buffer);
+                    _OsShell.handleInput(this.m_Buffer);
 
                     // ... and reset our buffer.
-                    if (this.cmdHistory.length > MAX_COMMAND_HISTORY) {
-                        this.cmdHistory.shift();
+                    if (this.m_CmdHistory.length > MAX_COMMAND_HISTORY) {
+                        this.m_CmdHistory.shift();
                     }
-                    this.cmdHistory.push(this.buffer);
-                    this.cmdHistoryIndex = this.cmdHistory.length - 1;
-                    this.buffer = "";
-                } else if (chr === String.fromCharCode(8) && this.buffer.length > 0) {
+                    this.m_CmdHistory.push(this.m_Buffer);
+                    this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
+                    this.m_Buffer = "";
+                } else if (chr === String.fromCharCode(8) && this.m_Buffer.length > 0) {
                     this.eraseLastCharacter();
-                } else if (chr == String.fromCharCode(9) && this.buffer.length > 0) {
-                    var suggestedCmd = _OsShell.handleTab(this.buffer);
+                } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
+                    var suggestedCmd = _OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
                         this.eraseLine();
                         this.putText(suggestedCmd);
-                        this.buffer = suggestedCmd;
+                        this.m_Buffer = suggestedCmd;
                     }
-                } else if (chr == String.fromCharCode(38) && this.cmdHistory.length > 0) {
+                } else if (chr == String.fromCharCode(38) && this.m_CmdHistory.length > 0) {
                     this.CmdHistoryLookup(true);
-                } else if (chr == String.fromCharCode(40) && this.cmdHistory.length > 0) {
+                } else if (chr == String.fromCharCode(40) && this.m_CmdHistory.length > 0) {
                     this.CmdHistoryLookup(false);
                 } else {
                     // This is a "normal" character, so ...
@@ -77,7 +77,7 @@ var CTOS;
                     this.putText(chr);
 
                     // ... and add it to our buffer.
-                    this.buffer += chr;
+                    this.m_Buffer += chr;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
@@ -89,52 +89,51 @@ var CTOS;
             // Go forward in history
             if (up) {
                 // Don't go out of bounds
-                if (this.cmdHistoryIndex != 0) {
+                if (this.m_CmdHistoryIndex != 0) {
                     // Make sure we've moved before, otherwise we'll skip an index
-                    if (this.cmdHistoryMovedOnce) {
-                        --this.cmdHistoryIndex;
+                    if (this.m_CmdHistoryMovedOnce) {
+                        --this.m_CmdHistoryIndex;
                     }
                 }
             } else {
                 // Don't go out of bounds
-                if (this.cmdHistoryIndex != this.cmdHistory.length - 1) {
+                if (this.m_CmdHistoryIndex != this.m_CmdHistory.length - 1) {
                     // Make sure we've moved before, otherwise we skip an index
-                    if (this.cmdHistoryMovedOnce) {
-                        ++this.cmdHistoryIndex;
+                    if (this.m_CmdHistoryMovedOnce) {
+                        ++this.m_CmdHistoryIndex;
                     }
                 }
             }
 
             this.eraseLine();
-            var cmd = this.cmdHistory[this.cmdHistoryIndex];
+            var cmd = this.m_CmdHistory[this.m_CmdHistoryIndex];
             this.putText(cmd);
-            this.buffer = cmd;
-
-            this.cmdHistoryMovedOnce = true;
+            this.m_Buffer = cmd;
+            this.m_CmdHistoryMovedOnce = true;
         };
 
         // Removes the entire buffer from the canvas and clears itself
         Console.prototype.eraseLine = function () {
-            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer);
-            var xBeginningPos = this.currentXPosition - offset;
-            var yBeginningPos = this.currentYPosition + 1 - this.currentFontSize;
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
-            this.currentXPosition = xBeginningPos;
+            var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
+            var xBeginningPos = this.m_CurrentXPosition - offset;
+            var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            this.m_CurrentXPosition = xBeginningPos;
 
             // Clear buffer, important
-            this.buffer = "";
+            this.m_Buffer = "";
         };
 
         // Removes the last character on the buffer from the canvas & the buffer itself
         Console.prototype.eraseLastCharacter = function () {
-            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, this.buffer.slice(-1));
-            var xBeginningPos = this.currentXPosition - offset;
-            var yBeginningPos = this.currentYPosition + 1 - this.currentFontSize;
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.currentXPosition, this.currentYPosition);
-            this.currentXPosition = xBeginningPos;
+            var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
+            var xBeginningPos = this.m_CurrentXPosition - offset;
+            var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
+            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            this.m_CurrentXPosition = xBeginningPos;
 
             // Strip last character off the buffer
-            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+            this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
         };
 
         Console.prototype.putText = function (text) {
@@ -146,17 +145,17 @@ var CTOS;
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
 
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
+                this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
         };
 
         Console.prototype.advanceLine = function () {
-            this.currentXPosition = 0;
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)
         };
         return Console;

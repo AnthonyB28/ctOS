@@ -142,7 +142,7 @@ module CTOS {
         }
 
         // Command suggesting
-        public handleTab(buffer): string
+        public suggestCmd(buffer): string
         {
             //
             // Parse the input...
@@ -214,7 +214,7 @@ module CTOS {
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdOut.currentXPosition > 0) {
+            if (_StdOut.m_CurrentXPosition > 0) {
                 _StdOut.advanceLine();
             }
             // ... and finally write the prompt again.

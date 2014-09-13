@@ -100,7 +100,7 @@ var CTOS;
         };
 
         // Command suggesting
-        Shell.prototype.handleTab = function (buffer) {
+        Shell.prototype.suggestCmd = function (buffer) {
             //
             // Parse the input...
             //
@@ -172,7 +172,7 @@ var CTOS;
             fn(args);
 
             // Check to see if we need to advance the line again
-            if (_StdOut.currentXPosition > 0) {
+            if (_StdOut.m_CurrentXPosition > 0) {
                 _StdOut.advanceLine();
             }
 
