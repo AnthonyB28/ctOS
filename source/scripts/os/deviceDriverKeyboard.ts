@@ -76,7 +76,7 @@ module CTOS {
                 _KernelInputQueue.enqueue(chr);
             }
 
-            //Symbol keys
+            // Symbol keys
             else if ((keyCode >= 186) && (keyCode <= 222))
             {
 
@@ -103,8 +103,9 @@ module CTOS {
                 _KernelInputQueue.enqueue(chr);
             }
 
-            //backspace & tab
-            else if (keyCode == 8 || keyCode == 9)
+            else if (keyCode == 8 || // backspace
+                     keyCode == 9 || // tab
+                    (keyCode >= 37 && keyCode <= 40)) // arrows
             {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);

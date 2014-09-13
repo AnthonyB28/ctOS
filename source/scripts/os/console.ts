@@ -13,11 +13,15 @@ module CTOS {
 
     export class Console {
 
-        constructor(public currentFont = _DefaultFontFamily,
-                    public currentFontSize = _DefaultFontSize,
-                    public currentXPosition = 0,
-                    public currentYPosition = _DefaultFontSize,
-                    public buffer = "") {
+        constructor(public currentFont : string = _DefaultFontFamily,
+                    public currentFontSize : number = _DefaultFontSize,
+                    public currentXPosition : number = 0,
+                    public currentYPosition : number = _DefaultFontSize,
+                    public buffer: string = "",
+                    public cmdHistory: Array<string> = [],
+                    public cmdHistoryIndex: number = 0,
+                    public cmdHistoryMovedOnce: boolean = false)
+        {
 
         }
 
@@ -46,6 +50,12 @@ module CTOS {
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
+                    if (this.cmdHistory.length > MAX_COMMAND_HISTORY)
+                    {
+                        this.cmdHistory.shift();
+                    }
+                    this.cmdHistory.push(this.buffer);
+                    this.cmdHistoryIndex = this.cmdHistory.length - 1;
                     this.buffer = "";
                 }
 
@@ -60,13 +70,27 @@ module CTOS {
                 // Suggest a command
                 else if (chr == String.fromCharCode(9) && this.buffer.length > 0)
                 {
-                    var suggestedCommand: string = _OsShell.handleTab(this.buffer);
-                    if (suggestedCommand != "")
+                    var suggestedCmd: string = _OsShell.handleTab(this.buffer);
+                    if (suggestedCmd != "")
                     {
                         this.eraseLine();
-                        this.putText(suggestedCommand);
-                        this.buffer = suggestedCommand;
+                        this.putText(suggestedCmd);
+                        this.buffer = suggestedCmd;
                     }
+                }
+
+                // Up
+                // History of commands
+                else if (chr == String.fromCharCode(38) && this.cmdHistory.length > 0)
+                {
+                    this.CmdHistoryLookup(true);
+                }
+
+                // Down
+                // History of commands
+                else if (chr == String.fromCharCode(40) && this.cmdHistory.length > 0)
+                {
+                    this.CmdHistoryLookup(false);
                 }
 
                 else
@@ -79,6 +103,44 @@ module CTOS {
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        }
+
+        // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
+        // up is true if going back in the history (up arrow) - decrements cmdHistoryIndex
+        public CmdHistoryLookup(up: boolean): void
+        {
+            // Go forward in history
+            if (up)
+            {
+                // Don't go out of bounds
+                if (this.cmdHistoryIndex != 0)
+                {
+                    // Make sure we've moved before, otherwise we'll skip an index
+                    if (this.cmdHistoryMovedOnce)
+                    {
+                        --this.cmdHistoryIndex;
+                    }
+                }
+            }
+            else // Go back in history
+            {
+                // Don't go out of bounds
+                if (this.cmdHistoryIndex != this.cmdHistory.length - 1)
+                {
+                    // Make sure we've moved before, otherwise we skip an index
+                    if (this.cmdHistoryMovedOnce)
+                    {
+                        ++this.cmdHistoryIndex;
+                    }
+                }
+            }
+
+            this.eraseLine();
+            var cmd: string = this.cmdHistory[this.cmdHistoryIndex];
+            this.putText(cmd);
+            this.buffer = cmd;
+
+            this.cmdHistoryMovedOnce = true;
         }
 
         // Removes the entire buffer from the canvas and clears itself

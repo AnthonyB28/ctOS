@@ -1,4 +1,4 @@
-﻿///<reference path="../globals.ts" />
+///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -8,17 +8,23 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var CTOS;
 (function (CTOS) {
     var Console = (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
+        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdHistory, cmdHistoryIndex, cmdHistoryMovedOnce) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
             if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
+            if (typeof cmdHistory === "undefined") { cmdHistory = []; }
+            if (typeof cmdHistoryIndex === "undefined") { cmdHistoryIndex = 0; }
+            if (typeof cmdHistoryMovedOnce === "undefined") { cmdHistoryMovedOnce = false; }
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.cmdHistory = cmdHistory;
+            this.cmdHistoryIndex = cmdHistoryIndex;
+            this.cmdHistoryMovedOnce = cmdHistoryMovedOnce;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -46,16 +52,25 @@ var CTOS;
                     _OsShell.handleInput(this.buffer);
 
                     // ... and reset our buffer.
+                    if (this.cmdHistory.length > MAX_COMMAND_HISTORY) {
+                        this.cmdHistory.shift();
+                    }
+                    this.cmdHistory.push(this.buffer);
+                    this.cmdHistoryIndex = this.cmdHistory.length - 1;
                     this.buffer = "";
                 } else if (chr === String.fromCharCode(8) && this.buffer.length > 0) {
                     this.eraseLastCharacter();
                 } else if (chr == String.fromCharCode(9) && this.buffer.length > 0) {
-                    var suggestedCommand = _OsShell.handleTab(this.buffer);
-                    if (suggestedCommand != "") {
+                    var suggestedCmd = _OsShell.handleTab(this.buffer);
+                    if (suggestedCmd != "") {
                         this.eraseLine();
-                        this.putText(suggestedCommand);
-                        this.buffer = suggestedCommand;
+                        this.putText(suggestedCmd);
+                        this.buffer = suggestedCmd;
                     }
+                } else if (chr == String.fromCharCode(38) && this.cmdHistory.length > 0) {
+                    this.CmdHistoryLookup(true);
+                } else if (chr == String.fromCharCode(40) && this.cmdHistory.length > 0) {
+                    this.CmdHistoryLookup(false);
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -66,6 +81,36 @@ var CTOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
+        // up is true if going back in the history (up arrow) - decrements cmdHistoryIndex
+        Console.prototype.CmdHistoryLookup = function (up) {
+            // Go forward in history
+            if (up) {
+                // Don't go out of bounds
+                if (this.cmdHistoryIndex != 0) {
+                    // Make sure we've moved before, otherwise we'll skip an index
+                    if (this.cmdHistoryMovedOnce) {
+                        --this.cmdHistoryIndex;
+                    }
+                }
+            } else {
+                // Don't go out of bounds
+                if (this.cmdHistoryIndex != this.cmdHistory.length - 1) {
+                    // Make sure we've moved before, otherwise we skip an index
+                    if (this.cmdHistoryMovedOnce) {
+                        ++this.cmdHistoryIndex;
+                    }
+                }
+            }
+
+            this.eraseLine();
+            var cmd = this.cmdHistory[this.cmdHistoryIndex];
+            this.putText(cmd);
+            this.buffer = cmd;
+
+            this.cmdHistoryMovedOnce = true;
         };
 
         // Removes the entire buffer from the canvas and clears itself

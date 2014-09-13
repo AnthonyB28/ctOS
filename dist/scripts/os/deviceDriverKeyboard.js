@@ -78,7 +78,7 @@ var CTOS;
                 }
 
                 _KernelInputQueue.enqueue(chr);
-            } else if (keyCode == 8 || keyCode == 9) {
+            } else if (keyCode == 8 || keyCode == 9 || (keyCode >= 37 && keyCode <= 40)) {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
