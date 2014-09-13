@@ -33,6 +33,9 @@ var CTOS;
             _Status = document.getElementById('statusLabel');
             _Time = document.getElementById('timeLabel');
 
+            // Get the program input box
+            _ProgramInput = document.getElementById('taProgramInput');
+
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CTOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 

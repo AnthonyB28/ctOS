@@ -25,6 +25,10 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
+            // load
+            sc = new CTOS.ShellCommand(this.shellLoad, "load", "- Loads the program from Program Input box.");
+            this.commandList[this.commandList.length] = sc;
+
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
@@ -235,6 +239,28 @@ var CTOS;
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
             _StdOut.advanceLine();
             _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
+        };
+
+        Shell.prototype.shellLoad = function (args) {
+            var programToParse = _ProgramInput.innerHTML;
+            programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
+            var programInput = programToParse.split(" ");
+            var isValid = true;
+            programInput.every(function (code) {
+                if (!CTOS.Utils.IsValidHex(code)) {
+                    isValid = false;
+                    _StdOut.putText("Invalid program input! No cake for you!");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("First issue: " + code);
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+
+            if (isValid) {
+                _StdOut.putText("Valid hex & space program input! Want some cake?");
+            }
         };
 
         Shell.prototype.shellHelp = function (args) {

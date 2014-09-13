@@ -34,6 +34,7 @@ var _Mode = 0;
 var _Canvas = null;
 var _Status = null;
 var _Time = null;
+var _ProgramInput = null;
 var _DrawingContext = null;
 
 var _DefaultFontFamily = "sans";

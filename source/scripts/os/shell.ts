@@ -34,6 +34,12 @@ module CTOS {
                                   "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
+            // load
+            sc = new ShellCommand(this.shellLoad,
+                                  "load",
+                                  "- Loads the program from Program Input box.");
+            this.commandList[this.commandList.length] = sc;
+
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
@@ -283,6 +289,34 @@ module CTOS {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
             _StdOut.advanceLine();
             _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
+        }
+
+        public shellLoad(args): void
+        {
+            var programToParse: string = _ProgramInput.innerHTML;
+            programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
+            var programInput: Array<String> = programToParse.split(" "); // Split to each code
+            var isValid: boolean = true;
+            programInput.every(function(code) // JS can't break a ForEach? WTF
+            {
+                if (!Utils.IsValidHex(code))
+                {
+                    isValid = false;
+                    _StdOut.putText("Invalid program input! No cake for you!");
+                    _StdOut.advanceLine();
+                    _StdOut.putText("First issue: " + code);
+                    return false; // stop the loop
+                }
+                else
+                {
+                    return true; // continue the loop
+                }
+            });
+
+            if (isValid)
+            {
+                _StdOut.putText("Valid hex & space program input! Want some cake?");
+            }
         }
 
         public shellHelp(args): void

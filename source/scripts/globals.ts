@@ -37,6 +37,7 @@ var _Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode
 var _Canvas: HTMLCanvasElement = null; 
 var _Status: HTMLLabelElement = null;
 var _Time: HTMLLabelElement = null;
+var _ProgramInput: HTMLTextAreaElement = null;
 var _DrawingContext = null;  
            
 var _DefaultFontFamily = "sans";        // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
