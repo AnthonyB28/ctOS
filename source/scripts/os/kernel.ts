@@ -167,9 +167,11 @@ module CTOS {
              }
         }
 
-        public krnTrapError(msg) {
-            Control.hostLog("OS ERROR - TRAP: " + msg);
-            // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
+        public krnTrapError(msg)
+        {
+            var errorMsg: string = "OS ERROR - TRAP: " + msg;
+            Control.hostLog(errorMsg);
+            _StdOut.putError("TRAP ERROR", errorMsg);
             this.krnShutdown();
         }
     }

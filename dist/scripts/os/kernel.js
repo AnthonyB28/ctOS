@@ -158,9 +158,9 @@ var CTOS;
         };
 
         Kernel.prototype.krnTrapError = function (msg) {
-            CTOS.Control.hostLog("OS ERROR - TRAP: " + msg);
-
-            // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
+            var errorMsg = "OS ERROR - TRAP: " + msg;
+            CTOS.Control.hostLog(errorMsg);
+            _StdOut.putError("TRAP ERROR", errorMsg);
             this.krnShutdown();
         };
         return Kernel;

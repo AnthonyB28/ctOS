@@ -59,7 +59,8 @@ var CTOS;
                     this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
                     this.m_Buffer = "";
                 } else if (chr === String.fromCharCode(8) && this.m_Buffer.length > 0) {
-                    this.eraseLastCharacter();
+                    //this.eraseLastCharacter();
+                    this.putError("test", "ERROR TESTING");
                 } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
                     var suggestedCmd = _OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
@@ -151,6 +152,28 @@ var CTOS;
                 var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
                 this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
+        };
+
+        Console.prototype.putError = function (errorType, msg) {
+            var color = '#236B8E';
+
+            var yOffset = 30;
+            var height = (_DefaultFontSize + _FontHeightMargin) * yOffset;
+            var innerCircleYPos = this.m_CurrentYPosition + ((_DefaultFontSize + _FontHeightMargin) * (yOffset / 2));
+            this.advanceLine();
+            var grd = _DrawingContext.createRadialGradient(_Canvas.width / 2, innerCircleYPos, 180, _Canvas.width / 2, innerCircleYPos, 250);
+            grd.addColorStop(0, color);
+            grd.addColorStop(1, "#DFDBC3");
+
+            // Fill with gradient
+            _DrawingContext.fillStyle = grd;
+            _DrawingContext.fillRect(this.m_CurrentXPosition, this.m_CurrentYPosition, _Canvas.width, height);
+            this.m_CurrentXPosition = _Canvas.width / 3;
+            this.m_CurrentYPosition = innerCircleYPos - ((_DefaultFontSize + _FontHeightMargin) * 6);
+            this.putText("ERROR TRAP:");
+            this.advanceLine();
+            this.m_CurrentXPosition = _Canvas.width / 5;
+            this.putText("Interrupt Request.irq = ");
         };
 
         Console.prototype.advanceLine = function () {

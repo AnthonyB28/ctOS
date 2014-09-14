@@ -54,7 +54,7 @@ var _KernelInputQueue = null;
 
 // Standard input and output
 var _StdIn  = null;
-var _StdOut = null;
+var _StdOut: CTOS.Console = null;
 
 // UI
 var _Console: CTOS.Console;

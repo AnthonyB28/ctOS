@@ -30,11 +30,11 @@ module CTOS {
             this.resetXY();
         }
 
-        private clearScreen(): void {
+        public clearScreen(): void {
             _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
         }
 
-        private resetXY(): void {
+        public resetXY(): void {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition = this.m_CurrentFontSize + _FontHeightMargin;
         }
@@ -63,7 +63,8 @@ module CTOS {
                 // Erase last character from the canvas and buffer
                 else if(chr === String.fromCharCode(8) && this.m_Buffer.length > 0)
                 {
-                    this.eraseLastCharacter();
+                    //this.eraseLastCharacter();
+                    this.putError("test", "ERROR TESTING");
                 }
 
                 // Tab & right arrow
@@ -107,7 +108,7 @@ module CTOS {
 
         // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
         // up is true if going back in the history (up arrow) - decrements cmdHistoryIndex
-        public CmdHistoryLookup(up: boolean): void
+        private CmdHistoryLookup(up: boolean): void
         {
             // Go forward in history
             if (up)
@@ -143,7 +144,7 @@ module CTOS {
         }
 
         // Removes the entire buffer from the canvas and clears itself
-        public eraseLine(): void
+        private eraseLine(): void
         {
             var offset: number = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
             var xBeginningPos: number = this.m_CurrentXPosition - offset;
@@ -156,7 +157,7 @@ module CTOS {
         }
 
         // Removes the last character on the buffer from the canvas & the buffer itself
-        public eraseLastCharacter(): void
+        private eraseLastCharacter(): void
         {
             var offset: number = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
             var xBeginningPos: number = this.m_CurrentXPosition - offset;
@@ -182,7 +183,35 @@ module CTOS {
                 var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
                 this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
-         }
+        }
+
+        public putError(errorType : string, msg: string): void
+        {
+            var color: string = '#236B8E';
+
+            var yOffset: number = 30;
+            var height: number = (_DefaultFontSize + _FontHeightMargin) * yOffset;
+            var innerCircleYPos: number = this.m_CurrentYPosition + ((_DefaultFontSize + _FontHeightMargin) * (yOffset / 2));
+            this.advanceLine();
+            var grd = _DrawingContext.createRadialGradient(
+                _Canvas.width / 2, innerCircleYPos, 180,
+                _Canvas.width / 2, innerCircleYPos, 250);
+            grd.addColorStop(0, color);
+            grd.addColorStop(1, "#DFDBC3");
+
+            // Fill with gradient
+            _DrawingContext.fillStyle = grd;
+            _DrawingContext.fillRect(this.m_CurrentXPosition,
+                this.m_CurrentYPosition,
+                _Canvas.width,
+                height);
+            this.m_CurrentXPosition = _Canvas.width / 3;
+            this.m_CurrentYPosition = innerCircleYPos - ((_DefaultFontSize + _FontHeightMargin) * 6);
+            this.putText("ERROR TRAP:");
+            this.advanceLine();
+            this.m_CurrentXPosition = _Canvas.width / 5;
+            this.putText("Interrupt Request.irq = ");
+        }
 
         public advanceLine(): void 
         {
