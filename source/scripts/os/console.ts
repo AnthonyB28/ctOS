@@ -176,11 +176,51 @@ module CTOS {
             // do the same thing, thereby encouraging confusion and decreasing readability, I
             // decided to write one function and use the term "text" to connote string or char.
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
-            if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
+
+            if (text !== "")
+            {
+                var offset: number = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
+                var isMultiLineWrapped: boolean = false;
+
+                // If our position is over the width, we need to line wrap!
+                if ((this.m_CurrentXPosition + offset) > _Canvas.width)
+                {
+                    // How far over the width are we?
+                    var offsetFromWidth: number = offset - _Canvas.width;
+
+                    // Now lets find how big an arbitrary character takes up in this offset, just about...
+                    var singleLetterOffset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, "X");
+
+                    // This should be aproximately how many characters we need to advance!
+                    var charactersToAdvanceLine: number = Math.floor(offsetFromWidth / singleLetterOffset);
+
+                    if (charactersToAdvanceLine > 0)
+                    {
+                        // We have a word or some large piece of text we need to advance!
+                        // So we split the text at the character which needs to be wrapped...
+                        var beginningOfLine: string = text.substring(0, charactersToAdvanceLine);
+                        _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, beginningOfLine);
+                        this.advanceLine();
+
+                        // And then simply recursively putText from that split character onward for the complete sentence!
+                        this.putText(text.substring(charactersToAdvanceLine, text.length - 1));
+                        isMultiLineWrapped = true;
+                    }
+                    else
+                    {
+                        // We have only a single character to put on the canvas. Just advance line and write it as if normal.
+                        this.advanceLine();
+                    }
+                }
+                
+                // As long as we didn't do any recursive huge line wrap just before this, simply write the text.
+                if (!isMultiLineWrapped)
+                {
+                    // Draw the text at the current X and Y coordinates.
+                    _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
+                }
+
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
                 this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
         }

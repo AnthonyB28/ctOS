@@ -359,13 +359,7 @@ var CTOS;
         Silly stuff because I can do this all day.
         --- */
         Shell.prototype.shellInsanity = function () {
-            _StdOut.putText("Did I ever tell you what the definition of insanity is?");
-            _StdOut.advanceLine();
-            _StdOut.putText("Insanity is doing the exact... same fucking thing...");
-            _StdOut.advanceLine();
-            _StdOut.putText("over and over again expecting shit to change...");
-            _StdOut.advanceLine();
-            _StdOut.putText("That. Is. Crazy.");
+            _StdOut.putText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
         };
 
         Shell.prototype.shellWatchDogs = function () {
