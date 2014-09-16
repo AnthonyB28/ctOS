@@ -1,4 +1,4 @@
-﻿///<reference path="../globals.ts" />
+///<reference path="../globals.ts" />
 /* ------------
 Console.ts
 Requires globals.ts
@@ -150,25 +150,14 @@ var CTOS;
 
                 // If our position is over the width, we need to line wrap!
                 if ((this.m_CurrentXPosition + offset) > _Canvas.width) {
-                    // How far over the width are we?
-                    var offsetFromWidth = offset - _Canvas.width;
-
-                    // Now lets find how big an arbitrary character takes up in this offset, just about...
-                    var singleLetterOffset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, "X");
-
-                    // This should be aproximately how many characters we need to advance!
-                    var charactersToAdvanceLine = Math.floor(offsetFromWidth / singleLetterOffset);
-
-                    if (charactersToAdvanceLine > 0) {
-                        // We have a word or some large piece of text we need to advance!
-                        // So we split the text at the character which needs to be wrapped...
-                        var beginningOfLine = text.substring(0, charactersToAdvanceLine);
-                        _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, beginningOfLine);
+                    if (text.length > 1) {
+                        // We have long text to break up. Need to find which index to substring
+                        var indexToLineBreak = this.findLineWrapPosition(text);
+                        var textLineBeginning = text.substring(0, indexToLineBreak);
+                        _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, textLineBeginning);
                         this.advanceLine();
-
-                        // And then simply recursively putText from that split character onward for the complete sentence!
-                        this.putText(text.substring(charactersToAdvanceLine, text.length - 1));
                         isMultiLineWrapped = true;
+                        this.putText(text.substring(indexToLineBreak, text.length));
                     } else {
                         // We have only a single character to put on the canvas. Just advance line and write it as if normal.
                         this.advanceLine();
@@ -184,6 +173,19 @@ var CTOS;
                 // Move the current X position.
                 this.m_CurrentXPosition = this.m_CurrentXPosition + offset;
             }
+        };
+
+        // Finds the index of a string which needs to wrap
+        Console.prototype.findLineWrapPosition = function (text) {
+            var offsetToLineBreak = 0;
+            for (var i = 0; i < text.length; ++i) {
+                // Measure each character until we breach the Canvas width
+                offsetToLineBreak += _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text[i]);
+                if (offsetToLineBreak > _Canvas.width) {
+                    return i;
+                }
+            }
+            return 0;
         };
 
         Console.prototype.putError = function (errorType, msg) {
