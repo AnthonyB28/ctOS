@@ -181,7 +181,20 @@ var CTOS;
         Console.prototype.advanceLine = function () {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
-            // TODO: Handle scrolling. (Project 1)
+
+            // Auto-Scroll in the Y
+            if (this.m_CurrentYPosition > _Canvas.height) {
+                // Get the entire console we previously had as an image
+                var canvasImage = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height);
+
+                // Increase the heigh and put the image above
+                _Canvas.height += _DefaultFontSize + _FontHeightMargin;
+                _DrawingContext.putImageData(canvasImage, 0, 0);
+
+                // Auto-scroll down
+                var elem = document.getElementById('divConsole');
+                elem.scrollTop = elem.scrollHeight;
+            }
         };
         return Console;
     })();
