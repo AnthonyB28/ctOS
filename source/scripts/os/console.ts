@@ -190,7 +190,7 @@ module CTOS {
             var color: string = '#236B8E';
 
             var yOffset: number = 30;
-            var height: number = (_DefaultFontSize + _FontHeightMargin) * yOffset;
+            var height: number = _Canvas.height;
             var innerCircleYPos: number = this.m_CurrentYPosition + ((_DefaultFontSize + _FontHeightMargin) * (yOffset / 2));
             this.advanceLine();
             var grd = _DrawingContext.createRadialGradient(
@@ -210,7 +210,9 @@ module CTOS {
             this.putText("ERROR TRAP:");
             this.advanceLine();
             this.m_CurrentXPosition = _Canvas.width / 5;
-            this.putText("Interrupt Request.irq = ");
+            this.putText("Interrupt Request.irq = "); // TODO white
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition = height; // TODO Do we stop input?
         }
 
         public advanceLine(): void 

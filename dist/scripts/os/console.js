@@ -158,7 +158,7 @@ var CTOS;
             var color = '#236B8E';
 
             var yOffset = 30;
-            var height = (_DefaultFontSize + _FontHeightMargin) * yOffset;
+            var height = _Canvas.height;
             var innerCircleYPos = this.m_CurrentYPosition + ((_DefaultFontSize + _FontHeightMargin) * (yOffset / 2));
             this.advanceLine();
             var grd = _DrawingContext.createRadialGradient(_Canvas.width / 2, innerCircleYPos, 180, _Canvas.width / 2, innerCircleYPos, 250);
@@ -173,7 +173,9 @@ var CTOS;
             this.putText("ERROR TRAP:");
             this.advanceLine();
             this.m_CurrentXPosition = _Canvas.width / 5;
-            this.putText("Interrupt Request.irq = ");
+            this.putText("Interrupt Request.irq = "); // TODO white
+            this.m_CurrentXPosition = 0;
+            this.m_CurrentYPosition = height; // TODO Do we stop input?
         };
 
         Console.prototype.advanceLine = function () {
