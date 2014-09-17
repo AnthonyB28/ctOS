@@ -1,79 +1,85 @@
 /* ------------
    Globals.ts
 
-   Global CONSTANTS and _Variables.
+   Global CONSTANTS and _iables.
    (Global over both the OS and Hardware Simulation / Host.)
 
    This code references page numbers in the text book:
    Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
    ------------ */
 
-//
-// Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
-// TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
-//
-var APP_NAME: string    = "ctOS";   // 'cause washDogs
-var APP_VERSION: string = "2.0";   // What did you expect? ... Everything
+module CTOS 
+{
 
-var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
+export class Globals 
+    {
+        // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
+        
+         static APP_NAME: string    = "ctOS";   // 'cause washDogs
+         static APP_VERSION: string = "2.0";   // What did you expect? ... Everything
 
-var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-                            // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-var KEYBOARD_IRQ: number = 1;
+         static CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
 
-var MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
+         static TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
+                                    // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
+         static KEYBOARD_IRQ: number = 1;
+
+         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
 
-//
-// Global Variables
-//
-var _CPU: CTOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+        //
+        // Global iables
+        //
+         static m_CPU: CTOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 
-var _OSclock: number = 0;  // Page 23.
+         static m_OSClock: number = 0;  // Page 23.
 
-var _Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
+        //oops mode
+         static m_Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
 
-// Initialized in hostInit().
-var _Canvas: HTMLCanvasElement = null; 
-var _Status: HTMLLabelElement = null;
-var _Time: HTMLLabelElement = null;
-var _ProgramInput: HTMLTextAreaElement = null;
-var _DrawingContext = null;  
+        // Initialized in hostInit().
+         static m_Canvas: HTMLCanvasElement = null; 
+         static m_Status: HTMLLabelElement = null;
+         static m_Time: HTMLLabelElement = null;
+         static m_ProgramInput: HTMLTextAreaElement = null;
+         static m_DrawingContext = null;  
            
-var _DefaultFontFamily = "sans";        // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
-var _DefaultFontSize = 13;
-var _FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
+         static m_DefaultFontFamily = "sans";        // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
+         static m_DefaultFontSize = 13;
+         static m_FontHeightMargin = 4;              // Additional space added to font size when advancing a line.
 
-var _Trace: boolean = true;  // Default the OS trace to be on.
+         static m_Trace: boolean = true;  // Default the OS trace to be on.
 
-// The OS Kernel and its queues.
-var _Kernel: CTOS.Kernel;
-var _KernelInterruptQueue = null;
-var _KernelBuffers: any[] = null;
-var _KernelInputQueue = null;
+        // The OS Kernel and its queues.
+         static m_Kernel: CTOS.Kernel;
+         static m_KernelInterruptQueue = null;
+         static m_KernelBuffers: any[] = null;
+         static m_KernelInputQueue = null;
 
-// Standard input and output
-var _StdIn  = null;
-var _StdOut: CTOS.Console = null;
+        // Standard input and output
+         static m_StdIn  = null;
+         static m_StdOut: CTOS.Console = null;
 
-// UI
-var _Console: CTOS.Console;
-var _OsShell: CTOS.Shell;
-var _BSODColor: string = "#236B8E"; // Inner circle
-var _ConsoleTextDefaultColor: string = "black";
+        // UI
+         static m_Console: CTOS.Console;
+         static m_OsShell: CTOS.Shell;
+         static m_BSODColor: string = "#236B8E"; // Inner circle
+         static m_ConsoleTextDefaultColor: string = "black";
 
-// At least this OS is not trying to kill you. (Yet.)
-var _SarcasticMode: boolean = false;
+        // At least this OS is not trying to kill you. (Yet.)
+         static m_SarcasticMode: boolean = false;
 
-// Global Device Driver Objects - page 12
-var _krnKeyboardDriver = null;
+        // Global Device Driver Objects - page 12
+         static m_KrnKeyboardDriver = null;
 
-var _hardwareClockID: number = null;
+         static m_HardwareClockID: number = null;
 
-// For testing...
-var _GLaDOS: any = null;
-var Glados: any = null;
+        // For testing...
+         static m_GLaDOS: any = null;
+         static m_Glados: any = null;
 
-var onDocumentLoad = function() {
-	CTOS.Control.hostInit();
-};
+         static onDocumentLoad = function() {
+	        Control.hostInit();
+        };
+    }
+}

@@ -141,7 +141,7 @@ module CTOS {
             return total;
         }
 
-        public static draw(ctx, font, size, x, y, str, color = _ConsoleTextDefaultColor) {
+        public static draw(ctx, font, size, x, y, str, color = Globals.m_ConsoleTextDefaultColor) {
             var total = 0;
             var len = str.length;
             var mag = size / 25.0;
@@ -180,7 +180,7 @@ module CTOS {
             return total;
         }
 
-        public static enable(ctx, color = _ConsoleTextDefaultColor)
+        public static enable(ctx, color = Globals.m_ConsoleTextDefaultColor)
         {
             ctx.drawText = function(font,size,x,y,text) { return CanvasTextFunctions.draw( ctx, font,size,x,y,text, color); };
             ctx.measureText = function(font,size,text) { return CanvasTextFunctions.measure( font,size,text); };

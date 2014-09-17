@@ -17,23 +17,23 @@ var CTOS;
             CTOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
-            _KernelInterruptQueue = new CTOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
-            _KernelBuffers = new Array(); // Buffers... for the kernel.
-            _KernelInputQueue = new CTOS.Queue(); // Where device input lands before being processed out somewhere.
-            _Console = new CTOS.Console(); // The command line interface / console I/O device.
+            CTOS.Globals.m_KernelInterruptQueue = new CTOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
+            CTOS.Globals.m_KernelBuffers = new Array(); // Buffers... for the kernel.
+            CTOS.Globals.m_KernelInputQueue = new CTOS.Queue(); // Where device input lands before being processed out somewhere.
+            CTOS.Globals.m_Console = new CTOS.Console(); // The command line interface / console I/O device.
 
             // Initialize the console.
-            _Console.init();
+            CTOS.Globals.m_Console.init();
 
             // Initialize standard input and output to the _Console.
-            _StdIn = _Console;
-            _StdOut = _Console;
+            CTOS.Globals.m_StdIn = CTOS.Globals.m_Console;
+            CTOS.Globals.m_StdOut = CTOS.Globals.m_Console;
 
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
-            _krnKeyboardDriver = new CTOS.DeviceDriverKeyboard(); // Construct it.
-            _krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
-            this.krnTrace(_krnKeyboardDriver.status);
+            CTOS.Globals.m_KrnKeyboardDriver = new CTOS.DeviceDriverKeyboard(); // Construct it.
+            CTOS.Globals.m_KrnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
+            this.krnTrace(CTOS.Globals.m_KrnKeyboardDriver.status);
 
             //
             // ... more?
@@ -44,12 +44,12 @@ var CTOS;
 
             // Launch the shell.
             this.krnTrace("Creating and Launching the shell.");
-            _OsShell = new CTOS.Shell();
-            _OsShell.init();
+            CTOS.Globals.m_OsShell = new CTOS.Shell();
+            CTOS.Globals.m_OsShell.init();
 
             // Finally, initiate testing.
-            if (_GLaDOS) {
-                _GLaDOS.afterStartup();
+            if (CTOS.Globals.m_GLaDOS) {
+                CTOS.Globals.m_GLaDOS.afterStartup();
             }
         };
 
@@ -75,13 +75,13 @@ var CTOS;
             that it has to look for interrupts and process them if it finds any.                           */
             //Did I ever tell you what the definition of insanity is? Insanity is doing the exact... same fucking thing...over and over again expecting shit to change... That.Is.Crazy.
             // Check for an interrupt, are any. Page 560
-            if (_KernelInterruptQueue.getSize() > 0) {
+            if (CTOS.Globals.m_KernelInterruptQueue.getSize() > 0) {
                 // Process the first interrupt on the interrupt queue.
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
-                var interrupt = _KernelInterruptQueue.dequeue();
+                var interrupt = CTOS.Globals.m_KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting) {
-                _CPU.cycle();
+            } else if (CTOS.Globals.m_CPU.isExecuting) {
+                CTOS.Globals.m_CPU.cycle();
             } else {
                 this.krnTrace("Idle");
             }
@@ -108,12 +108,12 @@ var CTOS;
             this.krnTrace("Handling IRQ~" + irq);
 
             switch (irq) {
-                case TIMER_IRQ:
+                case CTOS.Globals.TIMER_IRQ:
                     this.krnTimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
-                case KEYBOARD_IRQ:
-                    _krnKeyboardDriver.isr(params); // Kernel mode device driver
-                    _StdIn.handleInput();
+                case CTOS.Globals.KEYBOARD_IRQ:
+                    CTOS.Globals.m_KrnKeyboardDriver.isr(params); // Kernel mode device driver
+                    CTOS.Globals.m_StdIn.handleInput();
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
@@ -144,11 +144,11 @@ var CTOS;
         //
         Kernel.prototype.krnTrace = function (msg) {
             // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
-            if (_Trace) {
+            if (CTOS.Globals.m_Trace) {
                 if (msg === "Idle") {
                     // We can't log every idle clock pulse because it would lag the browser very quickly.
-                    if (_OSclock % 10 == 0) {
-                        // Check the CPU_CLOCK_INTERVAL in globals.ts for an
+                    if (CTOS.Globals.m_OSClock % 10 == 0) {
+                        // Check the Globals.CPU_CLOCK_INTERVAL in globals.ts for an
                         // idea of the tick rate and adjust this line accordingly.
                         CTOS.Control.hostLog(msg, "OS");
                     }
@@ -161,7 +161,7 @@ var CTOS;
         Kernel.prototype.krnTrapError = function (msg) {
             var errorMsg = "OS ERROR - TRAP: " + msg;
             CTOS.Control.hostLog(errorMsg);
-            _StdOut.putError("TRAP ERROR", errorMsg);
+            CTOS.Globals.m_StdOut.putError("TRAP ERROR", errorMsg);
             this.krnShutdown();
         };
         return Kernel;

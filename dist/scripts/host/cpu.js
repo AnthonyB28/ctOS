@@ -37,7 +37,7 @@ var CTOS;
         };
 
         Cpu.prototype.cycle = function () {
-            _Kernel.krnTrace('CPU cycle');
+            CTOS.Globals.m_Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
         };

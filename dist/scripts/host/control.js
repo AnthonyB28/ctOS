@@ -24,20 +24,20 @@ var CTOS;
         }
         Control.hostInit = function () {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
-            _Canvas = document.getElementById('display');
+            CTOS.Globals.m_Canvas = document.getElementById('display');
 
             // Get a global reference to the drawing context.
-            _DrawingContext = _Canvas.getContext('2d');
+            CTOS.Globals.m_DrawingContext = CTOS.Globals.m_Canvas.getContext('2d');
 
             // Get the status bar
-            _Status = document.getElementById('statusLabel');
-            _Time = document.getElementById('timeLabel');
+            CTOS.Globals.m_Status = document.getElementById('statusLabel');
+            CTOS.Globals.m_Time = document.getElementById('timeLabel');
 
             // Get the program input box
-            _ProgramInput = document.getElementById('taProgramInput');
+            CTOS.Globals.m_ProgramInput = document.getElementById('taProgramInput');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            CTOS.CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
+            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
@@ -48,16 +48,16 @@ var CTOS;
             document.getElementById("btnStartOS").focus();
 
             // Check for our testing and enrichment core.
-            if (typeof Glados === "function") {
-                _GLaDOS = new Glados();
-                _GLaDOS.init();
+            if (typeof CTOS.Globals.m_Glados === "function") {
+                CTOS.Globals.m_GLaDOS = new CTOS.Globals.m_Glados();
+                CTOS.Globals.m_GLaDOS.init();
             }
         };
 
         Control.hostLog = function (msg, source) {
             if (typeof source === "undefined") { source = "?"; }
             // Note the OS CLOCK.
-            var clock = _OSclock;
+            var clock = CTOS.Globals.m_OSClock;
 
             // Note the REAL clock in milliseconds since January 1, 1970.
             var now = new Date().getTime();
@@ -86,15 +86,15 @@ var CTOS;
             document.getElementById("display").focus();
 
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
-            _CPU = new CTOS.Cpu();
-            _CPU.init();
+            CTOS.Globals.m_CPU = new CTOS.Cpu();
+            CTOS.Globals.m_CPU.init();
 
             // ... then set the host clock pulse ...
-            _hardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            CTOS.Globals.m_HardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CTOS.Globals.CPU_CLOCK_INTERVAL);
 
             // .. and call the OS Kernel Bootstrap routine.
-            _Kernel = new CTOS.Kernel();
-            _Kernel.krnBootstrap();
+            CTOS.Globals.m_Kernel = new CTOS.Kernel();
+            CTOS.Globals.m_Kernel.krnBootstrap();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -102,10 +102,10 @@ var CTOS;
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
+            CTOS.Globals.m_Kernel.krnShutdown();
 
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            clearInterval(CTOS.Globals.m_HardwareClockID);
             // TODO: Is there anything else we need to do here?
         };
 

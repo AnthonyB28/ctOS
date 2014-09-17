@@ -17,21 +17,21 @@ var CTOS;
 (function (CTOS) {
     var Devices = (function () {
         function Devices() {
-            _hardwareClockID = -1;
+            CTOS.Globals.m_HardwareClockID = -1;
         }
         //
         // Hardware/Host Clock Pulse
         //
         Devices.hostClockPulse = function () {
             // Increment the hardware (host) clock.
-            _OSclock++;
+            CTOS.Globals.m_OSClock++;
 
             //Update the time GUI
             var currentDate = new Date();
-            _Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
 
             // Call the kernel clock pulse event handler.
-            _Kernel.krnOnCPUClockPulse();
+            CTOS.Globals.m_Kernel.krnOnCPUClockPulse();
         };
 
         //
@@ -58,7 +58,7 @@ var CTOS;
                 var params = new Array(event.which, event.shiftKey);
 
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new CTOS.Interrupt(KEYBOARD_IRQ, params));
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.KEYBOARD_IRQ, params));
             }
         };
         return Devices;

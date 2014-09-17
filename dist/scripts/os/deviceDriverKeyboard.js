@@ -29,7 +29,7 @@ var CTOS;
             // Parse the params.    TODO: Check that they are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            CTOS.Globals.m_Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
             // Check to see if we even want to deal with the key that was pressed.
@@ -43,7 +43,7 @@ var CTOS;
                 }
 
                 // TODO: Check for caps-lock and handle as shifted if so.
-                _KernelInputQueue.enqueue(chr);
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             } else if (((keyCode >= 48) && (keyCode <= 57)) || (keyCode == 32) || (keyCode == 13)) {
                 if (isShifted) {
                     var shiftedNumbers = {
@@ -59,7 +59,7 @@ var CTOS;
                     chr = String.fromCharCode(keyCode);
                 }
 
-                _KernelInputQueue.enqueue(chr);
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             } else if ((keyCode >= 186) && (keyCode <= 222)) {
                 if (isShifted) {
                     var shiftedSymbols = {
@@ -77,10 +77,10 @@ var CTOS;
                     chr = "";
                 }
 
-                _KernelInputQueue.enqueue(chr);
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             } else if (keyCode == 8 || keyCode == 9 || (keyCode >= 38 && keyCode <= 40)) {
                 chr = String.fromCharCode(keyCode);
-                _KernelInputQueue.enqueue(chr);
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             }
         };
         return DeviceDriverKeyboard;

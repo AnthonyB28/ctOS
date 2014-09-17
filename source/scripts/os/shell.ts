@@ -157,7 +157,7 @@ module CTOS {
 
         public putPrompt(): void
         {
-            _StdOut.putText(this.promptStr);
+            Globals.m_StdOut.putText(this.promptStr);
         }
 
         // Command suggesting
@@ -186,7 +186,7 @@ module CTOS {
 
         public handleInput(buffer): void
         {
-            _Kernel.krnTrace("Shell Command~" + buffer);
+            Globals.m_Kernel.krnTrace("Shell Command~" + buffer);
             //
             // Parse the input...
             //
@@ -229,12 +229,12 @@ module CTOS {
         public execute(fn, args?): void
         {
             // We just got a command, so advance the line...
-            _StdOut.advanceLine();
+            Globals.m_StdOut.advanceLine();
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (_StdOut.m_CurrentXPosition > 0) {
-                _StdOut.advanceLine();
+            if (Globals.m_StdOut.m_CurrentXPosition > 0) {
+                Globals.m_StdOut.advanceLine();
             }
             // ... and finally write the prompt again.
             this.putPrompt();
@@ -276,37 +276,37 @@ module CTOS {
 
         public shellInvalidCommand(): void 
         {
-            _StdOut.putText("Invalid Command. ");
-            if (_SarcasticMode)
+            Globals.m_StdOut.putText("Invalid Command. ");
+            if (Globals.m_SarcasticMode)
             {
-                _StdOut.putText("Duh. Go back to your Speak & Spell.");
+                Globals.m_StdOut.putText("Duh. Go back to your Speak & Spell.");
             } else
             {
-                _StdOut.putText("Type 'help' for, well... help.");
+                Globals.m_StdOut.putText("Type 'help' for, well... help.");
             }
         }
 
         public shellDate() : void
         {
             var currentDate: Date = new Date();
-            _StdOut.putText(currentDate.toLocaleDateString() + " " +currentDate.toLocaleTimeString());
+            Globals.m_StdOut.putText(currentDate.toLocaleDateString() + " " +currentDate.toLocaleTimeString());
         }
 
         public shellWhereAmI() : void
         {
-            _StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
+            Globals.m_StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         }
 
         public shellVer(args): void
         {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
-            _StdOut.advanceLine();
-            _StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
+            Globals.m_StdOut.putText(Globals.APP_NAME + " version " + Globals.APP_VERSION);
+            Globals.m_StdOut.advanceLine();
+            Globals.m_StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
         }
 
         public shellLoad(args): void
         {
-            var programToParse: string = _ProgramInput.innerHTML;
+            var programToParse: string = Globals.m_ProgramInput.innerHTML;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput: Array<String> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
@@ -315,9 +315,9 @@ module CTOS {
                 if (!Utils.IsValidHex(code))
                 {
                     isValid = false;
-                    _StdOut.putText("Invalid program input! No cake for you!");
-                    _StdOut.advanceLine();
-                    _StdOut.putText("First issue: " + code);
+                    Globals.m_StdOut.putText("Invalid program input! No cake for you!");
+                    Globals.m_StdOut.advanceLine();
+                    Globals.m_StdOut.putText("First issue: " + code);
                     return false; // stop the loop
                 }
                 else
@@ -328,31 +328,31 @@ module CTOS {
 
             if (isValid)
             {
-                _StdOut.putText("Valid hex & space program input! Want some cake?");
+                Globals.m_StdOut.putText("Valid hex & space program input! Want some cake?");
             }
         }
 
         public shellHelp(args): void
         {
-            _StdOut.putText("Commands:");
-            for (var i in _OsShell.commandList) {
-                _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+            Globals.m_StdOut.putText("Commands:");
+            for (var i in Globals.m_OsShell.commandList) {
+                Globals.m_StdOut.advanceLine();
+                Globals.m_StdOut.putText("  " + Globals.m_OsShell.commandList[i].command + " " + Globals.m_OsShell.commandList[i].description);
             }
         }
 
         public shellShutdown(args): void
         {
-             _StdOut.putText("Shutting down...");
+             Globals.m_StdOut.putText("Shutting down...");
              // Call Kernel shutdown routine.
-            _Kernel.krnShutdown();
+            Globals.m_Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         }
 
         public shellCls(args): void
         {
-            _StdOut.clearScreen();
-            _StdOut.resetXY();
+            Globals.m_StdOut.clearScreen();
+            Globals.m_StdOut.resetXY();
         }
 
         public shellMan(args): void
@@ -361,13 +361,13 @@ module CTOS {
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        _StdOut.putText("Help displays a list of (hopefully) valid commands.");
+                        Globals.m_StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
-                        _StdOut.putText("No manual entry for " + args[0] + ".");
+                        Globals.m_StdOut.putText("No manual entry for " + args[0] + ".");
                 }
             } else {
-                _StdOut.putText("Usage: man <topic>  Please supply a topic.");
+                Globals.m_StdOut.putText("Usage: man <topic>  Please supply a topic.");
             }
         }
 
@@ -377,23 +377,23 @@ module CTOS {
                 var setting = args[0];
                 switch (setting) {
                     case "on":
-                        if (_Trace && _SarcasticMode) {
-                            _StdOut.putText("Trace is already on, dumbass.");
+                        if (Globals.m_Trace && Globals.m_SarcasticMode) {
+                            Globals.m_StdOut.putText("Trace is already on, dumbass.");
                         } else {
-                            _Trace = true;
-                            _StdOut.putText("Trace ON");
+                            Globals.m_Trace = true;
+                            Globals.m_StdOut.putText("Trace ON");
                         }
 
                         break;
                     case "off":
-                        _Trace = false;
-                        _StdOut.putText("Trace OFF");
+                        Globals.m_Trace = false;
+                        Globals.m_StdOut.putText("Trace OFF");
                         break;
                     default:
-                        _StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        Globals.m_StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
                 }
             } else {
-                _StdOut.putText("Usage: trace <on | off>");
+                Globals.m_StdOut.putText("Usage: trace <on | off>");
             }
         }
 
@@ -401,18 +401,18 @@ module CTOS {
         {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                _StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
+                Globals.m_StdOut.putText(args.join(' ') + " = '" + Utils.rot13(args.join(' ')) +"'");
             } else {
-                _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+                Globals.m_StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
 
         public shellPrompt(args): void
         {
             if (args.length > 0) {
-                _OsShell.promptStr = args[0];
+                Globals.m_OsShell.promptStr = args[0];
             } else {
-                _StdOut.putText("Usage: prompt <string>  Please supply a string.");
+                Globals.m_StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
         }
 
@@ -426,19 +426,19 @@ module CTOS {
                     status += args[i] + " ";
                 }
 
-                _Status.textContent = "Status : " + status;
-                _StdOut.putText("Status updated to: " + status);
+                Globals.m_Status.textContent = "Status : " + status;
+                Globals.m_StdOut.putText("Status updated to: " + status);
             }
             else
             {
-                _StdOut.putText("Usage: status <string> Please supply a string.");
+                Globals.m_StdOut.putText("Usage: status <string> Please supply a string.");
             }
         }
 
         // BSOD & Shutdown
         public shellExplode()
         {
-            _StdOut.putError("EXPLOSION", "You did this.");
+            Globals.m_StdOut.putError("EXPLOSION", "You did this.");
         }
 
         /* --- 
@@ -455,16 +455,16 @@ module CTOS {
             for(var i : number = 0; i < secretMsgSplit.length; ++i)
             {
                 // Trim and uncipher the string at the index. Each index is a new line.
-                _StdOut.putText(Utils.trim(Utils.rot13(secretMsgSplit[i])));
-                _StdOut.advanceLine();
-                _StdOut.advanceLine();
+                Globals.m_StdOut.putText(Utils.trim(Utils.rot13(secretMsgSplit[i])));
+                Globals.m_StdOut.advanceLine();
+                Globals.m_StdOut.advanceLine();
             }
         }
 
         public shellInsanity(): void
         {
             // Far Cry man
-            _StdOut.putText("Did I ever tell you what the definition of insanity is? " +
+            Globals.m_StdOut.putText("Did I ever tell you what the definition of insanity is? " +
                             "Insanity is doing the exact... same fucking thing..." + 
                             "over and over again expecting shit to change... That.Is.Crazy.");
         }
@@ -472,9 +472,9 @@ module CTOS {
         public shellWatchDogs(): void
         {
             // WashDogs
-            _StdOut.putText("_we are watching _we are all connected");
-            _StdOut.advanceLine();
-            _StdOut.putText("_hacking is our weapon _Connection is power");
+            Globals.m_StdOut.putText("_we are watching _we are all connected");
+            Globals.m_StdOut.advanceLine();
+            Globals.m_StdOut.putText("_hacking is our weapon _Connection is power");
         }
 
         public shellAssassin(): void
@@ -491,21 +491,21 @@ module CTOS {
 
         public shellCurse(): void
         {
-            _StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Bitch.");
-            _SarcasticMode = true;
+            Globals.m_StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
+            Globals.m_StdOut.advanceLine();
+            Globals.m_StdOut.putText("Bitch.");
+            Globals.m_SarcasticMode = true;
         }
 
         public shellApology(): void
         {
-            if (_SarcasticMode)
+            if (Globals.m_SarcasticMode)
             {
-                _StdOut.putText("Okay. I forgive you. This time.");
-                _SarcasticMode = false;
+                Globals.m_StdOut.putText("Okay. I forgive you. This time.");
+                Globals.m_SarcasticMode = false;
             } else
             {
-                _StdOut.putText("For what?");
+                Globals.m_StdOut.putText("For what?");
             }
         }
 

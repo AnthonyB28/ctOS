@@ -43,7 +43,7 @@ var CTOS;
         };
 
         CanvasTextFunctions.draw = function (ctx, font, size, x, y, str, color) {
-            if (typeof color === "undefined") { color = _ConsoleTextDefaultColor; }
+            if (typeof color === "undefined") { color = CTOS.Globals.m_ConsoleTextDefaultColor; }
             var total = 0;
             var len = str.length;
             var mag = size / 25.0;
@@ -81,7 +81,7 @@ var CTOS;
         };
 
         CanvasTextFunctions.enable = function (ctx, color) {
-            if (typeof color === "undefined") { color = _ConsoleTextDefaultColor; }
+            if (typeof color === "undefined") { color = CTOS.Globals.m_ConsoleTextDefaultColor; }
             ctx.drawText = function (font, size, x, y, text) {
                 return CanvasTextFunctions.draw(ctx, font, size, x, y, text, color);
             };

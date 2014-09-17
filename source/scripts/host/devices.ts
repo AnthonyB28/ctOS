@@ -24,7 +24,7 @@ module CTOS {
     export class Devices {
 
         constructor() {
-            _hardwareClockID = -1;
+            Globals.m_HardwareClockID = -1;
         }
 
         //
@@ -32,14 +32,14 @@ module CTOS {
         //
         public static hostClockPulse(): void {
             // Increment the hardware (host) clock.
-            _OSclock++;
+            Globals.m_OSClock++;
 
             //Update the time GUI
             var currentDate: Date = new Date();
-            _Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
 
             // Call the kernel clock pulse event handler.
-            _Kernel.krnOnCPUClockPulse();
+            Globals.m_Kernel.krnOnCPUClockPulse();
         }
 
         //
@@ -64,7 +64,7 @@ module CTOS {
                 // Note the pressed key code in the params (Mozilla-specific).
                 var params = new Array(event.which, event.shiftKey);
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new Interrupt(KEYBOARD_IRQ, params));
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.KEYBOARD_IRQ, params));
             }
         }
     }

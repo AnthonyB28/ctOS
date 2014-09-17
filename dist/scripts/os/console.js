@@ -9,10 +9,10 @@ var CTOS;
 (function (CTOS) {
     var Console = (function () {
         function Console(m_CurrentFont, m_CurrentFontSize, m_CurrentXPosition, m_CurrentYPosition, m_Buffer, m_CmdHistory, m_CmdHistoryIndex, m_CmdHistoryMovedOnce) {
-            if (typeof m_CurrentFont === "undefined") { m_CurrentFont = _DefaultFontFamily; }
-            if (typeof m_CurrentFontSize === "undefined") { m_CurrentFontSize = _DefaultFontSize; }
+            if (typeof m_CurrentFont === "undefined") { m_CurrentFont = CTOS.Globals.m_DefaultFontFamily; }
+            if (typeof m_CurrentFontSize === "undefined") { m_CurrentFontSize = CTOS.Globals.m_DefaultFontSize; }
             if (typeof m_CurrentXPosition === "undefined") { m_CurrentXPosition = 0; }
-            if (typeof m_CurrentYPosition === "undefined") { m_CurrentYPosition = _DefaultFontSize; }
+            if (typeof m_CurrentYPosition === "undefined") { m_CurrentYPosition = CTOS.Globals.m_DefaultFontSize; }
             if (typeof m_Buffer === "undefined") { m_Buffer = ""; }
             if (typeof m_CmdHistory === "undefined") { m_CmdHistory = []; }
             if (typeof m_CmdHistoryIndex === "undefined") { m_CmdHistoryIndex = 0; }
@@ -32,27 +32,27 @@ var CTOS;
         };
 
         Console.prototype.clearScreen = function () {
-            _DrawingContext.clearRect(0, 0, _Canvas.width, _Canvas.height);
+            CTOS.Globals.m_DrawingContext.clearRect(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
         };
 
         Console.prototype.resetXY = function () {
             this.m_CurrentXPosition = 0;
-            this.m_CurrentYPosition = this.m_CurrentFontSize + _FontHeightMargin;
+            this.m_CurrentYPosition = this.m_CurrentFontSize + CTOS.Globals.m_FontHeightMargin;
         };
 
         Console.prototype.handleInput = function () {
-            while (_KernelInputQueue.getSize() > 0) {
+            while (CTOS.Globals.m_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
-                var chr = _KernelInputQueue.dequeue();
+                var chr = CTOS.Globals.m_KernelInputQueue.dequeue();
 
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
                 if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    _OsShell.handleInput(this.m_Buffer);
+                    CTOS.Globals.m_OsShell.handleInput(this.m_Buffer);
 
                     // ... and reset our buffer.
-                    if (this.m_CmdHistory.length > MAX_COMMAND_HISTORY) {
+                    if (this.m_CmdHistory.length > CTOS.Globals.MAX_COMMAND_HISTORY) {
                         this.m_CmdHistory.shift();
                     }
                     this.m_CmdHistory.push(this.m_Buffer);
@@ -62,7 +62,7 @@ var CTOS;
                     //this.eraseLastCharacter();
                     this.putError("test", "ERROR TESTING");
                 } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
-                    var suggestedCmd = _OsShell.suggestCmd(this.m_Buffer);
+                    var suggestedCmd = CTOS.Globals.m_OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
                         this.eraseLine();
                         this.putText(suggestedCmd);
@@ -115,10 +115,10 @@ var CTOS;
 
         // Removes the entire buffer from the canvas and clears itself
         Console.prototype.eraseLine = function () {
-            var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
+            var offset = CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
             var xBeginningPos = this.m_CurrentXPosition - offset;
             var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            CTOS.Globals.m_DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
             this.m_CurrentXPosition = xBeginningPos;
 
             // Clear buffer, important
@@ -127,10 +127,10 @@ var CTOS;
 
         // Removes the last character on the buffer from the canvas & the buffer itself
         Console.prototype.eraseLastCharacter = function () {
-            var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
+            var offset = CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
             var xBeginningPos = this.m_CurrentXPosition - offset;
             var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
-            _DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+            CTOS.Globals.m_DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
             this.m_CurrentXPosition = xBeginningPos;
 
             // Strip last character off the buffer
@@ -145,16 +145,16 @@ var CTOS;
             // decided to write one function and use the term "text" to connote string or char.
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
-                var offset = _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
+                var offset = CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text);
                 var isMultiLineWrapped = false;
 
                 // If our position is over the width, we need to line wrap!
-                if ((this.m_CurrentXPosition + offset) > _Canvas.width) {
+                if ((this.m_CurrentXPosition + offset) > CTOS.Globals.m_Canvas.width) {
                     if (text.length > 1) {
                         // We have long text to break up. Need to find which index to substring
                         var indexToLineBreak = this.findLineWrapPosition(text);
                         var textLineBeginning = text.substring(0, indexToLineBreak);
-                        _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, textLineBeginning);
+                        CTOS.Globals.m_DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, textLineBeginning);
                         this.advanceLine();
                         isMultiLineWrapped = true;
                         this.putText(text.substring(indexToLineBreak, text.length));
@@ -167,7 +167,7 @@ var CTOS;
                 // As long as we didn't do any recursive huge line wrap just before this, simply write the text.
                 if (!isMultiLineWrapped) {
                     // Draw the text at the current X and Y coordinates.
-                    _DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
+                    CTOS.Globals.m_DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, text);
                 }
 
                 // Move the current X position.
@@ -180,8 +180,8 @@ var CTOS;
             var offsetToLineBreak = 0;
             for (var i = 0; i < text.length; ++i) {
                 // Measure each character until we breach the Canvas width
-                offsetToLineBreak += _DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text[i]);
-                if (offsetToLineBreak > _Canvas.width) {
+                offsetToLineBreak += CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, text[i]);
+                if (offsetToLineBreak > CTOS.Globals.m_Canvas.width) {
                     return i;
                 }
             }
@@ -193,52 +193,52 @@ var CTOS;
             this.clearScreen();
 
             // Compute where the inner circle should go
-            var innerCircleYPos = _Canvas.height / 2;
+            var innerCircleYPos = CTOS.Globals.m_Canvas.height / 2;
 
             // Create the gradient
-            var grd = _DrawingContext.createRadialGradient(_Canvas.width / 2, innerCircleYPos, 180, _Canvas.width / 2, innerCircleYPos, 250);
-            grd.addColorStop(0, _BSODColor); // Inner circle
-            grd.addColorStop(1, getComputedStyle(_Canvas, null).getPropertyValue("background-color")); // Outer circle should be "transparent"
+            var grd = CTOS.Globals.m_DrawingContext.createRadialGradient(CTOS.Globals.m_Canvas.width / 2, innerCircleYPos, 180, CTOS.Globals.m_Canvas.width / 2, innerCircleYPos, 250);
+            grd.addColorStop(0, CTOS.Globals.m_BSODColor); // Inner circle
+            grd.addColorStop(1, getComputedStyle(CTOS.Globals.m_Canvas, null).getPropertyValue("background-color")); // Outer circle should be "transparent"
 
             // Fill with gradient
-            _DrawingContext.fillStyle = grd;
-            _DrawingContext.fillRect(0, -20, _Canvas.width, _Canvas.height + 20);
+            CTOS.Globals.m_DrawingContext.fillStyle = grd;
+            CTOS.Globals.m_DrawingContext.fillRect(0, -20, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height + 20);
 
             // Compute where we need to write the text nicely
-            this.m_CurrentXPosition = _Canvas.width / 3;
-            this.m_CurrentYPosition = innerCircleYPos - ((_DefaultFontSize + _FontHeightMargin) * 6);
+            this.m_CurrentXPosition = CTOS.Globals.m_Canvas.width / 3;
+            this.m_CurrentYPosition = innerCircleYPos - ((CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin) * 6);
 
             // Write the error text, preferably within the circle
-            CTOS.CanvasTextFunctions.enable(_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
+            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
             this.putText(errorType);
             this.advanceLine();
-            this.m_CurrentXPosition = _Canvas.width / 5;
+            this.m_CurrentXPosition = CTOS.Globals.m_Canvas.width / 5;
             this.putText(msg);
-            CTOS.CanvasTextFunctions.enable(_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
+            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
 
             // Shutdown! Stop input!
             CTOS.Control.hostLog("Emergency halt", errorType);
             CTOS.Control.hostLog("Attempting Kernel shutdown.", "BSOD");
 
             // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
+            CTOS.Globals.m_Kernel.krnShutdown();
 
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            clearInterval(CTOS.Globals.m_HardwareClockID);
         };
 
         Console.prototype.advanceLine = function () {
             this.m_CurrentXPosition = 0;
-            this.m_CurrentYPosition += _DefaultFontSize + _FontHeightMargin;
+            this.m_CurrentYPosition += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
 
             // Auto-Scroll in the Y
-            if (this.m_CurrentYPosition > _Canvas.height) {
+            if (this.m_CurrentYPosition > CTOS.Globals.m_Canvas.height) {
                 // Get the entire console we previously had as an image
-                var canvasImage = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height);
+                var canvasImage = CTOS.Globals.m_DrawingContext.getImageData(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
 
                 // Increase the heigh and put the image above
-                _Canvas.height += _DefaultFontSize + _FontHeightMargin;
-                _DrawingContext.putImageData(canvasImage, 0, 0);
+                CTOS.Globals.m_Canvas.height += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
+                CTOS.Globals.m_DrawingContext.putImageData(canvasImage, 0, 0);
 
                 // Auto-scroll down
                 var elem = document.getElementById('divConsole');

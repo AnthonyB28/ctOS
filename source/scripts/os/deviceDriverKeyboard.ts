@@ -28,7 +28,7 @@ module CTOS {
             // Parse the params.    TODO: Check that they are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            Globals.m_Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
             // Check to see if we even want to deal with the key that was pressed.
@@ -47,7 +47,7 @@ module CTOS {
                 }
 
                 // TODO: Check for caps-lock and handle as shifted if so.
-                _KernelInputQueue.enqueue(chr);
+                Globals.m_KernelInputQueue.enqueue(chr);
             }
 
             else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
@@ -73,7 +73,7 @@ module CTOS {
                     chr = String.fromCharCode(keyCode);
                 }
 
-                _KernelInputQueue.enqueue(chr);
+                Globals.m_KernelInputQueue.enqueue(chr);
             }
 
             // Symbol keys
@@ -100,7 +100,7 @@ module CTOS {
                     chr = "";
                 }
 
-                _KernelInputQueue.enqueue(chr);
+                Globals.m_KernelInputQueue.enqueue(chr);
             }
 
             else if (keyCode == 8 || // backspace
@@ -108,7 +108,7 @@ module CTOS {
                     (keyCode >= 38 && keyCode <= 40)) // arrows
             {
                 chr = String.fromCharCode(keyCode);
-                _KernelInputQueue.enqueue(chr);
+                Globals.m_KernelInputQueue.enqueue(chr);
             }
         }
     }

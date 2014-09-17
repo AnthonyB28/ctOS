@@ -29,20 +29,20 @@ module CTOS {
 
         public static hostInit(): void {
             // Get a global reference to the canvas.  TODO: Move this stuff into a Display Device Driver, maybe?
-            _Canvas = <HTMLCanvasElement>document.getElementById('display');
+            Globals.m_Canvas = <HTMLCanvasElement>document.getElementById('display');
 
             // Get a global reference to the drawing context.
-            _DrawingContext = _Canvas.getContext('2d');
+            Globals.m_DrawingContext = Globals.m_Canvas.getContext('2d');
 
             // Get the status bar
-            _Status = <HTMLLabelElement>document.getElementById('statusLabel');
-            _Time = <HTMLLabelElement>document.getElementById('timeLabel');
+            Globals.m_Status = <HTMLLabelElement>document.getElementById('statusLabel');
+            Globals.m_Time = <HTMLLabelElement>document.getElementById('timeLabel');
 
             // Get the program input box
-            _ProgramInput = <HTMLTextAreaElement>document.getElementById('taProgramInput');
+            Globals.m_ProgramInput = <HTMLTextAreaElement>document.getElementById('taProgramInput');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            CanvasTextFunctions.enable(_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
+            CanvasTextFunctions.enable(Globals.m_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
@@ -53,15 +53,15 @@ module CTOS {
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
             // Check for our testing and enrichment core.
-            if (typeof Glados === "function") {
-                _GLaDOS = new Glados();
-                _GLaDOS.init();
+            if (typeof Globals.m_Glados === "function") {
+                Globals.m_GLaDOS = new Globals.m_Glados();
+                Globals.m_GLaDOS.init();
             }
         }
 
         public static hostLog(msg: string, source: string = "?"): void {
             // Note the OS CLOCK.
-            var clock: number = _OSclock;
+            var clock: number = Globals.m_OSClock;
 
             // Note the REAL clock in milliseconds since January 1, 1970.
             var now: number = new Date().getTime();
@@ -91,23 +91,23 @@ module CTOS {
             document.getElementById("display").focus();
 
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
-            _CPU = new Cpu();
-            _CPU.init();
+            Globals.m_CPU = new Cpu();
+            Globals.m_CPU.init();
 
             // ... then set the host clock pulse ...
-            _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
-            _Kernel = new Kernel();
-            _Kernel.krnBootstrap();
+            Globals.m_Kernel = new Kernel();
+            Globals.m_Kernel.krnBootstrap();
         }
 
         public static hostBtnHaltOS_click(btn): void {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
             // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
+            Globals.m_Kernel.krnShutdown();
             // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
+            clearInterval(Globals.m_HardwareClockID);
             // TODO: Is there anything else we need to do here?
         }
 

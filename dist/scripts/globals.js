@@ -1,77 +1,66 @@
-/* ------------
+﻿/* ------------
 Globals.ts
-Global CONSTANTS and _Variables.
+Global CONSTANTS and _iables.
 (Global over both the OS and Hardware Simulation / Host.)
 This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
-//
-// Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
-// TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
-//
-var APP_NAME = "ctOS";
-var APP_VERSION = "2.0";
+var CTOS;
+(function (CTOS) {
+    var Globals = (function () {
+        function Globals() {
+        }
+        Globals.APP_NAME = "ctOS";
+        Globals.APP_VERSION = "2.0";
 
-var CPU_CLOCK_INTERVAL = 100;
+        Globals.CPU_CLOCK_INTERVAL = 100;
 
-var TIMER_IRQ = 0;
+        Globals.TIMER_IRQ = 0;
 
-// NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-var KEYBOARD_IRQ = 1;
+        Globals.KEYBOARD_IRQ = 1;
 
-var MAX_COMMAND_HISTORY = 10;
+        Globals.MAX_COMMAND_HISTORY = 10;
 
-//
-// Global Variables
-//
-var _CPU;
+        Globals.m_OSClock = 0;
 
-var _OSclock = 0;
+        Globals.m_Mode = 0;
 
-var _Mode = 0;
+        Globals.m_Canvas = null;
+        Globals.m_Status = null;
+        Globals.m_Time = null;
+        Globals.m_ProgramInput = null;
+        Globals.m_DrawingContext = null;
 
-// Initialized in hostInit().
-var _Canvas = null;
-var _Status = null;
-var _Time = null;
-var _ProgramInput = null;
-var _DrawingContext = null;
+        Globals.m_DefaultFontFamily = "sans";
+        Globals.m_DefaultFontSize = 13;
+        Globals.m_FontHeightMargin = 4;
 
-var _DefaultFontFamily = "sans";
-var _DefaultFontSize = 13;
-var _FontHeightMargin = 4;
+        Globals.m_Trace = true;
 
-var _Trace = true;
+        Globals.m_KernelInterruptQueue = null;
+        Globals.m_KernelBuffers = null;
+        Globals.m_KernelInputQueue = null;
 
-// The OS Kernel and its queues.
-var _Kernel;
-var _KernelInterruptQueue = null;
-var _KernelBuffers = null;
-var _KernelInputQueue = null;
+        Globals.m_StdIn = null;
+        Globals.m_StdOut = null;
 
-// Standard input and output
-var _StdIn = null;
-var _StdOut = null;
+        Globals.m_BSODColor = "#236B8E";
+        Globals.m_ConsoleTextDefaultColor = "black";
 
-// UI
-var _Console;
-var _OsShell;
-var _BSODColor = "#236B8E";
-var _ConsoleTextDefaultColor = "black";
+        Globals.m_SarcasticMode = false;
 
-// At least this OS is not trying to kill you. (Yet.)
-var _SarcasticMode = false;
+        Globals.m_KrnKeyboardDriver = null;
 
-// Global Device Driver Objects - page 12
-var _krnKeyboardDriver = null;
+        Globals.m_HardwareClockID = null;
 
-var _hardwareClockID = null;
+        Globals.m_GLaDOS = null;
+        Globals.m_Glados = null;
 
-// For testing...
-var _GLaDOS = null;
-var Glados = null;
-
-var onDocumentLoad = function () {
-    CTOS.Control.hostInit();
-};
+        Globals.onDocumentLoad = function () {
+            CTOS.Control.hostInit();
+        };
+        return Globals;
+    })();
+    CTOS.Globals = Globals;
+})(CTOS || (CTOS = {}));
 //# sourceMappingURL=globals.js.map
