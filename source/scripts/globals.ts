@@ -60,6 +60,7 @@ var _StdOut: CTOS.Console = null;
 var _Console: CTOS.Console;
 var _OsShell: CTOS.Shell;
 var _BSODColor: string = "#236B8E"; // Inner circle
+var _ConsoleTextDefaultColor: string = "black";
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;

@@ -101,6 +101,12 @@ module CTOS {
                 "<string> - Sets the status message");
             this.commandList[this.commandList.length] = sc;
 
+            // Explode
+            sc = new ShellCommand(this.shellExplode,
+                "explode!",
+                "- BSOD & Shutdown");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -427,6 +433,12 @@ module CTOS {
             {
                 _StdOut.putText("Usage: status <string> Please supply a string.");
             }
+        }
+
+        // BSOD & Shutdown
+        public shellExplode()
+        {
+            _StdOut.putError("EXPLOSION", "You did this.");
         }
 
         /* --- 

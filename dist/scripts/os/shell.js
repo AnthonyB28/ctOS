@@ -70,6 +70,10 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellStatus, "status", "<string> - Sets the status message");
             this.commandList[this.commandList.length] = sc;
 
+            // Explode
+            sc = new CTOS.ShellCommand(this.shellExplode, "explode!", "- BSOD & Shutdown");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             /* ---
@@ -358,6 +362,11 @@ var CTOS;
             } else {
                 _StdOut.putText("Usage: status <string> Please supply a string.");
             }
+        };
+
+        // BSOD & Shutdown
+        Shell.prototype.shellExplode = function () {
+            _StdOut.putError("EXPLOSION", "You did this.");
         };
 
         /* ---

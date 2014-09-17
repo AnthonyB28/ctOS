@@ -256,10 +256,14 @@ module CTOS {
             // Compute where we need to write the text nicely
             this.m_CurrentXPosition = _Canvas.width / 3;
             this.m_CurrentYPosition = innerCircleYPos - ((_DefaultFontSize + _FontHeightMargin) * 6);
-            this.putText("ERROR TRAP:");
+
+            // Write the error text, preferably within the circle
+            CanvasTextFunctions.enable(_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
+            this.putText(errorType);
             this.advanceLine();
             this.m_CurrentXPosition = _Canvas.width / 5;
-            this.putText(msg); // TODO white
+            this.putText(msg);
+            CanvasTextFunctions.enable(_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
 
             // Shutdown! Stop input!
             Control.hostLog("Emergency halt", errorType);
