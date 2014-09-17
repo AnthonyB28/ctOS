@@ -1,6 +1,7 @@
 ///<reference path="shellCommand.ts" />
 ///<reference path="userCommand.ts" />
 ///<reference path="../utils.ts" />
+///<reference path="../secret.ts"/>
 /* ------------
 Shell.ts
 The OS Shell - The "command line interface" (CLI) for the console.
@@ -74,6 +75,10 @@ var CTOS;
             /* ---
             Silly stuff cause I can do this all day.
             --- */
+            // Alan
+            sc = new CTOS.ShellCommand(this.shellAlan, "alan!", "- 00...7?");
+            this.commandList[this.commandList.length] = sc;
+
             // Assasin
             sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
             this.commandList[this.commandList.length] = sc;
@@ -358,11 +363,27 @@ var CTOS;
         /* ---
         Silly stuff because I can do this all day.
         --- */
+        Shell.prototype.shellAlan = function () {
+            // Get a random index from our array of secret nugetty goodness
+            var secretIndex = Math.floor(Math.random() * (_SecretAlan.length - 1));
+
+            // I came up with an arbitrary new line marked by ;
+            var secretMsgSplit = _SecretAlan[secretIndex].split(";");
+            for (var i = 0; i < secretMsgSplit.length; ++i) {
+                // Trim and uncipher the string at the index. Each index is a new line.
+                _StdOut.putText(CTOS.Utils.trim(CTOS.Utils.rot13(secretMsgSplit[i])));
+                _StdOut.advanceLine();
+                _StdOut.advanceLine();
+            }
+        };
+
         Shell.prototype.shellInsanity = function () {
+            // Far Cry man
             _StdOut.putText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
         };
 
         Shell.prototype.shellWatchDogs = function () {
+            // WashDogs
             _StdOut.putText("_we are watching _we are all connected");
             _StdOut.advanceLine();
             _StdOut.putText("_hacking is our weapon _Connection is power");

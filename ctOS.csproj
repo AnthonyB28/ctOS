@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="source\scripts\os\shell.ts" />
     <TypeScriptCompile Include="source\scripts\os\shellCommand.ts" />
     <TypeScriptCompile Include="source\scripts\os\userCommand.ts" />
+    <TypeScriptCompile Include="source\scripts\secret.ts" />
     <TypeScriptCompile Include="source\scripts\utils.ts" />
   </ItemGroup>
   <ItemGroup>
