@@ -188,28 +188,39 @@ var CTOS;
             return 0;
         };
 
+        // BSOD & halts program - errorType gets put on top of BSOD, message below
         Console.prototype.putError = function (errorType, msg) {
-            var color = '#236B8E';
+            this.clearScreen();
 
-            var yOffset = 30;
-            var height = _Canvas.height;
-            var innerCircleYPos = this.m_CurrentYPosition + ((_DefaultFontSize + _FontHeightMargin) * (yOffset / 2));
-            this.advanceLine();
+            // Compute where the inner circle should go
+            var innerCircleYPos = _Canvas.height / 2;
+
+            // Create the gradient
             var grd = _DrawingContext.createRadialGradient(_Canvas.width / 2, innerCircleYPos, 180, _Canvas.width / 2, innerCircleYPos, 250);
-            grd.addColorStop(0, color);
-            grd.addColorStop(1, "#DFDBC3");
+            grd.addColorStop(0, _BSODColor); // Inner circle
+            grd.addColorStop(1, getComputedStyle(_Canvas, null).getPropertyValue("background-color")); // Outer circle should be "transparent"
 
             // Fill with gradient
             _DrawingContext.fillStyle = grd;
-            _DrawingContext.fillRect(this.m_CurrentXPosition, this.m_CurrentYPosition, _Canvas.width, height);
+            _DrawingContext.fillRect(0, -20, _Canvas.width, _Canvas.height + 20);
+
+            // Compute where we need to write the text nicely
             this.m_CurrentXPosition = _Canvas.width / 3;
             this.m_CurrentYPosition = innerCircleYPos - ((_DefaultFontSize + _FontHeightMargin) * 6);
             this.putText("ERROR TRAP:");
             this.advanceLine();
             this.m_CurrentXPosition = _Canvas.width / 5;
-            this.putText("Interrupt Request.irq = "); // TODO white
-            this.m_CurrentXPosition = 0;
-            this.m_CurrentYPosition = height; // TODO Do we stop input?
+            this.putText(msg); // TODO white
+
+            // Shutdown! Stop input!
+            CTOS.Control.hostLog("Emergency halt", errorType);
+            CTOS.Control.hostLog("Attempting Kernel shutdown.", "BSOD");
+
+            // Call the OS shutdown routine.
+            _Kernel.krnShutdown();
+
+            // Stop the interval that's simulating our clock pulse.
+            clearInterval(_hardwareClockID);
         };
 
         Console.prototype.advanceLine = function () {
