@@ -20,7 +20,8 @@ module CTOS {
                     public m_Buffer: string = "",
                     public m_CmdHistory: Array<string> = [],
                     public m_CmdHistoryIndex: number = 0,
-                    public m_CmdHistoryMovedOnce: boolean = false)
+                    public m_CmdHistoryMovedOnce: boolean = false,
+                    public m_BSOD : boolean = false)
         {
 
         }
@@ -34,6 +35,10 @@ module CTOS {
         public ClearScreen(): void 
         {
             Globals.m_DrawingContext.clearRect(0, 0, Globals.m_Canvas.width, Globals.m_Canvas.height);
+            // Auto-scroll up & reset height
+            var elem = document.getElementById('divConsole');
+            elem.scrollTop = 0;
+            Globals.m_Canvas.height = 500;
         }
 
         public ResetXY(): void 
@@ -68,7 +73,6 @@ module CTOS {
                 else if(chr === String.fromCharCode(8) && this.m_Buffer.length > 0)
                 {
                     this.EraseLastCharacter();
-                    //this.DrawError("test", "ERROR TESTING");
                 }
 
                 // Tab & right arrow
@@ -238,6 +242,7 @@ module CTOS {
         // BSOD & halts program - errorType gets put on top of BSOD, message below
         public DrawError(errorType : string, msg: string): void
         {
+            this.m_BSOD = true;
             this.ClearScreen();
 
             // Compute where the inner circle should go

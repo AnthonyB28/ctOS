@@ -16,9 +16,9 @@ module CTOS
     export class Shell 
     {
         // Properties
-        public m_PromptStr = ">";
+        public m_PromptStr : string = ">";
         public m_CommandList = [];
-        public m_Curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
+        public m_Curses : string = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public m_Apologies = "[sorry]";
 
         constructor() {
@@ -159,7 +159,10 @@ module CTOS
 
         public PutPrompt(): void
         {
-            Globals.m_StdOut.PutText(this.m_PromptStr);
+            if (!Globals.m_StdOut.m_BSOD)
+            {
+                Globals.m_StdOut.PutText(this.m_PromptStr);
+            }
         }
 
         // Command suggesting
@@ -235,7 +238,8 @@ module CTOS
             // ... call the command function passing in the args...
             fn(args);
             // Check to see if we need to advance the line again
-            if (Globals.m_StdOut.m_CurrentXPosition > 0) {
+            if (Globals.m_StdOut.m_CurrentXPosition > 0) 
+            {
                 Globals.m_StdOut.AdvanceLine();
             }
             // ... and finally write the prompt again.

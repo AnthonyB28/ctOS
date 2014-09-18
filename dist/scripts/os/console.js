@@ -8,7 +8,7 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var CTOS;
 (function (CTOS) {
     var Console = (function () {
-        function Console(m_CurrentFont, m_CurrentFontSize, m_CurrentXPosition, m_CurrentYPosition, m_Buffer, m_CmdHistory, m_CmdHistoryIndex, m_CmdHistoryMovedOnce) {
+        function Console(m_CurrentFont, m_CurrentFontSize, m_CurrentXPosition, m_CurrentYPosition, m_Buffer, m_CmdHistory, m_CmdHistoryIndex, m_CmdHistoryMovedOnce, m_BSOD) {
             if (typeof m_CurrentFont === "undefined") { m_CurrentFont = CTOS.Globals.m_DefaultFontFamily; }
             if (typeof m_CurrentFontSize === "undefined") { m_CurrentFontSize = CTOS.Globals.m_DefaultFontSize; }
             if (typeof m_CurrentXPosition === "undefined") { m_CurrentXPosition = 0; }
@@ -17,6 +17,7 @@ var CTOS;
             if (typeof m_CmdHistory === "undefined") { m_CmdHistory = []; }
             if (typeof m_CmdHistoryIndex === "undefined") { m_CmdHistoryIndex = 0; }
             if (typeof m_CmdHistoryMovedOnce === "undefined") { m_CmdHistoryMovedOnce = false; }
+            if (typeof m_BSOD === "undefined") { m_BSOD = false; }
             this.m_CurrentFont = m_CurrentFont;
             this.m_CurrentFontSize = m_CurrentFontSize;
             this.m_CurrentXPosition = m_CurrentXPosition;
@@ -25,6 +26,7 @@ var CTOS;
             this.m_CmdHistory = m_CmdHistory;
             this.m_CmdHistoryIndex = m_CmdHistoryIndex;
             this.m_CmdHistoryMovedOnce = m_CmdHistoryMovedOnce;
+            this.m_BSOD = m_BSOD;
         }
         Console.prototype.Init = function () {
             this.ClearScreen();
@@ -33,6 +35,11 @@ var CTOS;
 
         Console.prototype.ClearScreen = function () {
             CTOS.Globals.m_DrawingContext.clearRect(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
+
+            // Auto-scroll up & reset height
+            var elem = document.getElementById('divConsole');
+            elem.scrollTop = 0;
+            CTOS.Globals.m_Canvas.height = 500;
         };
 
         Console.prototype.ResetXY = function () {
@@ -60,7 +67,6 @@ var CTOS;
                     this.m_Buffer = "";
                 } else if (chr === String.fromCharCode(8) && this.m_Buffer.length > 0) {
                     this.EraseLastCharacter();
-                    //this.DrawError("test", "ERROR TESTING");
                 } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
                     var suggestedCmd = CTOS.Globals.m_OsShell.SuggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
@@ -190,6 +196,7 @@ var CTOS;
 
         // BSOD & halts program - errorType gets put on top of BSOD, message below
         Console.prototype.DrawError = function (errorType, msg) {
+            this.m_BSOD = true;
             this.ClearScreen();
 
             // Compute where the inner circle should go

@@ -191,7 +191,9 @@ module CTOS
             var errorMsg: string = "OS ERROR - TRAP: " + msg;
             Control.hostLog(errorMsg);
 
+            //BSOD
             Globals.m_StdOut.DrawError("TRAP ERROR", errorMsg);
+
             // Shutdown! Stop input!
             Control.hostLog("Emergency halt", "TRAP ERROR");
             Control.hostLog("Attempting Kernel shutdown.", "BSOD");

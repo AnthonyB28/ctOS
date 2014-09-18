@@ -1,0 +1,551 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="author" content="Anthony Barranco" />
+    <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
+    <title>
+        ctOS - a browser-based virtual Operating System in TypeScript
+    </title>
+
+    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <script type="text/javascript" src="dist/scripts/globals.js"></script>
+
+    <!-- Host (Hardware Simulation) Routines -->
+    <script type="text/javascript" src="dist/scripts/host/control.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
+    <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+
+    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+    <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/console.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
+    <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
+
+    <!-- Other Routines -->
+    <script type="text/javascript" src="dist/scripts/utils.js"></script>
+
+    <!-- Uncomment this line below to enable Glados testing -->
+    <!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
+
+    <!-- SECRET SHHHHH-->
+    <script type="text/javascript" src="dist/scripts/secret.js"></script>
+</head>
+
+<body onload="CTOS.Globals.onDocumentLoad();">
+    <div id="divMain" style="width:100%;">
+
+        <div id="divButtonBar" style="margin:4px;">
+            <input type="button"
+                   id="btnStartOS"
+                   name="brnStartOS"
+                   class="normal_button"
+                   value="Start"
+                   tabindex="0"
+                   onclick="CTOS.Control.hostBtnStartOS_click(this);">
+
+            <input type="button"
+                   id="btnHaltOS"
+                   name="brnHaltOS"
+                   class="normal_button"
+                   disabled="disabled"
+                   value="Halt"
+                   tabindex="1"
+                   onclick="CTOS.Control.hostBtnHaltOS_click(this);">
+
+            <input type="button"
+                   id="btnReset"
+                   name="brnReset"
+                   class="normal_button"
+                   disabled="disabled"
+                   value="Reset"
+                   tabindex="2"
+                   onclick="CTOS.Control.hostBtnReset_click(this);">
+        </div>
+
+        <div id="divStatusBar" style="margin:4px;">
+            <label id="timeLabel">Time: </label>
+            <br>
+            <label id="statusLabel">Status: status -string-</label>
+        </div>
+
+        <div id="divConsole" style="width:520px; height:510px; display:inline-block; overflow-y:scroll; overflow-x:hidden">
+            <canvas id="display"
+                    width="500"
+                    height="500"
+                    tabindex="3"></canvas>
+        </div>
+
+        <div id="divLog" style="display:inline-block;">
+            <label>
+                Host Log
+                <br>
+                <textarea name="taHostLog"
+                          id="taHostLog"
+                          rows="26"
+                          cols="48"></textarea>
+            </label>
+        </div>
+
+        <div id="divUserProgramInput" style="margin-left:520px;">
+            <label>
+                User Program Input
+                <br>
+                <textarea name="taProgramInput"
+                          id="taProgramInput"
+                          rows="8"
+                          cols="48"></textarea>
+            </label>
+        </div>
+
+    </div>
+
+    <p class="footerText" style="clear:both;">
+        <br>
+        Copyright &copy; 2008 - 2014 No Rights Reserved.
+        <br>
+        Reproduction is prohibited without the express written consent of
+        Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+    </p>
+
+</body>
+</html>
+
+<!--
+
+          _____
+         /\    \
+        /::\____\
+       /:::/    /
+      /:::/  _ / ___
+     /:::/   /\    \
+    /:::/   /::\____\
+   /:::/   /:::/    /
+  /:::/   /:::/   _/___
+ /:::/___/:::/   /\    \
+|:::|   /:::/   /::\____\
+|:::|__/:::/   /:::/    /
+ \:::\/:::/   /:::/    /
+  \::::::/   /:::/    /
+   \::::/___/:::/    /
+    \:::\__/:::/    /
+     \::::::::/    /
+      \::::::/    /
+       \::::/    /
+        \::/____/
+         ~~
+           _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+   /::::\   \:::\    \
+  /::::::\   \:::\    \
+ /:::/\:::\   \:::\    \
+/:::/  \:::\   \:::\____\
+\::/    \:::\  /:::/    /
+ \/____/ \:::\/:::/    /
+          \::::::/    /
+           \::::/    /
+           /:::/    /
+          /:::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+           _____
+          /\    \
+         /::\    \
+         \:::\    \
+          \:::\    \
+           \:::\    \
+            \:::\    \
+            /::::\    \
+           /::::::\    \
+          /:::/\:::\    \
+         /:::/  \:::\____\
+        /:::/    \::/    /
+       /:::/    / \/____/
+      /:::/    /
+     /:::/    /
+     \::/    /
+      \/____/
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/  \:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/    /   \:::\    \
+/:::/____/     \:::\____\
+\:::\    \      \::/    /
+ \:::\    \      \/____/
+  \:::\    \
+   \:::\    \
+    \:::\    \
+     \:::\    \
+      \:::\    \
+       \:::\____\
+        \::/    /
+         \/____/
+          _____
+         /\    \
+        /::\____\
+       /:::/ /
+      /:::/ /
+     /:::/ /
+    /:::/____/
+   /::::\    \
+  /::::::\    \   _____
+ /:::/\:::\    \ /\    \
+/:::/  \:::\    /::\____\
+\::/    \:::\  /:::/    /
+ \/____/ \:::\/:::/    /
+          \::::::/    /
+           \::::/    /
+           /:::/    /
+          /:::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+
+
+
+
+
+
+
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/  \:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/    /   \:::\ ___\
+/:::/____/     \:::|    |
+\:::\    \     /:::|____|
+ \:::\    \   /:::/    /
+  \:::\    \ /:::/    /
+   \:::\    /:::/    /
+    \:::\  /:::/    /
+     \:::\/:::/    /
+      \::::::/    /
+       \::::/    /
+        \::/____/
+         ~~
+         _______
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /::::::::\    \
+    /:::/~~\:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/____/   \:::\____\
+|:::|    |     |:::|    |
+|:::|____|     |:::|    |
+ \:::\    \   /:::/    /
+  \:::\    \ /:::/    /
+   \:::\    /:::/    /
+    \:::\__/:::/    /
+     \::::::::/    /
+      \::::::/    /
+       \::::/    /
+        \::/____/
+         ~~
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/  \:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/    /   \:::\ ___\
+/:::/____/  ___\:::|    |
+\:::\    \ /\  /:::|____|
+ \:::\    /::\ \::/    /
+  \:::\   \:::\ \/____/
+   \:::\   \:::\____\
+    \:::\  /:::/    /
+     \:::\/:::/    /
+      \::::::/    /
+       \::::/    /
+        \::/____/
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+    \:::\   \:::\    \
+  ___\:::\   \:::\    \
+ /\   \:::\   \:::\    \
+/::\   \:::\   \:::\____\
+\:::\   \:::\   \::/    /
+ \:::\   \:::\   \/____/
+  \:::\   \:::\    \
+   \:::\   \:::\____\
+    \:::\  /:::/    /
+     \:::\/:::/    /
+      \::::::/    /
+       \::::/    /
+        \::/    /
+         \/____/
+
+
+
+
+
+
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+   /::::\   \:::\    \
+  /::::::\   \:::\    \
+ /:::/\:::\   \:::\    \
+/:::/  \:::\   \:::\____\
+\::/    \:::\  /:::/    /
+ \/____/ \:::\/:::/    /
+          \::::::/    /
+           \::::/    /
+           /:::/    /
+          /:::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+   /::::\   \:::\    \
+  /::::::\   \:::\    \
+ /:::/\:::\   \:::\____\
+/:::/  \:::\   \:::|    |
+\::/   |::::\  /:::|____|
+ \/____|:::::\/:::/    /
+       |:::::::::/    /
+       |::|\::::/    /
+       |::| \::/____/
+       |::|  ~|
+       |::|   |
+       \::|   |
+        \:|   |
+         \|___ |
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+   /::::\   \:::\    \
+  /::::::\   \:::\    \
+ /:::/\:::\   \:::\    \
+/:::/__\:::\   \:::\____\
+\:::\   \:::\   \::/    /
+ \:::\   \:::\   \/____/
+  \:::\   \:::\    \
+   \:::\   \:::\____\
+    \:::\   \::/    /
+     \:::\   \/____/
+      \:::\    \
+       \:::\____\
+        \::/    /
+         \/____/
+
+
+
+
+
+
+
+
+          _____
+         /\    \
+        /::\____\
+       /:::/ /
+      /:::/   _ / ___
+     /:::/   /\    \
+    /:::/   /::\____\
+   /:::/   /:::/    /
+  /:::/   /:::/   _/___
+ /:::/___/:::/   /\    \
+|:::|   /:::/   /::\____\
+|:::|__/:::/   /:::/    /
+ \:::\/:::/   /:::/    /
+  \::::::/   /:::/    /
+   \::::/___/:::/    /
+    \:::\__/:::/    /
+     \::::::::/    /
+      \::::::/    /
+       \::::/    /
+        \::/____/
+         ~~
+
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/__\:::\    \
+   /::::\   \:::\    \
+  /::::::\   \:::\    \
+ /:::/\:::\   \:::\    \
+/:::/  \:::\   \:::\____\
+\::/    \:::\  /:::/    /
+ \/____/ \:::\/:::/    /
+          \::::::/    /
+           \::::/    /
+           /:::/    /
+          /:::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+          _____
+         /\    \
+        /::\    \
+        \:::\    \
+         \:::\    \
+          \:::\    \
+           \:::\    \
+           /::::\    \
+          /::::::\    \
+         /:::/\:::\    \
+        /:::/  \:::\____\
+       /:::/    \::/    /
+      /:::/    / \/____/
+     /:::/    /
+    /:::/    /
+    \::/    /
+     \/____/
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/  \:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/    /   \:::\    \
+/:::/____/     \:::\____\
+\:::\    \      \::/    /
+ \:::\    \      \/____/
+  \:::\    \
+   \:::\    \
+    \:::\    \
+     \:::\    \
+      \:::\    \
+       \:::\____\
+        \::/    /
+         \_____/
+         /\    \
+        /::\____\
+       /:::/ /
+      /:::/ /
+     /:::/ /
+    /:::/____/
+   /::::\    \
+  /::::::\    \   _____
+ /:::/\:::\    \ /\    \
+/:::/  \:::\    /::\____\
+\::/    \:::\  /:::/    /
+ \/____/ \:::\/:::/    /
+          \::::::/    /
+           \::::/    /
+           /:::/    /
+          /:::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+         /\    \
+        /::\    \
+        \:::\    \
+         \:::\    \
+          \:::\    \
+           \:::\    \
+           /::::\    \
+  ____    /::::::\    \
+ /\   \  /:::/\:::\    \
+/::\   \/:::/  \:::\____\
+\:::\  /:::/    \::/    /
+ \:::\/:::/    / \/____/
+  \::::::/    /
+   \::::/____/
+    \:::\    \
+     \:::\    \
+      \:::\    \
+       \:::\____\
+        \::/    /
+         \/____/
+          _____
+         /\    \
+        /::\____\
+       /::::|   |
+      /:::::|   |
+     /::::::|   |
+    /:::/|::|   |
+   /:::/ |::|   |
+  /:::/  |::|   | _____
+ /:::/   |::|   |/\    \
+/:: /    |::|   /::\____\
+\::/    /|::|  /:::/    /
+ \/____/ |::| /:::/    /
+         |::|/:::/    /
+         |::::::/    /
+         |:::::/    /
+         |::::/    /
+         /:::/    /
+        /:::/    /
+        \::/    /
+         \/____/
+          _____
+         /\    \
+        /::\    \
+       /::::\    \
+      /::::::\    \
+     /:::/\:::\    \
+    /:::/  \:::\    \
+   /:::/    \:::\    \
+  /:::/    / \:::\    \
+ /:::/    /   \:::\ ___\
+/:::/____/  ___\:::|    |
+\:::\    \ /\  /:::|____|
+ \:::\    /::\ \::/    /
+  \:::\   \:::\ \/____/
+   \:::\   \:::\____\
+    \:::\  /:::/    /
+     \:::\/:::/    /
+      \::::::/    /
+       \::::/    /
+        \::/    /
+         \/____/
+-->

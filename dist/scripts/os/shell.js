@@ -109,7 +109,9 @@ var CTOS;
         };
 
         Shell.prototype.PutPrompt = function () {
-            CTOS.Globals.m_StdOut.PutText(this.m_PromptStr);
+            if (!CTOS.Globals.m_StdOut.m_BSOD) {
+                CTOS.Globals.m_StdOut.PutText(this.m_PromptStr);
+            }
         };
 
         // Command suggesting

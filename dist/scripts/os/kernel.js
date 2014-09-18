@@ -164,6 +164,7 @@ var CTOS;
             var errorMsg = "OS ERROR - TRAP: " + msg;
             CTOS.Control.hostLog(errorMsg);
 
+            //BSOD
             CTOS.Globals.m_StdOut.DrawError("TRAP ERROR", errorMsg);
 
             // Shutdown! Stop input!

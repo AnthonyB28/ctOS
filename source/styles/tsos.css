@@ -6,6 +6,9 @@ body {
   font-size: 12pt;
   font-weight: normal;
   font-style: normal;
+  margin-left:auto;
+  margin-right:auto;
+  text-align: center
 }
 
 h1 {
@@ -28,6 +31,10 @@ h3 {
   font-size: 16pt;
   font-weight: normal;
   font-style: normal;
+}
+
+label {
+    color: white;
 }
 
 #display {
