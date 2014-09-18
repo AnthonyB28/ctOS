@@ -37,7 +37,7 @@ var CTOS;
             CTOS.Globals.m_ProgramInput = document.getElementById('taProgramInput');
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
+            CTOS.CanvasTextFunctions.Enable(CTOS.Globals.m_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement

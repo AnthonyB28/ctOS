@@ -25,21 +25,25 @@ module CTOS {
 
         }
 
-        public init(): void {
-            this.clearScreen();
-            this.resetXY();
+        public Init(): void 
+        {
+            this.ClearScreen();
+            this.ResetXY();
         }
 
-        public clearScreen(): void {
+        public ClearScreen(): void 
+        {
             Globals.m_DrawingContext.clearRect(0, 0, Globals.m_Canvas.width, Globals.m_Canvas.height);
         }
 
-        public resetXY(): void {
+        public ResetXY(): void 
+        {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition = this.m_CurrentFontSize + Globals.m_FontHeightMargin;
         }
 
-        public handleInput(): void {
+        public HandleInput(): void 
+        {
             while (Globals.m_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = Globals.m_KernelInputQueue.dequeue();
@@ -48,7 +52,7 @@ module CTOS {
                 if (chr === String.fromCharCode(13)) { //     Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    Globals.m_OsShell.handleInput(this.m_Buffer);
+                    Globals.m_OsShell.HandleInput(this.m_Buffer);
                     // ... and reset our buffer.
                     if (this.m_CmdHistory.length > Globals.MAX_COMMAND_HISTORY)
                     {
@@ -71,7 +75,7 @@ module CTOS {
                 // Suggest a command
                 else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0)
                 {
-                    var suggestedCmd: string = Globals.m_OsShell.suggestCmd(this.m_Buffer);
+                    var suggestedCmd: string = Globals.m_OsShell.SuggestCmd(this.m_Buffer);
                     if (suggestedCmd != "")
                     {
                         this.EraseLine();
@@ -234,7 +238,7 @@ module CTOS {
         // BSOD & halts program - errorType gets put on top of BSOD, message below
         public DrawError(errorType : string, msg: string): void
         {
-            this.clearScreen();
+            this.ClearScreen();
 
             // Compute where the inner circle should go
             var innerCircleYPos: number = Globals.m_Canvas.height / 2;
@@ -258,12 +262,12 @@ module CTOS {
             this.m_CurrentYPosition = innerCircleYPos - ((Globals.m_DefaultFontSize + Globals.m_FontHeightMargin) * 6);
 
             // Write the error text, preferably within the circle
-            CanvasTextFunctions.enable(Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
+            CanvasTextFunctions.Enable(Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
             this.PutText(errorType);
             this.AdvanceLine();
             this.m_CurrentXPosition = Globals.m_Canvas.width / 5;
             this.PutText(msg);
-            CanvasTextFunctions.enable(Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
+            CanvasTextFunctions.Enable(Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
         }
 
         public AdvanceLine(): void 

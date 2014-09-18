@@ -23,7 +23,7 @@ var CTOS;
             CTOS.Globals.m_Console = new CTOS.Console(); // The command line interface / console I/O device.
 
             // Initialize the console.
-            CTOS.Globals.m_Console.init();
+            CTOS.Globals.m_Console.Init();
 
             // Initialize standard input and output to the _Console.
             CTOS.Globals.m_StdIn = CTOS.Globals.m_Console;
@@ -45,7 +45,7 @@ var CTOS;
             // Launch the shell.
             this.Trace("Creating and Launching the shell.");
             CTOS.Globals.m_OsShell = new CTOS.Shell();
-            CTOS.Globals.m_OsShell.init();
+            CTOS.Globals.m_OsShell.Init();
 
             // Finally, initiate testing.
             if (CTOS.Globals.m_GLaDOS) {
@@ -115,7 +115,7 @@ var CTOS;
                     break;
                 case CTOS.Globals.KEYBOARD_IRQ:
                     CTOS.Globals.m_KrnKeyboardDriver.isr(params); // Kernel mode device driver
-                    CTOS.Globals.m_StdIn.handleInput();
+                    CTOS.Globals.m_StdIn.HandleInput();
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

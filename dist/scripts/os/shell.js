@@ -12,67 +12,67 @@ var CTOS;
     var Shell = (function () {
         function Shell() {
             // Properties
-            this.promptStr = ">";
-            this.commandList = [];
-            this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
-            this.apologies = "[sorry]";
+            this.m_PromptStr = ">";
+            this.m_CommandList = [];
+            this.m_Curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
+            this.m_Apologies = "[sorry]";
         }
-        Shell.prototype.init = function () {
+        Shell.prototype.Init = function () {
             var sc = null;
 
             //
             // Load the command list.
             // ver
             sc = new CTOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // load
             sc = new CTOS.ShellCommand(this.shellLoad, "load", "- Loads the program from Program Input box.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // shutdown
             sc = new CTOS.ShellCommand(this.shellShutdown, "shutdown", "- Shuts down the virtual OS but leaves the underlying hardware simulation running.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // cls
             sc = new CTOS.ShellCommand(this.shellCls, "cls", "- Clears the screen and resets the cursor position.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // man <topic>
             sc = new CTOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // trace <on | off>
             sc = new CTOS.ShellCommand(this.shellTrace, "trace", "<on | off> - Turns the OS trace on or off.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // rot13 <string>
             sc = new CTOS.ShellCommand(this.shellRot13, "rot13", "<string> - Does rot13 obfuscation on <string>.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // prompt <string>
             sc = new CTOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Date
             sc = new CTOS.ShellCommand(this.shellDate, "date", "- Displays the current Date & Time.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // WhereAmI
             sc = new CTOS.ShellCommand(this.shellWhereAmI, "whereami", "- Displays the users current location. (Lie)");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Status
             sc = new CTOS.ShellCommand(this.shellStatus, "status", "<string> - Sets the status message");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Explode
             sc = new CTOS.ShellCommand(this.shellExplode, "explode!", "- BSOD & Shutdown");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -81,51 +81,51 @@ var CTOS;
             --- */
             // Alan
             sc = new CTOS.ShellCommand(this.shellAlan, "alan!", "- 00...7?");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Assasin
             sc = new CTOS.ShellCommand(this.shellAssassin, "assassin!", "- Are there assassins hiding?");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Templar
             sc = new CTOS.ShellCommand(this.shellTemplar, "templar!", "- Are there any Templar schemes afoot?");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Ezio
             sc = new CTOS.ShellCommand(this.shellEzio, "ezio!", "- Clearly the best Assassin.");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Insanity
             sc = new CTOS.ShellCommand(this.shellInsanity, "insanity?", "- What is it?");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             // Watch_Dogs
             sc = new CTOS.ShellCommand(this.shellWatchDogs, "watch_dogs", "- DeadSec is here?");
-            this.commandList[this.commandList.length] = sc;
+            this.m_CommandList[this.m_CommandList.length] = sc;
 
             //
             // Display the initial prompt.
-            this.putPrompt();
+            this.PutPrompt();
         };
 
-        Shell.prototype.putPrompt = function () {
-            CTOS.Globals.m_StdOut.PutText(this.promptStr);
+        Shell.prototype.PutPrompt = function () {
+            CTOS.Globals.m_StdOut.PutText(this.m_PromptStr);
         };
 
         // Command suggesting
-        Shell.prototype.suggestCmd = function (buffer) {
+        Shell.prototype.SuggestCmd = function (buffer) {
             //
             // Parse the input...
             //
             var userCommand = new CTOS.UserCommand();
-            userCommand = this.parseInput(buffer);
+            userCommand = this.ParseInput(buffer);
 
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
 
-            for (var i = 0; i < this.commandList.length; ++i) {
-                if (this.commandList[i].command.indexOf(userCommand.command) == 0) {
-                    return this.commandList[i].command;
+            for (var i = 0; i < this.m_CommandList.length; ++i) {
+                if (this.m_CommandList[i].command.indexOf(userCommand.command) == 0) {
+                    return this.m_CommandList[i].command;
                 }
             }
 
@@ -133,14 +133,14 @@ var CTOS;
             return "";
         };
 
-        Shell.prototype.handleInput = function (buffer) {
+        Shell.prototype.HandleInput = function (buffer) {
             CTOS.Globals.m_Kernel.Trace("Shell Command~" + buffer);
 
             //
             // Parse the input...
             //
             var userCommand = new CTOS.UserCommand();
-            userCommand = this.parseInput(buffer);
+            userCommand = this.ParseInput(buffer);
 
             // ... and assign the command and args to local variables.
             var cmd = userCommand.command;
@@ -154,30 +154,30 @@ var CTOS;
             var index = 0;
             var found = false;
             var fn = undefined;
-            while (!found && index < this.commandList.length) {
-                if (this.commandList[index].command === cmd) {
+            while (!found && index < this.m_CommandList.length) {
+                if (this.m_CommandList[index].command === cmd) {
                     found = true;
-                    fn = this.commandList[index].func;
+                    fn = this.m_CommandList[index].func;
                 } else {
                     ++index;
                 }
             }
             if (found) {
-                this.execute(fn, args);
+                this.Execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + CTOS.Utils.rot13(cmd) + "]") >= 0) {
-                    this.execute(this.shellCurse);
-                } else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {
-                    this.execute(this.shellApology);
+                if (this.m_Curses.indexOf("[" + CTOS.Utils.rot13(cmd) + "]") >= 0) {
+                    this.Execute(this.shellCurse);
+                } else if (this.m_Apologies.indexOf("[" + cmd + "]") >= 0) {
+                    this.Execute(this.shellApology);
                 } else {
-                    this.execute(this.shellInvalidCommand);
+                    this.Execute(this.shellInvalidCommand);
                 }
             }
         };
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
-        Shell.prototype.execute = function (fn, args) {
+        Shell.prototype.Execute = function (fn, args) {
             // We just got a command, so advance the line...
             CTOS.Globals.m_StdOut.AdvanceLine();
 
@@ -190,10 +190,10 @@ var CTOS;
             }
 
             // ... and finally write the prompt again.
-            this.putPrompt();
+            this.PutPrompt();
         };
 
-        Shell.prototype.parseInput = function (buffer) {
+        Shell.prototype.ParseInput = function (buffer) {
             var retVal = new CTOS.UserCommand();
 
             // 1. Remove leading and trailing spaces.
@@ -274,9 +274,9 @@ var CTOS;
 
         Shell.prototype.shellHelp = function (args) {
             CTOS.Globals.m_StdOut.PutText("Commands:");
-            for (var i in CTOS.Globals.m_OsShell.commandList) {
+            for (var i in CTOS.Globals.m_OsShell.m_CommandList) {
                 CTOS.Globals.m_StdOut.AdvanceLine();
-                CTOS.Globals.m_StdOut.PutText("  " + CTOS.Globals.m_OsShell.commandList[i].command + " " + CTOS.Globals.m_OsShell.commandList[i].description);
+                CTOS.Globals.m_StdOut.PutText("  " + CTOS.Globals.m_OsShell.m_CommandList[i].command + " " + CTOS.Globals.m_OsShell.m_CommandList[i].description);
             }
         };
 
@@ -289,8 +289,8 @@ var CTOS;
         };
 
         Shell.prototype.shellCls = function (args) {
-            CTOS.Globals.m_StdOut.clearScreen();
-            CTOS.Globals.m_StdOut.resetXY();
+            CTOS.Globals.m_StdOut.ClearScreen();
+            CTOS.Globals.m_StdOut.ResetXY();
         };
 
         Shell.prototype.shellMan = function (args) {
@@ -344,7 +344,7 @@ var CTOS;
 
         Shell.prototype.shellPrompt = function (args) {
             if (args.length > 0) {
-                CTOS.Globals.m_OsShell.promptStr = args[0];
+                CTOS.Globals.m_OsShell.m_PromptStr = args[0];
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: prompt <string>  Please supply a string.");
             }
@@ -366,7 +366,7 @@ var CTOS;
 
         // BSOD & Shutdown
         Shell.prototype.shellExplode = function () {
-            CTOS.Globals.m_StdOut.DrawError("EXPLOSION", "You did this.");
+            CTOS.Globals.m_Kernel.TrapError("You did this.");
         };
 
         /* ---
@@ -387,7 +387,7 @@ var CTOS;
         };
 
         Shell.prototype.shellInsanity = function () {
-            // Far Cry man
+            // FarCry too gud
             CTOS.Globals.m_StdOut.PutText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
         };
 

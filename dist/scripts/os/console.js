@@ -26,21 +26,21 @@ var CTOS;
             this.m_CmdHistoryIndex = m_CmdHistoryIndex;
             this.m_CmdHistoryMovedOnce = m_CmdHistoryMovedOnce;
         }
-        Console.prototype.init = function () {
-            this.clearScreen();
-            this.resetXY();
+        Console.prototype.Init = function () {
+            this.ClearScreen();
+            this.ResetXY();
         };
 
-        Console.prototype.clearScreen = function () {
+        Console.prototype.ClearScreen = function () {
             CTOS.Globals.m_DrawingContext.clearRect(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
         };
 
-        Console.prototype.resetXY = function () {
+        Console.prototype.ResetXY = function () {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition = this.m_CurrentFontSize + CTOS.Globals.m_FontHeightMargin;
         };
 
-        Console.prototype.handleInput = function () {
+        Console.prototype.HandleInput = function () {
             while (CTOS.Globals.m_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = CTOS.Globals.m_KernelInputQueue.dequeue();
@@ -49,7 +49,7 @@ var CTOS;
                 if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    CTOS.Globals.m_OsShell.handleInput(this.m_Buffer);
+                    CTOS.Globals.m_OsShell.HandleInput(this.m_Buffer);
 
                     // ... and reset our buffer.
                     if (this.m_CmdHistory.length > CTOS.Globals.MAX_COMMAND_HISTORY) {
@@ -62,7 +62,7 @@ var CTOS;
                     this.EraseLastCharacter();
                     //this.DrawError("test", "ERROR TESTING");
                 } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
-                    var suggestedCmd = CTOS.Globals.m_OsShell.suggestCmd(this.m_Buffer);
+                    var suggestedCmd = CTOS.Globals.m_OsShell.SuggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
                         this.EraseLine();
                         this.PutText(suggestedCmd);
@@ -190,7 +190,7 @@ var CTOS;
 
         // BSOD & halts program - errorType gets put on top of BSOD, message below
         Console.prototype.DrawError = function (errorType, msg) {
-            this.clearScreen();
+            this.ClearScreen();
 
             // Compute where the inner circle should go
             var innerCircleYPos = CTOS.Globals.m_Canvas.height / 2;
@@ -209,12 +209,12 @@ var CTOS;
             this.m_CurrentYPosition = innerCircleYPos - ((CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin) * 6);
 
             // Write the error text, preferably within the circle
-            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
+            CTOS.CanvasTextFunctions.Enable(CTOS.Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
             this.PutText(errorType);
             this.AdvanceLine();
             this.m_CurrentXPosition = CTOS.Globals.m_Canvas.width / 5;
             this.PutText(msg);
-            CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
+            CTOS.CanvasTextFunctions.Enable(CTOS.Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
         };
 
         Console.prototype.AdvanceLine = function () {

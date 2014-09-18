@@ -9,9 +9,11 @@
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
 
-module CTOS {
+module CTOS 
+{
 
-    export class Kernel {
+    export class Kernel 
+    {
         //
         // OS Startup and Shutdown Routines Pg 8
         //
@@ -26,7 +28,7 @@ module CTOS {
             Globals.m_Console = new Console();          // The command line interface / console I/O device.
 
             // Initialize the console.
-            Globals.m_Console.init();
+            Globals.m_Console.Init();
 
             // Initialize standard input and output to the _Console.
             Globals.m_StdIn  = Globals.m_Console;
@@ -49,7 +51,7 @@ module CTOS {
             // Launch the shell.
             this.Trace("Creating and Launching the shell.");
             Globals.m_OsShell = new Shell();
-            Globals.m_OsShell.init();
+            Globals.m_OsShell.Init();
 
             // Finally, initiate testing.
             if (Globals.m_GLaDOS) 
@@ -135,7 +137,7 @@ module CTOS {
                     break;
                 case Globals.KEYBOARD_IRQ:
                     Globals.m_KrnKeyboardDriver.isr(params);   // Kernel mode device driver
-                    Globals.m_StdIn.handleInput();
+                    Globals.m_StdIn.HandleInput();
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

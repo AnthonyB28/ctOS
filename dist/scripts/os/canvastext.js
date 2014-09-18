@@ -17,24 +17,24 @@ var CTOS;
     var CanvasTextFunctions = (function () {
         function CanvasTextFunctions() {
         }
-        CanvasTextFunctions.letter = function (ch) {
-            return CanvasTextFunctions.letters[ch];
+        CanvasTextFunctions.Letter = function (ch) {
+            return CanvasTextFunctions.m_Letters[ch];
         };
 
-        CanvasTextFunctions.ascent = function (font, size) {
+        CanvasTextFunctions.Ascent = function (font, size) {
             return size;
         };
 
-        CanvasTextFunctions.descent = function (font, size) {
+        CanvasTextFunctions.Descent = function (font, size) {
             return 7.0 * size / 25.0;
         };
 
-        CanvasTextFunctions.measure = function (font, size, str) {
+        CanvasTextFunctions.Measure = function (font, size, str) {
             var total = 0;
             var len = str.length;
 
             for (var i = 0; i < len; i++) {
-                var c = CanvasTextFunctions.letter(str.charAt(i));
+                var c = CanvasTextFunctions.Letter(str.charAt(i));
                 if (c) {
                     total += c.width * size / 25.0;
                 }
@@ -42,7 +42,7 @@ var CTOS;
             return total;
         };
 
-        CanvasTextFunctions.draw = function (ctx, font, size, x, y, str, color) {
+        CanvasTextFunctions.Draw = function (ctx, font, size, x, y, str, color) {
             if (typeof color === "undefined") { color = CTOS.Globals.m_ConsoleTextDefaultColor; }
             var total = 0;
             var len = str.length;
@@ -53,7 +53,7 @@ var CTOS;
             ctx.strokeStyle = color;
 
             for (var i = 0; i < len; i++) {
-                var c = CanvasTextFunctions.letter(str.charAt(i));
+                var c = CanvasTextFunctions.Letter(str.charAt(i));
                 if (!c) {
                     continue;
                 }
@@ -80,30 +80,30 @@ var CTOS;
             return total;
         };
 
-        CanvasTextFunctions.enable = function (ctx, color) {
+        CanvasTextFunctions.Enable = function (ctx, color) {
             if (typeof color === "undefined") { color = CTOS.Globals.m_ConsoleTextDefaultColor; }
             ctx.drawText = function (font, size, x, y, text) {
-                return CanvasTextFunctions.draw(ctx, font, size, x, y, text, color);
+                return CanvasTextFunctions.Draw(ctx, font, size, x, y, text, color);
             };
             ctx.measureText = function (font, size, text) {
-                return CanvasTextFunctions.measure(font, size, text);
+                return CanvasTextFunctions.Measure(font, size, text);
             };
             ctx.fontAscent = function (font, size) {
-                return CanvasTextFunctions.ascent(font, size);
+                return CanvasTextFunctions.Ascent(font, size);
             };
             ctx.fontDescent = function (font, size) {
-                return CanvasTextFunctions.descent(font, size);
+                return CanvasTextFunctions.Descent(font, size);
             };
             ctx.drawTextRight = function (font, size, x, y, text) {
-                var w = CanvasTextFunctions.measure(font, size, text);
-                return CanvasTextFunctions.draw(ctx, font, size, x - w, y, text, color);
+                var w = CanvasTextFunctions.Measure(font, size, text);
+                return CanvasTextFunctions.Draw(ctx, font, size, x - w, y, text, color);
             };
             ctx.drawTextCenter = function (font, size, x, y, text) {
-                var w = CanvasTextFunctions.measure(font, size, text);
-                return CanvasTextFunctions.draw(ctx, font, size, x - w / 2, y, text, color);
+                var w = CanvasTextFunctions.Measure(font, size, text);
+                return CanvasTextFunctions.Draw(ctx, font, size, x - w / 2, y, text, color);
             };
         };
-        CanvasTextFunctions.letters = {
+        CanvasTextFunctions.m_Letters = {
             ' ': { width: 16, points: [] },
             '!': { width: 10, points: [[5, 21], [5, 7], [-1, -1], [5, 2], [4, 1], [5, 0], [6, 1], [5, 2]] },
             '"': { width: 16, points: [[4, 21], [4, 14], [-1, -1], [12, 21], [12, 14]] },
