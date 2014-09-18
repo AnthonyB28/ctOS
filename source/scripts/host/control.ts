@@ -98,14 +98,14 @@ module CTOS {
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
             Globals.m_Kernel = new Kernel();
-            Globals.m_Kernel.krnBootstrap();
+            Globals.m_Kernel.Bootstrap();
         }
 
         public static hostBtnHaltOS_click(btn): void {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
             // Call the OS shutdown routine.
-            Globals.m_Kernel.krnShutdown();
+            Globals.m_Kernel.Shutdown();
             // Stop the interval that's simulating our clock pulse.
             clearInterval(Globals.m_HardwareClockID);
             // TODO: Is there anything else we need to do here?

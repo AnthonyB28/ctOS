@@ -1,4 +1,4 @@
-﻿/* ------------
+/* ------------
 Globals.ts
 Global CONSTANTS and _iables.
 (Global over both the OS and Hardware Simulation / Host.)

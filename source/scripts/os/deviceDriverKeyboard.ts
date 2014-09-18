@@ -28,7 +28,7 @@ module CTOS {
             // Parse the params.    TODO: Check that they are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            Globals.m_Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            Globals.m_Kernel.Trace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
             // Check to see if we even want to deal with the key that was pressed.

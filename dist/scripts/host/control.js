@@ -94,7 +94,7 @@ var CTOS;
 
             // .. and call the OS Kernel Bootstrap routine.
             CTOS.Globals.m_Kernel = new CTOS.Kernel();
-            CTOS.Globals.m_Kernel.krnBootstrap();
+            CTOS.Globals.m_Kernel.Bootstrap();
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
@@ -102,7 +102,7 @@ var CTOS;
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
             // Call the OS shutdown routine.
-            CTOS.Globals.m_Kernel.krnShutdown();
+            CTOS.Globals.m_Kernel.Shutdown();
 
             // Stop the interval that's simulating our clock pulse.
             clearInterval(CTOS.Globals.m_HardwareClockID);

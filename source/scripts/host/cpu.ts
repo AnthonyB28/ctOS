@@ -38,7 +38,7 @@ module CTOS {
         }
 
         public cycle(): void {
-            Globals.m_Kernel.krnTrace('CPU cycle');
+            Globals.m_Kernel.Trace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
         }

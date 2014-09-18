@@ -109,7 +109,7 @@ var CTOS;
         };
 
         Shell.prototype.putPrompt = function () {
-            CTOS.Globals.m_StdOut.putText(this.promptStr);
+            CTOS.Globals.m_StdOut.PutText(this.promptStr);
         };
 
         // Command suggesting
@@ -134,7 +134,7 @@ var CTOS;
         };
 
         Shell.prototype.handleInput = function (buffer) {
-            CTOS.Globals.m_Kernel.krnTrace("Shell Command~" + buffer);
+            CTOS.Globals.m_Kernel.Trace("Shell Command~" + buffer);
 
             //
             // Parse the input...
@@ -179,14 +179,14 @@ var CTOS;
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
         Shell.prototype.execute = function (fn, args) {
             // We just got a command, so advance the line...
-            CTOS.Globals.m_StdOut.advanceLine();
+            CTOS.Globals.m_StdOut.AdvanceLine();
 
             // ... call the command function passing in the args...
             fn(args);
 
             // Check to see if we need to advance the line again
             if (CTOS.Globals.m_StdOut.m_CurrentXPosition > 0) {
-                CTOS.Globals.m_StdOut.advanceLine();
+                CTOS.Globals.m_StdOut.AdvanceLine();
             }
 
             // ... and finally write the prompt again.
@@ -227,27 +227,27 @@ var CTOS;
         // Shell Command Functions.  Again, not part of Shell() class per se', just called from there.
         //
         Shell.prototype.shellInvalidCommand = function () {
-            CTOS.Globals.m_StdOut.putText("Invalid Command. ");
+            CTOS.Globals.m_StdOut.PutText("Invalid Command. ");
             if (CTOS.Globals.m_SarcasticMode) {
-                CTOS.Globals.m_StdOut.putText("Duh. Go back to your Speak & Spell.");
+                CTOS.Globals.m_StdOut.PutText("Duh. Go back to your Speak & Spell.");
             } else {
-                CTOS.Globals.m_StdOut.putText("Type 'help' for, well... help.");
+                CTOS.Globals.m_StdOut.PutText("Type 'help' for, well... help.");
             }
         };
 
         Shell.prototype.shellDate = function () {
             var currentDate = new Date();
-            CTOS.Globals.m_StdOut.putText(currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString());
+            CTOS.Globals.m_StdOut.PutText(currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString());
         };
 
         Shell.prototype.shellWhereAmI = function () {
-            CTOS.Globals.m_StdOut.putText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
+            CTOS.Globals.m_StdOut.PutText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         };
 
         Shell.prototype.shellVer = function (args) {
-            CTOS.Globals.m_StdOut.putText(CTOS.Globals.APP_NAME + " version " + CTOS.Globals.APP_VERSION);
-            CTOS.Globals.m_StdOut.advanceLine();
-            CTOS.Globals.m_StdOut.putText("Improving New York City. Ensuring the future through CenTral Operating System");
+            CTOS.Globals.m_StdOut.PutText(CTOS.Globals.APP_NAME + " version " + CTOS.Globals.APP_VERSION);
+            CTOS.Globals.m_StdOut.AdvanceLine();
+            CTOS.Globals.m_StdOut.PutText("Improving New York City. Ensuring the future through CenTral Operating System");
         };
 
         Shell.prototype.shellLoad = function (args) {
@@ -258,9 +258,9 @@ var CTOS;
             programInput.every(function (code) {
                 if (!CTOS.Utils.IsValidHex(code)) {
                     isValid = false;
-                    CTOS.Globals.m_StdOut.putText("Invalid program input! No cake for you!");
-                    CTOS.Globals.m_StdOut.advanceLine();
-                    CTOS.Globals.m_StdOut.putText("First issue: " + code);
+                    CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                    CTOS.Globals.m_StdOut.AdvanceLine();
+                    CTOS.Globals.m_StdOut.PutText("First issue: " + code);
                     return false;
                 } else {
                     return true;
@@ -268,23 +268,23 @@ var CTOS;
             });
 
             if (isValid) {
-                CTOS.Globals.m_StdOut.putText("Valid hex & space program input! Want some cake?");
+                CTOS.Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
             }
         };
 
         Shell.prototype.shellHelp = function (args) {
-            CTOS.Globals.m_StdOut.putText("Commands:");
+            CTOS.Globals.m_StdOut.PutText("Commands:");
             for (var i in CTOS.Globals.m_OsShell.commandList) {
-                CTOS.Globals.m_StdOut.advanceLine();
-                CTOS.Globals.m_StdOut.putText("  " + CTOS.Globals.m_OsShell.commandList[i].command + " " + CTOS.Globals.m_OsShell.commandList[i].description);
+                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_StdOut.PutText("  " + CTOS.Globals.m_OsShell.commandList[i].command + " " + CTOS.Globals.m_OsShell.commandList[i].description);
             }
         };
 
         Shell.prototype.shellShutdown = function (args) {
-            CTOS.Globals.m_StdOut.putText("Shutting down...");
+            CTOS.Globals.m_StdOut.PutText("Shutting down...");
 
             // Call Kernel shutdown routine.
-            CTOS.Globals.m_Kernel.krnShutdown();
+            CTOS.Globals.m_Kernel.Shutdown();
             // TODO: Stop the final prompt from being displayed.  If possible.  Not a high priority.  (Damn OCD!)
         };
 
@@ -298,13 +298,13 @@ var CTOS;
                 var topic = args[0];
                 switch (topic) {
                     case "help":
-                        CTOS.Globals.m_StdOut.putText("Help displays a list of (hopefully) valid commands.");
+                        CTOS.Globals.m_StdOut.PutText("Help displays a list of (hopefully) valid commands.");
                         break;
                     default:
-                        CTOS.Globals.m_StdOut.putText("No manual entry for " + args[0] + ".");
+                        CTOS.Globals.m_StdOut.PutText("No manual entry for " + args[0] + ".");
                 }
             } else {
-                CTOS.Globals.m_StdOut.putText("Usage: man <topic>  Please supply a topic.");
+                CTOS.Globals.m_StdOut.PutText("Usage: man <topic>  Please supply a topic.");
             }
         };
 
@@ -314,31 +314,31 @@ var CTOS;
                 switch (setting) {
                     case "on":
                         if (CTOS.Globals.m_Trace && CTOS.Globals.m_SarcasticMode) {
-                            CTOS.Globals.m_StdOut.putText("Trace is already on, dumbass.");
+                            CTOS.Globals.m_StdOut.PutText("Trace is already on, dumbass.");
                         } else {
                             CTOS.Globals.m_Trace = true;
-                            CTOS.Globals.m_StdOut.putText("Trace ON");
+                            CTOS.Globals.m_StdOut.PutText("Trace ON");
                         }
 
                         break;
                     case "off":
                         CTOS.Globals.m_Trace = false;
-                        CTOS.Globals.m_StdOut.putText("Trace OFF");
+                        CTOS.Globals.m_StdOut.PutText("Trace OFF");
                         break;
                     default:
-                        CTOS.Globals.m_StdOut.putText("Invalid arguement.  Usage: trace <on | off>.");
+                        CTOS.Globals.m_StdOut.PutText("Invalid arguement.  Usage: trace <on | off>.");
                 }
             } else {
-                CTOS.Globals.m_StdOut.putText("Usage: trace <on | off>");
+                CTOS.Globals.m_StdOut.PutText("Usage: trace <on | off>");
             }
         };
 
         Shell.prototype.shellRot13 = function (args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                CTOS.Globals.m_StdOut.putText(args.join(' ') + " = '" + CTOS.Utils.rot13(args.join(' ')) + "'");
+                CTOS.Globals.m_StdOut.PutText(args.join(' ') + " = '" + CTOS.Utils.rot13(args.join(' ')) + "'");
             } else {
-                CTOS.Globals.m_StdOut.putText("Usage: rot13 <string>  Please supply a string.");
+                CTOS.Globals.m_StdOut.PutText("Usage: rot13 <string>  Please supply a string.");
             }
         };
 
@@ -346,7 +346,7 @@ var CTOS;
             if (args.length > 0) {
                 CTOS.Globals.m_OsShell.promptStr = args[0];
             } else {
-                CTOS.Globals.m_StdOut.putText("Usage: prompt <string>  Please supply a string.");
+                CTOS.Globals.m_StdOut.PutText("Usage: prompt <string>  Please supply a string.");
             }
         };
 
@@ -358,15 +358,15 @@ var CTOS;
                 }
 
                 CTOS.Globals.m_Status.textContent = "Status : " + status;
-                CTOS.Globals.m_StdOut.putText("Status updated to: " + status);
+                CTOS.Globals.m_StdOut.PutText("Status updated to: " + status);
             } else {
-                CTOS.Globals.m_StdOut.putText("Usage: status <string> Please supply a string.");
+                CTOS.Globals.m_StdOut.PutText("Usage: status <string> Please supply a string.");
             }
         };
 
         // BSOD & Shutdown
         Shell.prototype.shellExplode = function () {
-            CTOS.Globals.m_StdOut.putError("EXPLOSION", "You did this.");
+            CTOS.Globals.m_StdOut.DrawError("EXPLOSION", "You did this.");
         };
 
         /* ---
@@ -380,22 +380,22 @@ var CTOS;
             var secretMsgSplit = _SecretAlan[secretIndex].split(";");
             for (var i = 0; i < secretMsgSplit.length; ++i) {
                 // Trim and uncipher the string at the index. Each index is a new line.
-                CTOS.Globals.m_StdOut.putText(CTOS.Utils.trim(CTOS.Utils.rot13(secretMsgSplit[i])));
-                CTOS.Globals.m_StdOut.advanceLine();
-                CTOS.Globals.m_StdOut.advanceLine();
+                CTOS.Globals.m_StdOut.PutText(CTOS.Utils.trim(CTOS.Utils.rot13(secretMsgSplit[i])));
+                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_StdOut.AdvanceLine();
             }
         };
 
         Shell.prototype.shellInsanity = function () {
             // Far Cry man
-            CTOS.Globals.m_StdOut.putText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
+            CTOS.Globals.m_StdOut.PutText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
         };
 
         Shell.prototype.shellWatchDogs = function () {
             // WashDogs
-            CTOS.Globals.m_StdOut.putText("_we are watching _we are all connected");
-            CTOS.Globals.m_StdOut.advanceLine();
-            CTOS.Globals.m_StdOut.putText("_hacking is our weapon _Connection is power");
+            CTOS.Globals.m_StdOut.PutText("_we are watching _we are all connected");
+            CTOS.Globals.m_StdOut.AdvanceLine();
+            CTOS.Globals.m_StdOut.PutText("_hacking is our weapon _Connection is power");
         };
 
         Shell.prototype.shellAssassin = function () {
@@ -408,18 +408,18 @@ var CTOS;
         };
 
         Shell.prototype.shellCurse = function () {
-            CTOS.Globals.m_StdOut.putText("Oh, so that's how it's going to be, eh? Fine.");
-            CTOS.Globals.m_StdOut.advanceLine();
-            CTOS.Globals.m_StdOut.putText("Bitch.");
+            CTOS.Globals.m_StdOut.PutText("Oh, so that's how it's going to be, eh? Fine.");
+            CTOS.Globals.m_StdOut.AdvanceLine();
+            CTOS.Globals.m_StdOut.PutText("Bitch.");
             CTOS.Globals.m_SarcasticMode = true;
         };
 
         Shell.prototype.shellApology = function () {
             if (CTOS.Globals.m_SarcasticMode) {
-                CTOS.Globals.m_StdOut.putText("Okay. I forgive you. This time.");
+                CTOS.Globals.m_StdOut.PutText("Okay. I forgive you. This time.");
                 CTOS.Globals.m_SarcasticMode = false;
             } else {
-                CTOS.Globals.m_StdOut.putText("For what?");
+                CTOS.Globals.m_StdOut.PutText("For what?");
             }
         };
         return Shell;

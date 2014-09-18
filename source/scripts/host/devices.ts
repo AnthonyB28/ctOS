@@ -39,13 +39,13 @@ module CTOS {
             Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
 
             // Call the kernel clock pulse event handler.
-            Globals.m_Kernel.krnOnCPUClockPulse();
+            Globals.m_Kernel.OnCPUClockPulse();
         }
 
         //
         // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
         //
-        public static hostEnableKeyboardInterrupt(): void {
+        public static HostEnableKeyboardInterrupt(): void {
             // Listen for key press (keydown, actually) events in the Document
             // and call the simulation processor, which will in turn call the
             // OS interrupt handler.

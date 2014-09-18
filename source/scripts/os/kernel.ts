@@ -13,9 +13,10 @@ module CTOS {
 
     export class Kernel {
         //
-        // OS Startup and Shutdown Routines
+        // OS Startup and Shutdown Routines Pg 8
         //
-        public krnBootstrap() {      // Page 8. {
+        public Bootstrap() 
+        { 
             Control.hostLog("bootstrap", "host");  // Use hostLog because we ALWAYS want this, even if _Trace is off.
 
             // Initialize our global queues.
@@ -32,60 +33,71 @@ module CTOS {
             Globals.m_StdOut = Globals.m_Console;
 
             // Load the Keyboard Device Driver
-            this.krnTrace("Loading the keyboard device driver.");
+            this.Trace("Loading the keyboard device driver.");
             Globals.m_KrnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.
             Globals.m_KrnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
-            this.krnTrace(Globals.m_KrnKeyboardDriver.status);
+            this.Trace(Globals.m_KrnKeyboardDriver.status);
 
             //
             // ... more?
             //
 
             // Enable the OS Interrupts.  (Not the CPU clock interrupt, as that is done in the hardware sim.)
-            this.krnTrace("Enabling the interrupts.");
-            this.krnEnableInterrupts();
+            this.Trace("Enabling the interrupts.");
+            this.EnableInterrupts();
 
             // Launch the shell.
-            this.krnTrace("Creating and Launching the shell.");
+            this.Trace("Creating and Launching the shell.");
             Globals.m_OsShell = new Shell();
             Globals.m_OsShell.init();
 
             // Finally, initiate testing.
-            if (Globals.m_GLaDOS) {
+            if (Globals.m_GLaDOS) 
+            {
                 Globals.m_GLaDOS.afterStartup();
             }
         }
 
-        public krnShutdown() {
-            this.krnTrace("begin shutdown OS");
+        public Shutdown() : void
+        {
+            this.Trace("begin shutdown OS");
             // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...
             // ... Disable the Interrupts.
-            this.krnTrace("Disabling the interrupts.");
-            this.krnDisableInterrupts();
+            this.Trace("Disabling the interrupts.");
+            this.KrnDisableInterrupts();
             //
             // Unload the Device Drivers?
             // More?
             //
-            this.krnTrace("end shutdown OS");
+            this.Trace("end shutdown OS");
         }
 
 
-        public krnOnCPUClockPulse() {
+        public OnCPUClockPulse() : void
+        {
             /* This gets called from the host hardware sim every time there is a hardware clock pulse.
                This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
                This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel
-               that it has to look for interrupts and process them if it finds any.                           */
-//Did I ever tell you what the definition of insanity is? Insanity is doing the exact... same fucking thing...over and over again expecting shit to change... That.Is.Crazy.
+               that it has to look for interrupts and process them if it finds any.                          
+             */
+
             // Check for an interrupt, are any. Page 560
-            if (Globals.m_KernelInterruptQueue.getSize() > 0) {
+            if (Globals.m_KernelInterruptQueue.getSize() > 0) 
+            {
                 // Process the first interrupt on the interrupt queue.
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = Globals.m_KernelInterruptQueue.dequeue();
-                this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (Globals.m_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed. {
+                this.InterruptHandler(interrupt.irq, interrupt.params);
+            }
+            else if (Globals.m_CPU.isExecuting) 
+            { 
+                // If there are no interrupts then run one CPU cycle if there is anything being processed. {
                 Globals.m_CPU.cycle();
-            } else {                      // If there are no interrupts and there is nothing being executed then just be idle. {
-                this.krnTrace("Idle");
+            }
+            else
+            {   
+                // If there are no interrupts and there is nothing being executed then just be idle. {
+                this.Trace("Idle");
             }
         }
 
@@ -93,22 +105,25 @@ module CTOS {
         //
         // Interrupt Handling
         //
-        public krnEnableInterrupts() {
+        public EnableInterrupts() : void
+        {
             // Keyboard
-            Devices.hostEnableKeyboardInterrupt();
+            Devices.HostEnableKeyboardInterrupt();
             // Put more here.
         }
 
-        public krnDisableInterrupts() {
+        public KrnDisableInterrupts() : void
+        {
             // Keyboard
             Devices.hostDisableKeyboardInterrupt();
             // Put more here.
         }
 
-        public krnInterruptHandler(irq, params) {
+        public InterruptHandler(irq, params) : void
+        {
             // This is the Interrupt Handler Routine.  Pages 8 and 560. {
             // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on.  Page 766.
-            this.krnTrace("Handling IRQ~" + irq);
+            this.Trace("Handling IRQ~" + irq);
 
             // Invoke the requested Interrupt Service Routine via Switch/Case rather than an Interrupt Vector.
             // TODO: Consider using an Interrupt Vector in the future.
@@ -116,18 +131,19 @@ module CTOS {
             //       Maybe the hardware simulation will grow to support/require that in the future.
             switch (irq) {
                 case Globals.TIMER_IRQ:
-                    this.krnTimerISR();              // Kernel built-in routine for timers (not the clock).
+                    this.TimerISR();              // Kernel built-in routine for timers (not the clock).
                     break;
                 case Globals.KEYBOARD_IRQ:
                     Globals.m_KrnKeyboardDriver.isr(params);   // Kernel mode device driver
                     Globals.m_StdIn.handleInput();
                     break;
                 default:
-                    this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
+                    this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
         }
 
-        public krnTimerISR() {
+        public TimerISR() : void
+        {
             // The built-in TIMER (not clock) Interrupt Service Routine (as opposed to an ISR coming from a device driver). {
             // Check multiprogramming parameters and enforce quanta here. Call the scheduler / context switch here if necessary.
         }
@@ -151,7 +167,8 @@ module CTOS {
         //
         // OS Utility Routines
         //
-        public krnTrace(msg: string) {
+        public Trace(msg: string): void
+        {
              // Check globals to see if trace is set ON.  If so, then (maybe) log the message.
              if (Globals.m_Trace) {
                 if (msg === "Idle") {
@@ -167,12 +184,20 @@ module CTOS {
              }
         }
 
-        public krnTrapError(msg)
+        public TrapError(msg : string) : void
         {
             var errorMsg: string = "OS ERROR - TRAP: " + msg;
             Control.hostLog(errorMsg);
-            Globals.m_StdOut.putError("TRAP ERROR", errorMsg);
-            this.krnShutdown();
+
+            Globals.m_StdOut.DrawError("TRAP ERROR", errorMsg);
+            // Shutdown! Stop input!
+            Control.hostLog("Emergency halt", "TRAP ERROR");
+            Control.hostLog("Attempting Kernel shutdown.", "BSOD");
+            // Call the OS shutdown routine.
+            Globals.m_Kernel.Shutdown();
+            // Stop the interval that's simulating our clock pulse.
+            clearInterval(Globals.m_HardwareClockID);
+            this.Shutdown();
         }
     }
 }

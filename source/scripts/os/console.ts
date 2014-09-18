@@ -63,8 +63,8 @@ module CTOS {
                 // Erase last character from the canvas and buffer
                 else if(chr === String.fromCharCode(8) && this.m_Buffer.length > 0)
                 {
-                    //this.eraseLastCharacter();
-                    this.putError("test", "ERROR TESTING");
+                    this.EraseLastCharacter();
+                    //this.DrawError("test", "ERROR TESTING");
                 }
 
                 // Tab & right arrow
@@ -74,8 +74,8 @@ module CTOS {
                     var suggestedCmd: string = Globals.m_OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "")
                     {
-                        this.eraseLine();
-                        this.putText(suggestedCmd);
+                        this.EraseLine();
+                        this.PutText(suggestedCmd);
                         this.m_Buffer = suggestedCmd;
                     }
                 }
@@ -98,7 +98,7 @@ module CTOS {
                 {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
-                    this.putText(chr);
+                    this.PutText(chr);
                     // ... and add it to our buffer.
                     this.m_Buffer += chr;
                 }
@@ -136,15 +136,15 @@ module CTOS {
                 }
             }
 
-            this.eraseLine();
+            this.EraseLine();
             var cmd: string = this.m_CmdHistory[this.m_CmdHistoryIndex];
-            this.putText(cmd);
+            this.PutText(cmd);
             this.m_Buffer = cmd;
             this.m_CmdHistoryMovedOnce = true;
         }
 
         // Removes the entire buffer from the canvas and clears itself
-        private eraseLine(): void
+        private EraseLine(): void
         {
             var offset: number = Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
             var xBeginningPos: number = this.m_CurrentXPosition - offset;
@@ -157,7 +157,7 @@ module CTOS {
         }
 
         // Removes the last character on the buffer from the canvas & the buffer itself
-        private eraseLastCharacter(): void
+        private EraseLastCharacter(): void
         {
             var offset: number = Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
             var xBeginningPos: number = this.m_CurrentXPosition - offset;
@@ -169,7 +169,7 @@ module CTOS {
             this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
         }
 
-        public putText(text): void {
+        public PutText(text : string): void {
             // My first inclination here was to write two functions: putChar() and putString().
             // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
             // between the two.  So rather than be like PHP and write two (or more) functions that
@@ -188,17 +188,17 @@ module CTOS {
                     if (text.length > 1)
                     {
                         // We have long text to break up. Need to find which index to substring
-                        var indexToLineBreak: number = this.findLineWrapPosition(text);
+                        var indexToLineBreak: number = this.FindLineWrapPosition(text);
                         var textLineBeginning: string = text.substring(0, indexToLineBreak);
                         Globals.m_DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, textLineBeginning);
-                        this.advanceLine();
+                        this.AdvanceLine();
                         isMultiLineWrapped = true;
-                        this.putText(text.substring(indexToLineBreak, text.length));
+                        this.PutText(text.substring(indexToLineBreak, text.length));
                     }
                     else
                     {
                         // We have only a single character to put on the canvas. Just advance line and write it as if normal.
-                        this.advanceLine();
+                        this.AdvanceLine();
                     }                    
                 }
                 
@@ -215,7 +215,7 @@ module CTOS {
         }
 
         // Finds the index of a string which needs to wrap
-        private findLineWrapPosition(text : string): number
+        private FindLineWrapPosition(text : string): number
         {
             var offsetToLineBreak: number = 0;
             for (var i: number = 0; i < text.length; ++i)
@@ -232,7 +232,7 @@ module CTOS {
 
 
         // BSOD & halts program - errorType gets put on top of BSOD, message below
-        public putError(errorType : string, msg: string): void
+        public DrawError(errorType : string, msg: string): void
         {
             this.clearScreen();
 
@@ -259,22 +259,14 @@ module CTOS {
 
             // Write the error text, preferably within the circle
             CanvasTextFunctions.enable(Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
-            this.putText(errorType);
-            this.advanceLine();
+            this.PutText(errorType);
+            this.AdvanceLine();
             this.m_CurrentXPosition = Globals.m_Canvas.width / 5;
-            this.putText(msg);
+            this.PutText(msg);
             CanvasTextFunctions.enable(Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
-
-            // Shutdown! Stop input!
-            Control.hostLog("Emergency halt", errorType);
-            Control.hostLog("Attempting Kernel shutdown.", "BSOD");
-            // Call the OS shutdown routine.
-            Globals.m_Kernel.krnShutdown();
-            // Stop the interval that's simulating our clock pulse.
-            clearInterval(Globals.m_HardwareClockID);
         }
 
-        public advanceLine(): void 
+        public AdvanceLine(): void 
         {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition += Globals.m_DefaultFontSize + Globals.m_FontHeightMargin;

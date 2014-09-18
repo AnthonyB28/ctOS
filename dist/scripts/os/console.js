@@ -59,13 +59,13 @@ var CTOS;
                     this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
                     this.m_Buffer = "";
                 } else if (chr === String.fromCharCode(8) && this.m_Buffer.length > 0) {
-                    //this.eraseLastCharacter();
-                    this.putError("test", "ERROR TESTING");
+                    this.EraseLastCharacter();
+                    //this.DrawError("test", "ERROR TESTING");
                 } else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0) {
                     var suggestedCmd = CTOS.Globals.m_OsShell.suggestCmd(this.m_Buffer);
                     if (suggestedCmd != "") {
-                        this.eraseLine();
-                        this.putText(suggestedCmd);
+                        this.EraseLine();
+                        this.PutText(suggestedCmd);
                         this.m_Buffer = suggestedCmd;
                     }
                 } else if (chr == String.fromCharCode(38) && this.m_CmdHistory.length > 0) {
@@ -75,7 +75,7 @@ var CTOS;
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
-                    this.putText(chr);
+                    this.PutText(chr);
 
                     // ... and add it to our buffer.
                     this.m_Buffer += chr;
@@ -106,15 +106,15 @@ var CTOS;
                 }
             }
 
-            this.eraseLine();
+            this.EraseLine();
             var cmd = this.m_CmdHistory[this.m_CmdHistoryIndex];
-            this.putText(cmd);
+            this.PutText(cmd);
             this.m_Buffer = cmd;
             this.m_CmdHistoryMovedOnce = true;
         };
 
         // Removes the entire buffer from the canvas and clears itself
-        Console.prototype.eraseLine = function () {
+        Console.prototype.EraseLine = function () {
             var offset = CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer);
             var xBeginningPos = this.m_CurrentXPosition - offset;
             var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
@@ -126,7 +126,7 @@ var CTOS;
         };
 
         // Removes the last character on the buffer from the canvas & the buffer itself
-        Console.prototype.eraseLastCharacter = function () {
+        Console.prototype.EraseLastCharacter = function () {
             var offset = CTOS.Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
             var xBeginningPos = this.m_CurrentXPosition - offset;
             var yBeginningPos = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize;
@@ -137,7 +137,7 @@ var CTOS;
             this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
         };
 
-        Console.prototype.putText = function (text) {
+        Console.prototype.PutText = function (text) {
             // My first inclination here was to write two functions: putChar() and putString().
             // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
             // between the two.  So rather than be like PHP and write two (or more) functions that
@@ -152,15 +152,15 @@ var CTOS;
                 if ((this.m_CurrentXPosition + offset) > CTOS.Globals.m_Canvas.width) {
                     if (text.length > 1) {
                         // We have long text to break up. Need to find which index to substring
-                        var indexToLineBreak = this.findLineWrapPosition(text);
+                        var indexToLineBreak = this.FindLineWrapPosition(text);
                         var textLineBeginning = text.substring(0, indexToLineBreak);
                         CTOS.Globals.m_DrawingContext.drawText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_CurrentXPosition, this.m_CurrentYPosition, textLineBeginning);
-                        this.advanceLine();
+                        this.AdvanceLine();
                         isMultiLineWrapped = true;
-                        this.putText(text.substring(indexToLineBreak, text.length));
+                        this.PutText(text.substring(indexToLineBreak, text.length));
                     } else {
                         // We have only a single character to put on the canvas. Just advance line and write it as if normal.
-                        this.advanceLine();
+                        this.AdvanceLine();
                     }
                 }
 
@@ -176,7 +176,7 @@ var CTOS;
         };
 
         // Finds the index of a string which needs to wrap
-        Console.prototype.findLineWrapPosition = function (text) {
+        Console.prototype.FindLineWrapPosition = function (text) {
             var offsetToLineBreak = 0;
             for (var i = 0; i < text.length; ++i) {
                 // Measure each character until we breach the Canvas width
@@ -189,7 +189,7 @@ var CTOS;
         };
 
         // BSOD & halts program - errorType gets put on top of BSOD, message below
-        Console.prototype.putError = function (errorType, msg) {
+        Console.prototype.DrawError = function (errorType, msg) {
             this.clearScreen();
 
             // Compute where the inner circle should go
@@ -210,24 +210,14 @@ var CTOS;
 
             // Write the error text, preferably within the circle
             CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "white"); // Set the text to white, maybe a simple way to do this?
-            this.putText(errorType);
-            this.advanceLine();
+            this.PutText(errorType);
+            this.AdvanceLine();
             this.m_CurrentXPosition = CTOS.Globals.m_Canvas.width / 5;
-            this.putText(msg);
+            this.PutText(msg);
             CTOS.CanvasTextFunctions.enable(CTOS.Globals.m_DrawingContext, "black"); // Set text back to black, just in case we write more later perhaps.
-
-            // Shutdown! Stop input!
-            CTOS.Control.hostLog("Emergency halt", errorType);
-            CTOS.Control.hostLog("Attempting Kernel shutdown.", "BSOD");
-
-            // Call the OS shutdown routine.
-            CTOS.Globals.m_Kernel.krnShutdown();
-
-            // Stop the interval that's simulating our clock pulse.
-            clearInterval(CTOS.Globals.m_HardwareClockID);
         };
 
-        Console.prototype.advanceLine = function () {
+        Console.prototype.AdvanceLine = function () {
             this.m_CurrentXPosition = 0;
             this.m_CurrentYPosition += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
 
