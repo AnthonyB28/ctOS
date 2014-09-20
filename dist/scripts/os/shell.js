@@ -374,18 +374,25 @@ var CTOS;
         /* ---
         Silly stuff because I can do this all day.
         --- */
-        Shell.prototype.shellAlan = function () {
+        Shell.prototype.RandomSecretUncipher = function (messages) {
             // Get a random index from our array of secret nugetty goodness
-            var secretIndex = Math.floor(Math.random() * (_SecretAlan.length - 1));
+            var secretIndex = Math.floor(Math.random() * (messages.length - 1));
+
+            // \ formating makes a tab, remove it
+            var secretMsgTabbed = messages[secretIndex].replace('\t', '');
 
             // I came up with an arbitrary new line marked by ;
-            var secretMsgSplit = _SecretAlan[secretIndex].split(";");
+            var secretMsgSplit = secretMsgTabbed.split(";");
             for (var i = 0; i < secretMsgSplit.length; ++i) {
                 // Trim and uncipher the string at the index. Each index is a new line.
                 CTOS.Globals.m_StdOut.PutText(CTOS.Utils.trim(CTOS.Utils.rot13(secretMsgSplit[i])));
                 CTOS.Globals.m_StdOut.AdvanceLine();
                 CTOS.Globals.m_StdOut.AdvanceLine();
             }
+        };
+
+        Shell.prototype.shellAlan = function () {
+            CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretAlan);
         };
 
         Shell.prototype.shellInsanity = function () {
@@ -401,12 +408,15 @@ var CTOS;
         };
 
         Shell.prototype.shellAssassin = function () {
+            CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretAssassin);
         };
 
         Shell.prototype.shellTemplar = function () {
+            CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretTemplar);
         };
 
         Shell.prototype.shellEzio = function () {
+            CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretEzio);
         };
 
         Shell.prototype.shellCurse = function () {

@@ -451,20 +451,29 @@ module CTOS
             Silly stuff because I can do this all day.
            --- */
 
-        public shellAlan(): void
+        public RandomSecretUncipher(messages: Array<string>)
         {
             // Get a random index from our array of secret nugetty goodness
-            var secretIndex: number = Math.floor(Math.random() * (_SecretAlan.length - 1));
+            var secretIndex: number = Math.floor(Math.random() * (messages.length - 1));
+
+            // \ formating makes a tab, remove it
+            var secretMsgTabbed: string = messages[secretIndex].replace('\t', '');
 
             // I came up with an arbitrary new line marked by ;
-            var secretMsgSplit: Array<string> = _SecretAlan[secretIndex].split(";");
-            for(var i : number = 0; i < secretMsgSplit.length; ++i)
+            var secretMsgSplit: Array<string> = secretMsgTabbed.split(";");
+            for (var i: number = 0; i < secretMsgSplit.length; ++i)
             {
                 // Trim and uncipher the string at the index. Each index is a new line.
                 Globals.m_StdOut.PutText(Utils.trim(Utils.rot13(secretMsgSplit[i])));
                 Globals.m_StdOut.AdvanceLine();
                 Globals.m_StdOut.AdvanceLine();
             }
+        }
+
+
+        public shellAlan(): void
+        {
+            Globals.m_OsShell.RandomSecretUncipher(_SecretAlan);
         }
 
         public shellInsanity(): void
@@ -485,14 +494,17 @@ module CTOS
 
         public shellAssassin(): void
         {
+            Globals.m_OsShell.RandomSecretUncipher(_SecretAssassin);
         }
 
         public shellTemplar(): void
         {
+            Globals.m_OsShell.RandomSecretUncipher(_SecretTemplar);
         }
 
         public shellEzio(): void
         {
+            Globals.m_OsShell.RandomSecretUncipher(_SecretEzio);
         }
 
         public shellCurse(): void

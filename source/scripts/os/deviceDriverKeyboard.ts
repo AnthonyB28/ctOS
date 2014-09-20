@@ -107,8 +107,11 @@ module CTOS {
                      keyCode == 9 || // tab
                     (keyCode >= 38 && keyCode <= 40)) // arrows
             {
-                chr = String.fromCharCode(keyCode);
-                Globals.m_KernelInputQueue.enqueue(chr);
+                if (!isShifted)
+                {
+                    chr = String.fromCharCode(keyCode);
+                    Globals.m_KernelInputQueue.enqueue(chr);
+                }
             }
         }
     }

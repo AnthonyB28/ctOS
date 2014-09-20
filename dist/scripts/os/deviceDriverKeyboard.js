@@ -79,8 +79,10 @@ var CTOS;
 
                 CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             } else if (keyCode == 8 || keyCode == 9 || (keyCode >= 38 && keyCode <= 40)) {
-                chr = String.fromCharCode(keyCode);
-                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+                if (!isShifted) {
+                    chr = String.fromCharCode(keyCode);
+                    CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+                }
             }
         };
         return DeviceDriverKeyboard;

@@ -2,6 +2,62 @@
 Secret stuff. Shhhhh.
 -----*/
 
+var _SecretAssassin: Array<string> =
+    [
+        "Nygnïe Voa-Yn\’Nunq",
+        "Rmvb Nhqvgber qn Sveramr",
+        "Funb Wha",
+        "Rqjneq Xrajnl",
+        "Nqéjnyé",
+        "Niryvar qr Tenaqceé",
+        "Engbauaunxé:gba",
+        "Neab Qbevna",
+        "Neonnm Zve",
+        "Avxbynv Berybi",
+        "Qrfzbaq Zvyrf"
+    ];
+
+var _SecretTemplar: Array<string> =
+    [
+        "Ebqevtb Obetvn",
+        "Eboreg qr Fnoyr",
+        "Prfner Obetvn",
+        "Nuzrg",
+        "Ynhernab qr Gbeerf",
+        "Unlgunz Xrajnl",
+        "Puneyrf Yrr",
+        "Funl Pbeznp",
+        "Jneera Ivqvp",
+        "Qnavry Pebff"
+    ];
+
+var _SecretEzio: Array<string> =
+    [
+        "Rmvb Nhqvgber Qn Sveramr: Bayl gur zbfg vagrerfgvat zna va lbhe yvsr."
+        ,
+        "Rmvb Nhqvgber Qn Sveramr: [fvatvat] Gur guvatf V qb gb fnir gur jbeyq \
+        fhecevfr zr gvzr gb gvzr. Yvxr yrneavat ubj gb cynl gur yhgr naq znxvat \
+        gurfr jbeqf eulzr."
+        ,
+        "Rmvb Nhqvgber Qn Sveramr: Yvoregl pna or zrffl, Nuzrg. Ohg vg vf cevpryrff."
+        ,
+        "Rmvb Nhqvgber Qn Sveramr: Qryhfvbaf. Nygnïe\’f frpergf ner abg sbe lbh."
+        ,
+        "Rmvb Nhqvgber Qn Sveramr: Grzcynef ner nyjnlf dhvpx gb gnyx bs crnpr, ohg irel fybj gb pbaprqr cbjre."
+        ,
+        "Rmvb Nhqvgber qn Sveramr: [nobhg gb svtug Ebqevtb Obetvn, unaq-gb-unaq fglyr] Vg\’f bire Ebqevtb. Ab zber gevpxf, ab zber napvrag negvsnpgf, ab zber jrncbaf. Yrg\’f frr jung lbh ner znqr bs, byq zna!"
+        ,
+        "Rmvb Nhqvgber qn Sveramr: V unir *cyragl* bs bhgyrgf…"
+        ,
+        "Rmvb Nhqvgber qn Sveramr: V gubhtug… V gubhtug V jnf orlbaq guvf.Ohg V\’z abg. V\’ir jnvgrq gbb ybat, ybfg gbb zhpu. Erdhvrfpng va Cnpr, lbh onfgneq!"
+        , 
+        "Rmvb Nhqvgber qn Sveramr: Lbhe fvfgre frrzrq dhvgr fngvfsvrq jvgu gur \’unaqyvat\’ V tnir ure rneyvre."
+        ,
+        "Rmvb Nhqvgber qn Sveramr: Ab. Xvyyvat lbh jba\’g oevat zl snzvyl onpx. V\’z qbar. Ahyyn è ernyr, ghggb è yrpvgb. Erdhvrfpng va cnpr."
+        ,
+        "Gur Nhqvgber ner abg qrnq! V\’z fgvyy urer! ZR! Rmvb! Rmvb Nhqvgber!!"
+    ];
+
 var _SecretAlan: Array<string> =
     [
         "Ehffvn Jvgu Ybir ;;  \
