@@ -10,7 +10,6 @@
 
 module CTOS 
 {
-
 export class Globals 
     {
         // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
