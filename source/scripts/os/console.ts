@@ -64,13 +64,17 @@ module CTOS {
                         this.m_CmdHistory.shift();
                     }
                     this.m_CmdHistory.push(this.m_Buffer);
-                    this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
+                    this.m_CmdHistoryIndex = this.m_CmdHistory.length; // Out of bounds, will be handled
+                    if (!this.m_CmdHistoryMovedOnce)
+                    {
+                        --this.m_CmdHistoryIndex; // If not moved once, need to decrement
+                    }
                     this.m_Buffer = "";
                 }
 
                 // Backspace
                 // Erase last character from the canvas and buffer
-                else if(chr === String.fromCharCode(8) && this.m_Buffer.length > 0)
+                else if(chr === String.fromCharCode(8))
                 {
                     this.EraseLastCharacter();
                 }
@@ -136,10 +140,18 @@ module CTOS {
                 // Don't go out of bounds
                 if (this.m_CmdHistoryIndex != this.m_CmdHistory.length - 1)
                 {
-                    // Make sure we've moved before, otherwise we skip an index
-                    if (this.m_CmdHistoryMovedOnce)
+                    // Safety out of bounds check, if we bottom out and continue to move down
+                    if (this.m_CmdHistoryIndex == this.m_CmdHistory.length + 1)
                     {
-                        ++this.m_CmdHistoryIndex;
+                        this.m_CmdHistoryIndex = this.m_CmdHistory.length - 1;
+                    }
+                    else
+                    {
+                        // Make sure we've moved before, otherwise we skip an index
+                        if (this.m_CmdHistoryMovedOnce)
+                        {
+                            ++this.m_CmdHistoryIndex;
+                        }
                     }
                 }
             }
@@ -167,14 +179,17 @@ module CTOS {
         // Removes the last character on the buffer from the canvas & the buffer itself
         private EraseLastCharacter(): void
         {
-            var offset: number = Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
-            var xBeginningPos: number = this.m_CurrentXPosition - offset;
-            var yBeginningPos: number = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize; //height is the same as font size, dont need measure
-            Globals.m_DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
-            this.m_CurrentXPosition = xBeginningPos;
+            if (this.m_Buffer.length > 0)
+            {
+                var offset: number = Globals.m_DrawingContext.measureText(this.m_CurrentFont, this.m_CurrentFontSize, this.m_Buffer.slice(-1));
+                var xBeginningPos: number = this.m_CurrentXPosition - offset;
+                var yBeginningPos: number = this.m_CurrentYPosition + 1 - this.m_CurrentFontSize; //height is the same as font size, dont need measure
+                Globals.m_DrawingContext.clearRect(xBeginningPos, yBeginningPos, this.m_CurrentXPosition, this.m_CurrentYPosition);
+                this.m_CurrentXPosition = xBeginningPos;
 
-            // Strip last character off the buffer
-            this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
+                // Strip last character off the buffer
+                this.m_Buffer = this.m_Buffer.substr(0, this.m_Buffer.length - 1);
+            }
         }
 
         public PutText(text : string): void {

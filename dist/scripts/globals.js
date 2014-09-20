@@ -45,7 +45,7 @@ var CTOS;
         Globals.m_StdOut = null;
 
         Globals.m_BSODColor = "#236B8E";
-        Globals.m_ConsoleTextDefaultColor = "black";
+        Globals.m_ConsoleTextDefaultColor = "white";
 
         Globals.m_SarcasticMode = false;
 

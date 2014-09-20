@@ -38,7 +38,7 @@ label {
 }
 
 #display {
-  background-color:#DFDBC3;
+  background-color:black;
   border: 2px solid red;
   cursor: default;
 }

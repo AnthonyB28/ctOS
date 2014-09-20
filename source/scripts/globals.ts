@@ -63,7 +63,7 @@ export class Globals
          static m_Console: CTOS.Console;
          static m_OsShell: CTOS.Shell;
          static m_BSODColor: string = "#236B8E"; // Inner circle
-         static m_ConsoleTextDefaultColor: string = "black";
+         static m_ConsoleTextDefaultColor: string = "white";
 
         // At least this OS is not trying to kill you. (Yet.)
          static m_SarcasticMode: boolean = false;
