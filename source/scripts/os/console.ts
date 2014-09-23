@@ -35,9 +35,7 @@ module CTOS {
         public ClearScreen(): void 
         {
             Globals.m_DrawingContext.clearRect(0, 0, Globals.m_Canvas.width, Globals.m_Canvas.height);
-            // Auto-scroll up & reset height
-            var elem = document.getElementById('divConsole');
-            elem.scrollTop = 0;
+            Control.scrollConsoleTop();
             Globals.m_Canvas.height = 500;
         }
 
@@ -304,9 +302,7 @@ module CTOS {
                 Globals.m_Canvas.height += Globals.m_DefaultFontSize + Globals.m_FontHeightMargin;
                 Globals.m_DrawingContext.putImageData(canvasImage, 0, 0);
 
-                // Auto-scroll down
-                var elem = document.getElementById('divConsole');
-                elem.scrollTop = elem.scrollHeight;
+                Control.scrollConsoleDown();
             }
         }
     }
