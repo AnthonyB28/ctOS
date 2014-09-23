@@ -104,12 +104,19 @@ module CTOS {
             }
 
             else if (keyCode == 8 || // backspace
-                     keyCode == 9 || // tab
-                    (keyCode >= 38 && keyCode <= 40)) // arrows
+                        keyCode == 9) // arrows
             {
                 if (!isShifted)
                 {
                     chr = String.fromCharCode(keyCode);
+                    Globals.m_KernelInputQueue.enqueue(chr);
+                }
+            }
+            else if ((keyCode >= 38 && keyCode <= 40)) // arrows
+            {
+                if (!isShifted)
+                {
+                    chr = keyCode.toString();
                     Globals.m_KernelInputQueue.enqueue(chr);
                 }
             }
