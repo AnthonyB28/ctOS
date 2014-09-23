@@ -13,11 +13,11 @@
  * Port to TypeScript by Bob Nisco.
  * ----------------- */
 
-module TSOS {
+module CTOS {
 
     export class CanvasTextFunctions {
 
-        public static letters = {
+        public static m_Letters = {
             ' ': { width: 16, points: [] },
             '!': { width: 10, points: [[5,21],[5,7],[-1,-1],[5,2],[4,1],[5,0],[6,1],[5,2]] },
             '"': { width: 16, points: [[4,21],[4,14],[-1,-1],[12,21],[12,14]] },
@@ -116,24 +116,24 @@ module TSOS {
             '~': { width: 24, points: [[3,6],[3,8],[4,11],[6,12],[8,12],[10,11],[14,8],[16,7],[18,7],[20,8],[21,10],[-1,-1],[3,8],[4,10],[6,11],[8,11],[10,10],[14,7],[16,6],[18,6],[20,7],[21,10],[21,12]] }
         };
 
-        public static letter(ch) {
-            return CanvasTextFunctions.letters[ch];
+        public static Letter(ch) {
+            return CanvasTextFunctions.m_Letters[ch];
         }
 
-        public static ascent(font, size) {
+        public static Ascent(font, size) {
             return size;
         }
 
-        public static descent(font, size) {
+        public static Descent(font, size) {
             return 7.0*size/25.0;
         }
 
-        public static measure(font, size, str) {
+        public static Measure(font, size, str) {
             var total = 0;
             var len = str.length;
 
             for (var i = 0; i < len; i++) {
-                var c = CanvasTextFunctions.letter(str.charAt(i));
+                var c = CanvasTextFunctions.Letter(str.charAt(i));
                 if (c) {
                     total += c.width * size / 25.0;
                 }
@@ -141,18 +141,19 @@ module TSOS {
             return total;
         }
 
-        public static draw(ctx, font, size, x, y, str) {
+        public static Draw(ctx, font, size, x, y, str, color = Globals.m_ConsoleTextDefaultColor) {
             var total = 0;
             var len = str.length;
             var mag = size / 25.0;
-
             ctx.save();
             ctx.lineCap = "round";
             ctx.lineWidth = 2.0 * mag;
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = color;
 
-            for (var i = 0; i < len; i++) {
-                var c = CanvasTextFunctions.letter(str.charAt(i));
+            for (var i = 0; i < len; i++)
+            {
+                
+                var c = CanvasTextFunctions.Letter(str.charAt(i));
                 if (!c) {
                     continue;
                 }
@@ -179,18 +180,19 @@ module TSOS {
             return total;
         }
 
-        public static enable(ctx) {
-            ctx.drawText = function(font,size,x,y,text) { return CanvasTextFunctions.draw( ctx, font,size,x,y,text); };
-            ctx.measureText = function(font,size,text) { return CanvasTextFunctions.measure( font,size,text); };
-            ctx.fontAscent = function(font,size) { return CanvasTextFunctions.ascent(font,size); };
-            ctx.fontDescent = function(font,size) { return CanvasTextFunctions.descent(font,size); };
+        public static Enable(ctx, color = Globals.m_ConsoleTextDefaultColor)
+        {
+            ctx.drawText = function(font,size,x,y,text) { return CanvasTextFunctions.Draw( ctx, font,size,x,y,text, color); };
+            ctx.measureText = function(font,size,text) { return CanvasTextFunctions.Measure( font,size,text); };
+            ctx.fontAscent = function(font,size) { return CanvasTextFunctions.Ascent(font,size); };
+            ctx.fontDescent = function(font,size) { return CanvasTextFunctions.Descent(font,size); };
             ctx.drawTextRight = function(font,size,x,y,text) {
-                var w = CanvasTextFunctions.measure(font,size,text);
-                return CanvasTextFunctions.draw( ctx, font,size,x-w,y,text);
+                var w = CanvasTextFunctions.Measure(font,size,text);
+                return CanvasTextFunctions.Draw( ctx, font,size,x-w,y,text, color);
             };
             ctx.drawTextCenter = function(font,size,x,y,text) {
-                var w = CanvasTextFunctions.measure(font,size,text);
-                return CanvasTextFunctions.draw( ctx, font,size,x-w/2,y,text);
+                var w = CanvasTextFunctions.Measure(font,size,text);
+                return CanvasTextFunctions.Draw( ctx, font,size,x-w/2,y,text, color);
             };
         }
     }

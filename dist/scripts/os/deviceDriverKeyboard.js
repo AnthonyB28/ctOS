@@ -10,8 +10,8 @@ DeviceDriverKeyboard.ts
 Requires deviceDriver.ts
 The Kernel Keyboard Device Driver.
 ---------------------------------- */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     // Extends DeviceDriver
     var DeviceDriverKeyboard = (function (_super) {
         __extends(DeviceDriverKeyboard, _super);
@@ -29,28 +29,64 @@ var TSOS;
             // Parse the params.    TODO: Check that they are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
-            _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
+            CTOS.Globals.m_Kernel.Trace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
 
             // Check to see if we even want to deal with the key that was pressed.
             if (((keyCode >= 65) && (keyCode <= 90)) || ((keyCode >= 97) && (keyCode <= 123))) {
                 // Determine the character we want to display.
-                // Assume it's lowercase...
-                chr = String.fromCharCode(keyCode + 32);
-
                 // ... then check the shift key and re-adjust if necessary.
                 if (isShifted) {
                     chr = String.fromCharCode(keyCode);
+                } else {
+                    chr = String.fromCharCode(keyCode + 32);
                 }
 
                 // TODO: Check for caps-lock and handle as shifted if so.
-                _KernelInputQueue.enqueue(chr);
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
             } else if (((keyCode >= 48) && (keyCode <= 57)) || (keyCode == 32) || (keyCode == 13)) {
-                chr = String.fromCharCode(keyCode);
-                _KernelInputQueue.enqueue(chr);
+                if (isShifted) {
+                    var shiftedNumbers = {
+                        49: "!", 50: "@", 51: "#", 52: "$", 53: "%", 54: "^", 55: "&", 56: "*", 57: "(", 48: ")"
+                    };
+
+                    chr = shiftedNumbers[keyCode];
+
+                    if (!chr) {
+                        chr = "";
+                    }
+                } else {
+                    chr = String.fromCharCode(keyCode);
+                }
+
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+            } else if ((keyCode >= 186) && (keyCode <= 222)) {
+                if (isShifted) {
+                    var shiftedSymbols = {
+                        186: ":", 187: "+", 188: "<", 189: "_", 190: ">", 191: "?", 192: "~", 219: "{", 221: "}", 220: "|", 222: "\""
+                    };
+                    chr = shiftedSymbols[keyCode];
+                } else {
+                    var symbolKeys = {
+                        186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\", 221: "]", 222: "'"
+                    };
+                    chr = symbolKeys[keyCode];
+                }
+
+                if (!chr) {
+                    chr = "";
+                }
+
+                CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+            } else if (keyCode == 8 || keyCode == 9 || (keyCode >= 38 && keyCode <= 40)) {
+                if (!isShifted) {
+                    chr = String.fromCharCode(keyCode);
+                    CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+                }
             }
         };
         return DeviceDriverKeyboard;
-    })(TSOS.DeviceDriver);
-    TSOS.DeviceDriverKeyboard = DeviceDriverKeyboard;
-})(TSOS || (TSOS = {}));
+    })(CTOS.DeviceDriver);
+    CTOS.DeviceDriverKeyboard = DeviceDriverKeyboard;
+})(CTOS || (CTOS = {}));
+//# sourceMappingURL=deviceDriverKeyboard.js.map

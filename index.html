@@ -1,112 +1,208 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   <meta name="author"             content="Alan G. Labouseur" />
-   <link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
-   <title>
-      TSOS - a browser-based virtual Operating System in TypeScript
-   </title>
+﻿<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>ctOS - a browser based virtual OS in TypeScript</title>
+        <meta name="author" content="Anthony Barranco" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<!-- Our CSS -->
+		<link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
+		<!-- Globals CONSTANTS and _Variables. Must included be first. -->
+		<script type="text/javascript" src="dist/scripts/globals.js"></script>
 
-   <!-- Globals CONSTANTS and _Variables. Must included be first. -->
-   <script type="text/javascript" src="dist/scripts/globals.js"></script>
+		<!-- Host (Hardware Simulation) Routines -->
+		<script type="text/javascript" src="dist/scripts/host/control.js"></script>
+		<script type="text/javascript" src="dist/scripts/host/devices.js"></script>
+		<script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
 
-   <!-- Host (Hardware Simulation) Routines -->
-   <script type="text/javascript" src="dist/scripts/host/control.js"></script>
-   <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
-   <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
+		<!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+		<script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/console.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/queue.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/shell.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
+		<script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
 
-   <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
-   <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/console.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
-   <script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
+		<!-- Other Routines -->
+		<script type="text/javascript" src="dist/scripts/utils.js"></script>
+        <script type="text/javascript" src="dist/scripts/achievements.js"></script>
 
-   <!-- Other Routines -->
-   <script type="text/javascript" src="dist/scripts/utils.js"></script>
-   <!-- Uncomment this line below to enable Glados testing -->
-   <!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
-</head>
+		<!-- Uncomment this line below to enable Glados testing -->
+		<!-- <script type="text/javascript" src="http://www.labouseur.com/courses/os/projects/glados.js"></script> -->
 
-<body onload="onDocumentLoad();">
+		<!-- SECRET SHHHHH-->
+		<script type="text/javascript" src="dist/scripts/secret.js"></script>
+		
+		<!-- Boilerplate -->
+		<link rel="stylesheet" href="dist/styles/css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="dist/styles/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="dist/styles/css/main.css">
 
-<div id="divMain" style="width:100%;">
+        <script src="dist/styles/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+    </head>
+    <body onload="CTOS.Globals.onDocumentLoad();">
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+            <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
+                <h3 id="achievementScore">Achievements : 0</h3>
+            </nav>
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+            <a href="#"><img src="dist/images/ctOSlogo.png" height="50" width="200" /> </a> 
+        </div>
+        <div class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="form">
+				   
+              <button type="button"
+                      id="btnStartOS"
+                      name="brnStartOS"
+                      class="btn btn-primary"
+                      onclick="CTOS.Control.hostBtnStartOS_click(this);">
+                  Start
+              </button>
+              <button type="button"
+                      id="btnHaltOS"
+                      name="brnHaltOS"
+                      class="btn btn-warning"
+                      
+                      disabled
+                      tabindex="1"
+                      onclick="CTOS.Control.hostBtnHaltOS_click(this);">
+                  Halt
+              </button>
+              <button type="button"
+                      id="btnReset"
+                      name="brnReset"
+                      class="btn btn-danger"
+                      disabled
+                      tabindex="2"
+                      onclick="CTOS.Control.hostBtnReset_click(this);">
+                  Reset
+              </button>
+          </form>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
 
-   <div id="divButtonBar" style="margin:4px;">
-      <input type="button"
-             id = "btnStartOS"
-             name="brnStartOS"
-             class="normal_button"
-             value="Start"
-             tabindex="0"
-             onclick="TSOS.Control.hostBtnStartOS_click(this);">
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron" id="jumbotron">
+      <div class="container">
+        <label id="timeLabel">Time: </label>
+            <br>
+		<label id="statusLabel">Status: status -string-</label>
+      </div>
+    </div>
 
-      <input type="button"
-             id = "btnHaltOS"
-             name="brnHaltOS"
-             class="normal_button"
-             disabled="disabled"
-             value="Halt"
-             tabindex="1"
-             onclick="TSOS.Control.hostBtnHaltOS_click(this);">
+    <div class="container">
+      <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-lg-6">
+                <label> CLI </label>
+                <br>
+                <div id="divConsole" style="width:524px; height:510px; overflow-y:scroll;">
+                    <canvas id="display"
+                            width="500"
+                            height="500"
+                            tabindex="3"></canvas>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div id="divLog">
+                    <label> Host Log </label>
+                    <br>
+                    <textarea name="taHostLog"
+                              id="taHostLog"
+                              rows="20"
+                              cols="48"></textarea>
+                </div>
+                <div id="divUserProgramInput">
+                    <label>
+                        User Program Input
+                    </label>
+                    <br>
+                    <textarea name="taProgramInput"
+                              id="taProgramInput"
+                              rows="8"
+                              cols="48"></textarea>
 
-      <input type="button"
-             id = "btnReset"
-             name="brnReset"
-             class="normal_button"
-             disabled="disabled"
-             value="Reset"
-             tabindex="2"
-             onclick="TSOS.Control.hostBtnReset_click(this);">
-   </div>
+                </div>
+            </div>
+        </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
-      <canvas id="display"
-              width="500px"
-              height="500px"
-              tabindex="3">
-      </canvas>
-   </div>
+        <div class="container">
+            <br />
+            <button class="btn btn-info" id="showLeft">Show/Hide Achievements</button>
+        </div>
+        <div class="container" id="achievementNotifDiv">
 
-   <div id="divLog" style="margin-left:520px;">
-      <label>
-         Host Log
-         <br>
-         <textarea name="taHostLog"
-                   id  ="taHostLog"
-                   rows="26"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+        </div>
+      <hr />
+      <footer>
+        <p class="footerText" style="clear:both;">
+        <br>
+        Copyright &copy; 2008 - 2014 No Rights Reserved.
+        <br>
+        Reproduction is prohibited without the express written consent of
+        Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+		</p>
+      </footer>
+     
+        <!-- /container -->
+        <script src="dist/styles/js/vendor/jquery-1.11.0.min.js"></script>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
-      <label>
-         User Program Input
-         <br>
-         <textarea name="taProgramInput"
-                   id  ="taProgramInput"
-                   rows="8"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+        <script src="dist/styles/js/vendor/bootstrap.min.js"></script>
+        <script type="text/javascript" src="dist/scripts/menus.js"></script>
+        <script src="dist/styles/js/main.js"></script>
 
-</div>
-
-<p class="footerText" style="clear:both;">
-   <br>
-   Copyright &copy; 2008 - 2014 No Rights Reserved.
-   <br>
-   Reproduction is prohibited without the express written consent of
-   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-</p>
-
-</body>
+        <!--Allows click and scroll on the canvas. Meh right now-->
+        <script>
+    $.fn.attachDragger = function () {
+        var attachment = false, lastPosition, position, difference;
+        $($(this).selector).on("mousedown mouseup mousemove", function (e) {
+            if (e.type == "mousedown") attachment = true, lastPosition = [e.clientX, e.clientY];
+            if (e.type == "mouseup") attachment = false;
+            if (e.type == "mousemove" && attachment == true) {
+                position = [e.clientX, e.clientY];
+                difference = [(position[0] - lastPosition[0]), (position[1] - lastPosition[1])];
+                $(this).scrollLeft($(this).scrollLeft() - difference[0]);
+                $(this).scrollTop($(this).scrollTop() - difference[1]);
+                lastPosition = [e.clientX, e.clientY];
+            }
+        });
+        $(window).on("mouseup", function () {
+            attachment = false;
+        });
+    }
+    $(document).ready(function () { $("divConsole").attachDragger(); });
+    // Allows fade out of Achievements
+    window.setInterval(function () {
+        $(".flash").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 5000);
+        </script>  
+    </body>
 </html>

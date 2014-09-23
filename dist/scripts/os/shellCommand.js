@@ -1,5 +1,5 @@
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var ShellCommand = (function () {
         function ShellCommand(func, command, description) {
             if (typeof command === "undefined") { command = ""; }
@@ -10,5 +10,6 @@ var TSOS;
         }
         return ShellCommand;
     })();
-    TSOS.ShellCommand = ShellCommand;
-})(TSOS || (TSOS = {}));
+    CTOS.ShellCommand = ShellCommand;
+})(CTOS || (CTOS = {}));
+//# sourceMappingURL=shellCommand.js.map

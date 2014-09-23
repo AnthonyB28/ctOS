@@ -13,27 +13,31 @@ DOM manipulation and TypeScript/JavaScript event handling, and so on.  (Index.ht
 This code references page numbers in the text book:
 Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
 ------------ */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var Devices = (function () {
         function Devices() {
-            _hardwareClockID = -1;
+            CTOS.Globals.m_HardwareClockID = -1;
         }
         //
         // Hardware/Host Clock Pulse
         //
         Devices.hostClockPulse = function () {
             // Increment the hardware (host) clock.
-            _OSclock++;
+            CTOS.Globals.m_OSClock++;
+
+            //Update the time GUI
+            var currentDate = new Date();
+            CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
 
             // Call the kernel clock pulse event handler.
-            _Kernel.krnOnCPUClockPulse();
+            CTOS.Globals.m_Kernel.OnCPUClockPulse();
         };
 
         //
         // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
         //
-        Devices.hostEnableKeyboardInterrupt = function () {
+        Devices.HostEnableKeyboardInterrupt = function () {
             // Listen for key press (keydown, actually) events in the Document
             // and call the simulation processor, which will in turn call the
             // OS interrupt handler.
@@ -54,10 +58,11 @@ var TSOS;
                 var params = new Array(event.which, event.shiftKey);
 
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(KEYBOARD_IRQ, params));
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.KEYBOARD_IRQ, params));
             }
         };
         return Devices;
     })();
-    TSOS.Devices = Devices;
-})(TSOS || (TSOS = {}));
+    CTOS.Devices = Devices;
+})(CTOS || (CTOS = {}));
+//# sourceMappingURL=devices.js.map

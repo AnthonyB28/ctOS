@@ -19,12 +19,12 @@
      Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 978-0-470-12872-5
      ------------ */
 
-module TSOS {
+module CTOS {
 
     export class Devices {
 
         constructor() {
-            _hardwareClockID = -1;
+            Globals.m_HardwareClockID = -1;
         }
 
         //
@@ -32,15 +32,20 @@ module TSOS {
         //
         public static hostClockPulse(): void {
             // Increment the hardware (host) clock.
-            _OSclock++;
+            Globals.m_OSClock++;
+
+            //Update the time GUI
+            var currentDate: Date = new Date();
+            Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+
             // Call the kernel clock pulse event handler.
-            _Kernel.krnOnCPUClockPulse();
+            Globals.m_Kernel.OnCPUClockPulse();
         }
 
         //
         // Keyboard Interrupt, a HARDWARE Interrupt Request. (See pages 560-561 in text book.)
         //
-        public static hostEnableKeyboardInterrupt(): void {
+        public static HostEnableKeyboardInterrupt(): void {
             // Listen for key press (keydown, actually) events in the Document
             // and call the simulation processor, which will in turn call the
             // OS interrupt handler.
@@ -59,7 +64,7 @@ module TSOS {
                 // Note the pressed key code in the params (Mozilla-specific).
                 var params = new Array(event.which, event.shiftKey);
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                _KernelInterruptQueue.enqueue(new Interrupt(KEYBOARD_IRQ, params));
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.KEYBOARD_IRQ, params));
             }
         }
     }

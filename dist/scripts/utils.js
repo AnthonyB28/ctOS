@@ -2,8 +2,8 @@
 Utils.ts
 Utility functions.
 -------- */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var Utils = (function () {
         function Utils() {
         }
@@ -11,13 +11,29 @@ var TSOS;
             // Use a regular expression to remove leading and trailing spaces.
             return str.replace(/^\s+ | \s+$/g, "");
             /*
-            Huh? WTF? Okay... take a breath. Here we go:
             - The "|" separates this into two expressions, as in A or B.
             - "^\s+" matches a sequence of one or more whitespace characters at the beginning of a string.
             - "\s+$" is the same thing, but at the end of the string.
             - "g" makes is global, so we get all the whitespace.
             - "" is nothing, which is what we replace the whitespace with.
             */
+        };
+
+        // Returns whether a string is a valid hex number or not
+        Utils.IsValidHex = function (str) {
+            for (var i = 0; i < str.length; ++i) {
+                // Is character valid hex?
+                if (str[i].search(/[0-9A-F]/gi) == -1) {
+                    /*
+                    - [0-9A-F] searches any number or letters that are hex
+                    - "g" makes it global, search through entire string (necessary?)
+                    - "i" ignores case
+                    */
+                    return false;
+                }
+            }
+
+            return true;
         };
 
         Utils.rot13 = function (str) {
@@ -44,5 +60,6 @@ var TSOS;
         };
         return Utils;
     })();
-    TSOS.Utils = Utils;
-})(TSOS || (TSOS = {}));
+    CTOS.Utils = Utils;
+})(CTOS || (CTOS = {}));
+//# sourceMappingURL=utils.js.map

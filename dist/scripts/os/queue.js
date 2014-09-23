@@ -5,8 +5,8 @@ See the Javascript Array documentation at
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
 Look at the push and shift methods, as they are the least obvious here.
 ------------ */
-var TSOS;
-(function (TSOS) {
+var CTOS;
+(function (CTOS) {
     var Queue = (function () {
         function Queue(q) {
             if (typeof q === "undefined") { q = new Array(); }
@@ -41,5 +41,6 @@ var TSOS;
         };
         return Queue;
     })();
-    TSOS.Queue = Queue;
-})(TSOS || (TSOS = {}));
+    CTOS.Queue = Queue;
+})(CTOS || (CTOS = {}));
+//# sourceMappingURL=queue.js.map

@@ -4,9 +4,9 @@
      The "base class" for all Device Drivers.
      ------------------------------ */
 
-module TSOS {
+module CTOS {
     export class DeviceDriver {
-        public version = '0.07';
+        public version = '0.06';
         public status = 'unloaded';
         public preemptable = false;
 
