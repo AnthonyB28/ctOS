@@ -15,6 +15,7 @@ var CTOS;
             this.m_PromptStr = ">";
             this.m_CommandList = [];
             this.m_Curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
+            this.m_SecretMsg = "Svir cyhf svir zvahf bar vf avar. Avar qvivqrq ol guerr vf guerr. Unys Yvsr 3 pbasvezrq.";
             this.m_Apologies = "[sorry]";
         }
         Shell.prototype.Init = function () {
@@ -169,10 +170,24 @@ var CTOS;
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
                 if (this.m_Curses.indexOf("[" + CTOS.Utils.rot13(cmd) + "]") >= 0) {
+                    // Check for curses.
                     this.Execute(this.shellCurse);
                 } else if (this.m_Apologies.indexOf("[" + cmd + "]") >= 0) {
+                    // Check for apologies.
                     this.Execute(this.shellApology);
+                } else if ("svir" == CTOS.Utils.rot13(cmd)) {
+                    var inputMsg = "svir";
+                    for (var i = 0; i < args.length; ++i) {
+                        inputMsg += " " + CTOS.Utils.rot13(args[i]);
+                    }
+                    if (inputMsg == this.m_SecretMsg.toLowerCase()) {
+                        this.Execute(this.shellSecret);
+                    } else {
+                        // It's just a bad command.
+                        this.Execute(this.shellInvalidCommand);
+                    }
                 } else {
+                    // It's just a bad command.
                     this.Execute(this.shellInvalidCommand);
                 }
             }
@@ -243,13 +258,16 @@ var CTOS;
         };
 
         Shell.prototype.shellWhereAmI = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(5);
             CTOS.Globals.m_StdOut.PutText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         };
 
         Shell.prototype.shellVer = function (args) {
             CTOS.Globals.m_StdOut.PutText(CTOS.Globals.APP_NAME + " version " + CTOS.Globals.APP_VERSION);
             CTOS.Globals.m_StdOut.AdvanceLine();
-            CTOS.Globals.m_StdOut.PutText("Improving New York City. Ensuring the future through CenTral Operating System");
+            CTOS.Globals.m_StdOut.PutText("Improving New York City.");
+            CTOS.Globals.m_StdOut.AdvanceLine();
+            CTOS.Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         };
 
         Shell.prototype.shellLoad = function (args) {
@@ -270,6 +288,7 @@ var CTOS;
             });
 
             if (isValid) {
+                CTOS.Globals.m_AchievementSystem.Unlock(11);
                 CTOS.Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
             }
         };
@@ -361,6 +380,7 @@ var CTOS;
 
                 CTOS.Globals.m_Status.textContent = "Status : " + status;
                 CTOS.Globals.m_StdOut.PutText("Status updated to: " + status);
+                CTOS.Globals.m_AchievementSystem.Unlock(12);
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: status <string> Please supply a string.");
             }
@@ -368,12 +388,14 @@ var CTOS;
 
         // BSOD & Shutdown
         Shell.prototype.shellExplode = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(4);
             CTOS.Globals.m_Kernel.TrapError("You did this.");
         };
 
         /* ---
         Silly stuff because I can do this all day.
         --- */
+        // Pass our secret array, get a random surprise!!
         Shell.prototype.RandomSecretUncipher = function (messages) {
             // Get a random index from our array of secret nugetty goodness
             var secretIndex = Math.floor(Math.random() * (messages.length - 1));
@@ -392,31 +414,42 @@ var CTOS;
         };
 
         Shell.prototype.shellAlan = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(1);
             CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretAlan);
         };
 
         Shell.prototype.shellInsanity = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(10);
+
             // FarCry too gud
             CTOS.Globals.m_StdOut.PutText("Did I ever tell you what the definition of insanity is? " + "Insanity is doing the exact... same fucking thing..." + "over and over again expecting shit to change... That.Is.Crazy.");
         };
 
         Shell.prototype.shellWatchDogs = function () {
-            // WashDogs
+            CTOS.Globals.m_AchievementSystem.Unlock(8);
             CTOS.Globals.m_StdOut.PutText("_we are watching _we are all connected");
             CTOS.Globals.m_StdOut.AdvanceLine();
             CTOS.Globals.m_StdOut.PutText("_hacking is our weapon _Connection is power");
         };
 
         Shell.prototype.shellAssassin = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(3);
             CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretAssassin);
         };
 
         Shell.prototype.shellTemplar = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(2);
             CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretTemplar);
         };
 
         Shell.prototype.shellEzio = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(7);
             CTOS.Globals.m_OsShell.RandomSecretUncipher(_SecretEzio);
+        };
+
+        Shell.prototype.shellSecret = function () {
+            CTOS.Globals.m_AchievementSystem.Unlock(9);
+            CTOS.Globals.m_StdOut.PutText("GLORY TO OUR LORD AND SAVIOUR");
         };
 
         Shell.prototype.shellCurse = function () {
@@ -428,6 +461,7 @@ var CTOS;
 
         Shell.prototype.shellApology = function () {
             if (CTOS.Globals.m_SarcasticMode) {
+                CTOS.Globals.m_AchievementSystem.Unlock(10);
                 CTOS.Globals.m_StdOut.PutText("Okay. I forgive you. This time.");
                 CTOS.Globals.m_SarcasticMode = false;
             } else {

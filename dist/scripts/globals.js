@@ -1,3 +1,4 @@
+///<reference path="achievements.ts" />
 /* ------------
 Globals.ts
 Global CONSTANTS and _iables.
@@ -50,13 +51,13 @@ var CTOS;
         Globals.m_SarcasticMode = false;
 
         Globals.m_KrnKeyboardDriver = null;
-
         Globals.m_HardwareClockID = null;
 
         Globals.m_GLaDOS = null;
         Globals.m_Glados = null;
 
         Globals.onDocumentLoad = function () {
+            Globals.m_AchievementSystem = new CTOS.AchievementSystem();
             CTOS.Control.hostInit();
         };
         return Globals;

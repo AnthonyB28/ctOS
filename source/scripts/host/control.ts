@@ -79,7 +79,8 @@ module CTOS {
         //
         // Host Events
         //
-        public static hostBtnStartOS_click(btn): void {
+        public static hostBtnStartOS_click(btn): void
+        {
             // Disable the (passed-in) start button...
             btn.disabled = true;
 
@@ -99,6 +100,9 @@ module CTOS {
             // .. and call the OS Kernel Bootstrap routine.
             Globals.m_Kernel = new Kernel();
             Globals.m_Kernel.Bootstrap();
+
+            // Achievement unlocked!
+            Globals.m_AchievementSystem.Unlock(0);
         }
 
         public static hostBtnHaltOS_click(btn): void {

@@ -95,6 +95,9 @@ var CTOS;
             // .. and call the OS Kernel Bootstrap routine.
             CTOS.Globals.m_Kernel = new CTOS.Kernel();
             CTOS.Globals.m_Kernel.Bootstrap();
+
+            // Achievement unlocked!
+            CTOS.Globals.m_AchievementSystem.Unlock(0);
         };
 
         Control.hostBtnHaltOS_click = function (btn) {

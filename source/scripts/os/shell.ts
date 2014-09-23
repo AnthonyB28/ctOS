@@ -18,7 +18,8 @@ module CTOS
         // Properties
         public m_PromptStr : string = ">";
         public m_CommandList = [];
-        public m_Curses : string = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
+        public m_Curses: string = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
+        public m_SecretMsg: string = "Svir cyhf svir zvahf bar vf avar. Avar qvivqrq ol guerr vf guerr. Unys Yvsr 3 pbasvezrq.";
         public m_Apologies = "[sorry]";
 
         constructor() {
@@ -220,11 +221,36 @@ module CTOS
                 this.Execute(fn, args);
             } else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.m_Curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) {     // Check for curses. {
+                if (this.m_Curses.indexOf("[" + Utils.rot13(cmd) + "]") >= 0) 
+                {  
+                     // Check for curses.
                     this.Execute(this.shellCurse);
-                } else if (this.m_Apologies.indexOf("[" + cmd + "]") >= 0) {    // Check for apologies. {
+                }
+                else if (this.m_Apologies.indexOf("[" + cmd + "]") >= 0)
+                {    
+                    // Check for apologies.
                     this.Execute(this.shellApology);
-                } else { // It's just a bad command. {
+                }
+                else if ("svir" == Utils.rot13(cmd))
+                {
+                    var inputMsg: string = "svir";
+                    for(var i : number = 0; i < args.length; ++i)
+                    {
+                        inputMsg += " " + Utils.rot13(args[i]);
+                    }
+                    if (inputMsg == this.m_SecretMsg.toLowerCase())
+                    {
+                        this.Execute(this.shellSecret);
+                    }
+                    else
+                    {
+                        // It's just a bad command.
+                        this.Execute(this.shellInvalidCommand);
+                    }
+                }
+                else
+                { 
+                    // It's just a bad command.
                     this.Execute(this.shellInvalidCommand);
                 }
             }
@@ -300,6 +326,7 @@ module CTOS
 
         public shellWhereAmI() : void
         {
+            Globals.m_AchievementSystem.Unlock(5);
             Globals.m_StdOut.PutText("Racoon City"); //This is a lie, we're in New York. This is a conflict!
         }
 
@@ -307,7 +334,9 @@ module CTOS
         {
             Globals.m_StdOut.PutText(Globals.APP_NAME + " version " + Globals.APP_VERSION);
             Globals.m_StdOut.AdvanceLine();
-            Globals.m_StdOut.PutText("Improving New York City. Ensuring the future through CenTral Operating System");
+            Globals.m_StdOut.PutText("Improving New York City.");
+            Globals.m_StdOut.AdvanceLine();
+            Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         }
 
         public shellLoad(args): void
@@ -334,6 +363,7 @@ module CTOS
 
             if (isValid)
             {
+                Globals.m_AchievementSystem.Unlock(11);
                 Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
             }
         }
@@ -434,6 +464,7 @@ module CTOS
 
                 Globals.m_Status.textContent = "Status : " + status;
                 Globals.m_StdOut.PutText("Status updated to: " + status);
+                Globals.m_AchievementSystem.Unlock(12);
             }
             else
             {
@@ -444,6 +475,7 @@ module CTOS
         // BSOD & Shutdown
         public shellExplode()
         {
+            Globals.m_AchievementSystem.Unlock(4);
             Globals.m_Kernel.TrapError("You did this.");
         }
 
@@ -451,6 +483,7 @@ module CTOS
             Silly stuff because I can do this all day.
            --- */
 
+        // Pass our secret array, get a random surprise!!
         public RandomSecretUncipher(messages: Array<string>)
         {
             // Get a random index from our array of secret nugetty goodness
@@ -470,14 +503,15 @@ module CTOS
             }
         }
 
-
         public shellAlan(): void
         {
+            Globals.m_AchievementSystem.Unlock(1);
             Globals.m_OsShell.RandomSecretUncipher(_SecretAlan);
         }
 
         public shellInsanity(): void
         {
+            Globals.m_AchievementSystem.Unlock(10);
             // FarCry too gud
             Globals.m_StdOut.PutText("Did I ever tell you what the definition of insanity is? " +
                             "Insanity is doing the exact... same fucking thing..." + 
@@ -486,7 +520,7 @@ module CTOS
 
         public shellWatchDogs(): void
         {
-            // WashDogs
+            Globals.m_AchievementSystem.Unlock(8);
             Globals.m_StdOut.PutText("_we are watching _we are all connected");
             Globals.m_StdOut.AdvanceLine();
             Globals.m_StdOut.PutText("_hacking is our weapon _Connection is power");
@@ -494,17 +528,26 @@ module CTOS
 
         public shellAssassin(): void
         {
+            Globals.m_AchievementSystem.Unlock(3);
             Globals.m_OsShell.RandomSecretUncipher(_SecretAssassin);
         }
 
         public shellTemplar(): void
         {
+            Globals.m_AchievementSystem.Unlock(2);
             Globals.m_OsShell.RandomSecretUncipher(_SecretTemplar);
         }
 
         public shellEzio(): void
         {
+            Globals.m_AchievementSystem.Unlock(7);
             Globals.m_OsShell.RandomSecretUncipher(_SecretEzio);
+        }
+
+        public shellSecret(): void
+        {
+            Globals.m_AchievementSystem.Unlock(9);
+            Globals.m_StdOut.PutText("GLORY TO OUR LORD AND SAVIOUR");
         }
 
         public shellCurse(): void
@@ -519,6 +562,7 @@ module CTOS
         {
             if (Globals.m_SarcasticMode)
             {
+                Globals.m_AchievementSystem.Unlock(10);
                 Globals.m_StdOut.PutText("Okay. I forgive you. This time.");
                 Globals.m_SarcasticMode = false;
             } else
