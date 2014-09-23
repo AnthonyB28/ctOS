@@ -81,7 +81,7 @@ module CTOS {
 
                 // Tab & right arrow
                 // Suggest a command
-                else if ((chr == String.fromCharCode(9) || chr == String.fromCharCode(39)) && this.m_Buffer.length > 0)
+                else if ((chr == String.fromCharCode(9) || chr == "39") && this.m_Buffer.length > 0)
                 {
                     var suggestedCmd: string = Globals.m_OsShell.SuggestCmd(this.m_Buffer);
                     if (suggestedCmd != "")
@@ -94,14 +94,14 @@ module CTOS {
 
                 // Up
                 // History of commands
-                else if (chr == String.fromCharCode(38) && this.m_CmdHistory.length > 0)
+                else if (chr == "38" && this.m_CmdHistory.length > 0)
                 {
                     this.CmdHistoryLookup(true);
                 }
 
                 // Down
                 // History of commands
-                else if (chr == String.fromCharCode(40) && this.m_CmdHistory.length > 0)
+                else if (chr == "40" && this.m_CmdHistory.length > 0)
                 {
                     this.CmdHistoryLookup(false);
                 }

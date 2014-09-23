@@ -78,9 +78,14 @@ var CTOS;
                 }
 
                 CTOS.Globals.m_KernelInputQueue.enqueue(chr);
-            } else if (keyCode == 8 || keyCode == 9 || (keyCode >= 38 && keyCode <= 40)) {
+            } else if (keyCode == 8 || keyCode == 9) {
                 if (!isShifted) {
                     chr = String.fromCharCode(keyCode);
+                    CTOS.Globals.m_KernelInputQueue.enqueue(chr);
+                }
+            } else if ((keyCode >= 38 && keyCode <= 40)) {
+                if (!isShifted) {
+                    chr = keyCode.toString();
                     CTOS.Globals.m_KernelInputQueue.enqueue(chr);
                 }
             }

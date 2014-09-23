@@ -11,6 +11,10 @@ body {
   text-align: center
 }
 
+.alert {
+   width:30%;    
+}
+
 h1 {
   color: white;
   font-size: 24pt;
