@@ -35,10 +35,7 @@ var CTOS;
 
         Console.prototype.ClearScreen = function () {
             CTOS.Globals.m_DrawingContext.clearRect(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
-
-            // Auto-scroll up & reset height
-            var elem = document.getElementById('divConsole');
-            elem.scrollTop = 0;
+            CTOS.Control.scrollConsoleTop();
             CTOS.Globals.m_Canvas.height = 500;
         };
 
@@ -247,9 +244,7 @@ var CTOS;
                 CTOS.Globals.m_Canvas.height += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
                 CTOS.Globals.m_DrawingContext.putImageData(canvasImage, 0, 0);
 
-                // Auto-scroll down
-                var elem = document.getElementById('divConsole');
-                elem.scrollTop = elem.scrollHeight;
+                CTOS.Control.scrollConsoleDown();
             }
         };
         return Console;

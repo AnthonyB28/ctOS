@@ -7,7 +7,6 @@
         // Properties
         private m_Score: number = 0;
         private m_Unlocked: Array<boolean> = [];
-        private m_AchievementDiv = null;
         private m_Achievements: Array<Achievement> = [];
 
         constructor()
@@ -26,7 +25,6 @@
             this.m_Achievements[10] = new Achievement(5, "On An Island");
             this.m_Achievements[11] = new Achievement(10, "Hex Sucess");
             this.m_Achievements[12] = new Achievement(10, "Social Butterfly");
-            this.m_AchievementDiv = document.getElementById("cbp-spmenu-s1");
         }
 
         public Unlock(achievementID : number): void
@@ -39,28 +37,20 @@
                 this.m_Achievements[achievementID].m_Locked = false;
 
                 // Increment the score display with achievement value
-                var score: number = this.m_Achievements[achievementID].m_Score;
-                this.IncrementScore(score);
+                this.IncrementScore(this.m_Achievements[achievementID].m_Score);
 
                 // Add the achievement to our achievement display
-                var achievementElement = document.createElement("achievement" + achievementID.toString());
-                achievementElement.innerHTML = "</br> " + this.m_Achievements[achievementID].m_Description + " " + score.toString();
-                this.m_AchievementDiv.appendChild(achievementElement);
+                Control.AchievementAddDisplay(achievementID, this.m_Achievements[achievementID]);
 
                 // Notify the user of the achievement with an alert that disappears after 5 seconds
-                var notificationDiv = document.getElementById("achievementNotifDiv");
-                var notificationElement = document.createElement("achievement" + achievementID.toString() + "Alert");
-                notificationElement.className = "flash";
-                notificationElement.innerHTML = "</br> </br><div class=\"alert alert-info\" role=\"alert\">Achievement unlocked!</div>";
-                notificationDiv.appendChild(notificationElement);
+                Control.AchievementNotify(achievementID);
             }
         }
 
         private IncrementScore(score: number): void
         {
             this.m_Score += score;
-            var scoreElement = document.getElementById("achievementScore");
-            scoreElement.innerText = "Achievements : " + this.m_Score.toString();
+            Control.AchievementIncrementScore(this.m_Score);
         }
     }
 

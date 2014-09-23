@@ -7,7 +7,6 @@
             // Properties
             this.m_Score = 0;
             this.m_Unlocked = [];
-            this.m_AchievementDiv = null;
             this.m_Achievements = [];
             this.m_Achievements[0] = new Achievement(5, "Started ctOS!");
             this.m_Achievements[1] = new Achievement(25, "Craig Is The Best");
@@ -23,7 +22,6 @@
             this.m_Achievements[10] = new Achievement(5, "On An Island");
             this.m_Achievements[11] = new Achievement(10, "Hex Sucess");
             this.m_Achievements[12] = new Achievement(10, "Social Butterfly");
-            this.m_AchievementDiv = document.getElementById("cbp-spmenu-s1");
         }
         AchievementSystem.prototype.Unlock = function (achievementID) {
             // If an achievement has already been unlocked, ignore
@@ -33,27 +31,19 @@
                 this.m_Achievements[achievementID].m_Locked = false;
 
                 // Increment the score display with achievement value
-                var score = this.m_Achievements[achievementID].m_Score;
-                this.IncrementScore(score);
+                this.IncrementScore(this.m_Achievements[achievementID].m_Score);
 
                 // Add the achievement to our achievement display
-                var achievementElement = document.createElement("achievement" + achievementID.toString());
-                achievementElement.innerHTML = "</br> " + this.m_Achievements[achievementID].m_Description + " " + score.toString();
-                this.m_AchievementDiv.appendChild(achievementElement);
+                CTOS.Control.AchievementAddDisplay(achievementID, this.m_Achievements[achievementID]);
 
                 // Notify the user of the achievement with an alert that disappears after 5 seconds
-                var notificationDiv = document.getElementById("achievementNotifDiv");
-                var notificationElement = document.createElement("achievement" + achievementID.toString() + "Alert");
-                notificationElement.className = "flash";
-                notificationElement.innerHTML = "</br> </br><div class=\"alert alert-info\" role=\"alert\">Achievement unlocked!</div>";
-                notificationDiv.appendChild(notificationElement);
+                CTOS.Control.AchievementNotify(achievementID);
             }
         };
 
         AchievementSystem.prototype.IncrementScore = function (score) {
             this.m_Score += score;
-            var scoreElement = document.getElementById("achievementScore");
-            scoreElement.innerText = "Achievements : " + this.m_Score.toString();
+            CTOS.Control.AchievementIncrementScore(this.m_Score);
         };
         return AchievementSystem;
     })();

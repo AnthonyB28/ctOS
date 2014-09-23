@@ -119,6 +119,37 @@ var CTOS;
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         };
+
+        Control.scrollConsoleDown = function () {
+            // Auto-scroll down
+            var elem = document.getElementById('divConsole');
+            elem.scrollTop = elem.scrollHeight;
+        };
+
+        Control.scrollConsoleTop = function () {
+            // Auto-scroll up & reset height
+            var elem = document.getElementById('divConsole');
+            elem.scrollTop = 0;
+        };
+
+        Control.AchievementAddDisplay = function (id, achievement) {
+            var achievementElement = document.createElement("achievement" + id.toString());
+            achievementElement.innerHTML = "</br> " + achievement.m_Description + " " + achievement.m_Score.toString();
+            document.getElementById("cbp-spmenu-s1").appendChild(achievementElement);
+        };
+
+        Control.AchievementIncrementScore = function (score) {
+            var scoreElement = document.getElementById("achievementScore");
+            scoreElement.innerText = "Achievements : " + score.toString();
+        };
+
+        Control.AchievementNotify = function (id) {
+            var notificationDiv = document.getElementById("achievementNotifDiv");
+            var notificationElement = document.createElement("achievement" + id.toString() + "Alert");
+            notificationElement.className = "flash";
+            notificationElement.innerHTML = "</br> </br><div class=\"alert alert-info\" role=\"alert\">Achievement unlocked!</div>";
+            notificationDiv.appendChild(notificationElement);
+        };
         return Control;
     })();
     CTOS.Control = Control;
