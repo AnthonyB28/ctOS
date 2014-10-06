@@ -1,4 +1,8 @@
-﻿var CTOS;
+﻿/* ------------
+Memory
+Representation of memory hardware such as cache/RAM.
+------------ */
+var CTOS;
 (function (CTOS) {
     var Memory = (function () {
         function Memory() {
@@ -6,6 +10,7 @@
                 this.m_Memory[i] = 0;
             }
         }
+        // sets value in a particular address in this block of memory
         Memory.prototype.set = function (address, value) {
             if (address > this.m_Memory.length) {
                 CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
@@ -15,6 +20,7 @@
             }
         };
 
+        // Get value from a particular address in this block of memory
         Memory.prototype.get = function (address, value) {
             if (address > this.m_Memory.length) {
                 CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
