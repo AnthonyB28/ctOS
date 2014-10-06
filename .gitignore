@@ -1,7 +1,6 @@
 node_modules/
 bin/
 obj/
-dist/
 .DS_Store
 /*.csproj.user
 /*.v12.suo
