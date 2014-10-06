@@ -95,7 +95,7 @@ module CTOS {
 
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
             Globals.m_CPU = new Cpu();
-            Globals.m_CPU.init();
+            Globals.m_CPU.Init();
 
             // ... then set the host clock pulse ...
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);

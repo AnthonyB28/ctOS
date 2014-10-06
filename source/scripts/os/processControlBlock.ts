@@ -17,7 +17,7 @@ module CTOS
         public m_Accumulator: number = 0;
         public m_X: number = 0;
         public m_Y: number = 0;
-        public m_Z: number = 0;
+        public m_Z: number = 0; // Treat like a boolean for sim purposes
 
         public m_MemBase: number = 0;
         public m_MemLimit: number = 0;

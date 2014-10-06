@@ -38,6 +38,8 @@ module CTOS
         {
             var memBlock: Memory = new Memory();
             // Create a new PCB, give it a PID, set the base & limit of the program memory
+            var pcb: ProcessControlBlock = new ProcessControlBlock();
+
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
