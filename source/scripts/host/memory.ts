@@ -1,4 +1,10 @@
-﻿module CTOS
+﻿/* ------------
+    Memory
+   
+    Representation of memory hardware such as cache/RAM.
+    ------------ */   
+
+module CTOS
 {
     export class Memory
     {
@@ -12,6 +18,7 @@
             }
         }
 
+        // sets value in a particular address in this block of memory
         public set(address: number, value: number): void
         {
             if (address > this.m_Memory.length)
@@ -25,6 +32,7 @@
             }
         }
 
+        // Get value from a particular address in this block of memory
         public get(address: number, value: number): number
         {
             if (address > this.m_Memory.length)
