@@ -87,7 +87,7 @@ var CTOS;
 
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
             CTOS.Globals.m_CPU = new CTOS.Cpu();
-            CTOS.Globals.m_CPU.init();
+            CTOS.Globals.m_CPU.Init();
 
             // ... then set the host clock pulse ...
             CTOS.Globals.m_HardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CTOS.Globals.CPU_CLOCK_INTERVAL);

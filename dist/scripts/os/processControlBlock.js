@@ -13,7 +13,7 @@ var CTOS;
             this.m_Accumulator = 0;
             this.m_X = 0;
             this.m_Y = 0;
-            this.m_Z = false;
+            this.m_Z = 0;
             this.m_MemBase = 0;
             this.m_MemLimit = 0;
         }

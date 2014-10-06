@@ -82,7 +82,7 @@ var CTOS;
                 this.InterruptHandler(interrupt.irq, interrupt.params);
             } else if (CTOS.Globals.m_CPU.isExecuting) {
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
-                CTOS.Globals.m_CPU.cycle();
+                CTOS.Globals.m_CPU.Cycle();
             } else {
                 // If there are no interrupts and there is nothing being executed then just be idle. {
                 this.Trace("Idle");

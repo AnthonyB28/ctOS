@@ -26,6 +26,8 @@ var CTOS;
             var memBlock = new CTOS.Memory();
 
             // Create a new PCB, give it a PID, set the base & limit of the program memory
+            var pcb = new CTOS.ProcessControlBlock();
+
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
