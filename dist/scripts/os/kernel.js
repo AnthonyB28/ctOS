@@ -119,6 +119,9 @@ var CTOS;
                     CTOS.Globals.m_KrnKeyboardDriver.isr(params); // Kernel mode device driver
                     CTOS.Globals.m_StdIn.HandleInput();
                     break;
+                case CTOS.Globals.CPU_RUN_PROGRAM:
+                    CTOS.Globals.m_CPU.RunProgram();
+                    break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }

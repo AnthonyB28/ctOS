@@ -304,9 +304,17 @@ var CTOS;
 
         Shell.prototype.shellRun = function (args) {
             if (args.length == 1) {
-                var pcb = CTOS.Globals.m_KernelResidentQueue.dequeueAtIndex(args[0]);
+                var pcb = null;
+                for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
+                    var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.q[i];
+                    if (pcbInQueue.m_PID == args[0]) {
+                        pcb = CTOS.Globals.m_KernelResidentQueue.dequeueAtIndex(i);
+                        break;
+                    }
+                }
                 if (pcb) {
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                    CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
                 }

@@ -12,13 +12,14 @@ var CTOS;
         function Globals() {
         }
         Globals.APP_NAME = "ctOS";
-        Globals.APP_VERSION = "2.0";
+        Globals.APP_VERSION = "2.5";
 
         Globals.CPU_CLOCK_INTERVAL = 100;
 
         Globals.TIMER_IRQ = 0;
 
         Globals.KEYBOARD_IRQ = 1;
+        Globals.CPU_RUN_PROGRAM = 2;
 
         Globals.MAX_COMMAND_HISTORY = 10;
 

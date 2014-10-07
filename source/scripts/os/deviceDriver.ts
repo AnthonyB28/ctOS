@@ -6,7 +6,7 @@
 
 module CTOS {
     export class DeviceDriver {
-        public version = '0.06';
+        public version = '0.50';
         public status = 'unloaded';
         public preemptable = false;
 

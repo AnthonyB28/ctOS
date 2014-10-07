@@ -37,10 +37,18 @@ module CTOS {
             this.m_IsExecuting = false;
         }
 
+        // Resets the CPU and sets IsExecuting, triggered by Interupt
+        public RunProgram(): void
+        {
+            this.Init();
+            this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+        }
+
         public Cycle(): void {
             Globals.m_Kernel.Trace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
+            this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
         }
 
         public Execute(op: Byte): void
@@ -87,9 +95,9 @@ module CTOS {
         private LittleEndianConversion(): number
         {
             ++this.m_ProgramCounter;
-            var sigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            var sigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
             ++this.m_ProgramCounter;
-            var insigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            var insigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
 
             // Swap the bytes to get the proper address
             var addressByte: Byte = new Byte(insigByte + sigByte);
@@ -101,14 +109,14 @@ module CTOS {
         private LoadAccConstant(): void
         {
             ++this.m_ProgramCounter;
-            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         }
 
         // AD = LDA
         // Load accumulator from memory
         private LoadAccMem(): void
         {
-            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetHex();
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // 8D = STA
@@ -163,7 +171,16 @@ module CTOS {
         // 00 = BRK
         private Break(): void
         {
-            // Not sure about what this does. TODO
+            this.m_IsExecuting = false;
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+            pcb.m_Accumulator = this.m_Accumulator;
+            pcb.m_Counter = this.m_ProgramCounter;
+            pcb.m_X = this.m_XReg;
+            pcb.m_Y = this.m_YReg;
+            pcb.m_Z = this.m_ZFlag;
+            pcb.m_State = 4; // Terminated
+            //Globals.m_KernelResidentQueue.enqueue(pcb); 
+            // Not sure what to do now... Need to display PCB
         }
 
         // EC = CPX

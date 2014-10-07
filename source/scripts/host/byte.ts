@@ -12,13 +12,11 @@ module CTOS
     {
         private m_HexData: string = "00";
         private m_DecimalNumber: number = 0;
-        private m_HexNumber: number = 0;
 
         constructor(hex: string)
         {
             this.m_HexData = hex;
-            this.m_DecimalNumber = parseInt(this.m_HexData, 10);
-            this.m_HexNumber = parseInt(this.m_HexData, 16);
+            this.m_DecimalNumber = parseInt(this.m_HexData, 16);
         }
 
         public GetDecimal(): number
@@ -26,12 +24,7 @@ module CTOS
             return this.m_DecimalNumber;
         }
 
-        public GetHex(): number
-        {
-            return this.m_HexNumber;
-        }
-
-        public GetRawHex(): string
+        public GetHex(): string
         {
             return this.m_HexData;
         }

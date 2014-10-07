@@ -16,13 +16,14 @@ module CTOS
         // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
         
         static APP_NAME: string    = "ctOS";   // 'cause washDogs
-        static APP_VERSION: string = "2.0";   // What did you expect? ... Everything
+        static APP_VERSION: string = "2.5";   // What did you expect? ... Everything
 
         static CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
-
+        
         static TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                                 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
         static KEYBOARD_IRQ: number = 1;
+        static CPU_RUN_PROGRAM: number = 2;
 
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
@@ -51,7 +52,7 @@ module CTOS
 
         // The OS Kernel and its queues.
         static m_Kernel: CTOS.Kernel;
-        static m_KernelInterruptQueue = null;
+        static m_KernelInterruptQueue : Queue = null;
         static m_KernelReadyQueue : Queue = null;
         static m_KernelResidentQueue: Queue = null;
         static m_KernelBuffers: any[] = null;

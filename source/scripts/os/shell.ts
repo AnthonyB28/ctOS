@@ -385,10 +385,20 @@ module CTOS
         {
             if (args.length == 1)
             {
-                var pcb: ProcessControlBlock = Globals.m_KernelResidentQueue.dequeueAtIndex(args[0]);
+                var pcb: ProcessControlBlock = null;
+                for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
+                {
+                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.q[i];
+                    if (pcbInQueue.m_PID == args[0])
+                    {
+                        pcb = Globals.m_KernelResidentQueue.dequeueAtIndex(i);
+                        break;
+                    }
+                }
                 if (pcb)
                 {
                     Globals.m_KernelReadyQueue.enqueue(pcb);
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.CPU_RUN_PROGRAM, null));
                 }
                 else
                 {
@@ -404,7 +414,8 @@ module CTOS
         public shellHelp(args): void
         {
             Globals.m_StdOut.PutText("Commands:");
-            for (var i in Globals.m_OsShell.m_CommandList) {
+            for (var i in Globals.m_OsShell.m_CommandList) 
+            {
                 Globals.m_StdOut.AdvanceLine();
                 Globals.m_StdOut.PutText("  " + Globals.m_OsShell.m_CommandList[i].command + " " + Globals.m_OsShell.m_CommandList[i].description);
             }

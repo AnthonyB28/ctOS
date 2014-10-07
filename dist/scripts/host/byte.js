@@ -10,20 +10,14 @@ var CTOS;
         function Byte(hex) {
             this.m_HexData = "00";
             this.m_DecimalNumber = 0;
-            this.m_HexNumber = 0;
             this.m_HexData = hex;
-            this.m_DecimalNumber = parseInt(this.m_HexData, 10);
-            this.m_HexNumber = parseInt(this.m_HexData, 16);
+            this.m_DecimalNumber = parseInt(this.m_HexData, 16);
         }
         Byte.prototype.GetDecimal = function () {
             return this.m_DecimalNumber;
         };
 
         Byte.prototype.GetHex = function () {
-            return this.m_HexNumber;
-        };
-
-        Byte.prototype.GetRawHex = function () {
             return this.m_HexData;
         };
         return Byte;

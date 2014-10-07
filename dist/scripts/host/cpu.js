@@ -36,10 +36,18 @@ var CTOS;
             this.m_IsExecuting = false;
         };
 
+        // Resets the CPU and sets IsExecuting, triggered by Interupt
+        Cpu.prototype.RunProgram = function () {
+            this.Init();
+            this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+        };
+
         Cpu.prototype.Cycle = function () {
             CTOS.Globals.m_Kernel.Trace('CPU cycle');
+
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
+            this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
         };
 
         Cpu.prototype.Execute = function (op) {
@@ -96,9 +104,9 @@ var CTOS;
         // Op codes call for little endian, swap their order and return the decimal address
         Cpu.prototype.LittleEndianConversion = function () {
             ++this.m_ProgramCounter;
-            var sigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            var sigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
             ++this.m_ProgramCounter;
-            var insigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            var insigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
 
             // Swap the bytes to get the proper address
             var addressByte = new CTOS.Byte(insigByte + sigByte);
@@ -109,13 +117,13 @@ var CTOS;
         // Load accumulator with constant
         Cpu.prototype.LoadAccConstant = function () {
             ++this.m_ProgramCounter;
-            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
+            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         };
 
         // AD = LDA
         // Load accumulator from memory
         Cpu.prototype.LoadAccMem = function () {
-            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetHex();
+            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // 8D = STA
@@ -162,7 +170,16 @@ var CTOS;
 
         // 00 = BRK
         Cpu.prototype.Break = function () {
-            // Not sure about what this does. TODO
+            this.m_IsExecuting = false;
+            var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+            pcb.m_Accumulator = this.m_Accumulator;
+            pcb.m_Counter = this.m_ProgramCounter;
+            pcb.m_X = this.m_XReg;
+            pcb.m_Y = this.m_YReg;
+            pcb.m_Z = this.m_ZFlag;
+            pcb.m_State = 4; // Terminated
+            //Globals.m_KernelResidentQueue.enqueue(pcb);
+            // Not sure what to do now... Need to display PCB
         };
 
         // EC = CPX

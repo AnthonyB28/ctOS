@@ -12,7 +12,7 @@ module CTOS
 {
     export class ProcessControlBlock
     {
-        static m_GPID : number = -1; // Represents the latest PID loaded
+        static m_GPID: number = -1; // Represents the latest PID loaded
 
         // 0 = new ; 1 = running ; 2 = waiting ; 3 = ready; 4 = terminated
         public m_State: number = 0; // May not be needed until P3?

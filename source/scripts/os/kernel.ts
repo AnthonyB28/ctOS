@@ -133,13 +133,17 @@ module CTOS
             // TODO: Consider using an Interrupt Vector in the future.
             // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
             //       Maybe the hardware simulation will grow to support/require that in the future.
-            switch (irq) {
+            switch (irq)
+            {
                 case Globals.TIMER_IRQ:
                     this.TimerISR();              // Kernel built-in routine for timers (not the clock).
                     break;
                 case Globals.KEYBOARD_IRQ:
                     Globals.m_KrnKeyboardDriver.isr(params);   // Kernel mode device driver
                     Globals.m_StdIn.HandleInput();
+                    break;
+                case Globals.CPU_RUN_PROGRAM:
+                    Globals.m_CPU.RunProgram();
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
