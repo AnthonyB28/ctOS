@@ -43,7 +43,8 @@ var CTOS;
         };
 
         Cpu.prototype.Execute = function (op) {
-            switch (op) {
+            var opDecimal = op.GetDecimal();
+            switch (opDecimal) {
                 case CTOS.Instructions.Op_A9:
                     this.LoadAccConstant();
                     break;

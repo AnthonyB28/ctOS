@@ -33,6 +33,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="source\scripts\achievements.ts" />
     <TypeScriptCompile Include="source\scripts\globals.ts" />
+    <TypeScriptCompile Include="source\scripts\host\byte.ts" />
     <TypeScriptCompile Include="source\scripts\host\control.ts" />
     <TypeScriptCompile Include="source\scripts\host\cpu.ts" />
     <TypeScriptCompile Include="source\scripts\host\devices.ts" />

@@ -43,9 +43,10 @@ module CTOS {
             // Do the real work here. Be sure to set this.isExecuting appropriately.
         }
 
-        public Execute(op: number): void
+        public Execute(op: Byte): void
         {
-            switch (op)
+            var opDecimal: number = op.GetDecimal();
+            switch (opDecimal)
             {
                 case Instructions.Op_A9:
                     this.LoadAccConstant(); break;

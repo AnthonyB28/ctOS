@@ -8,18 +8,14 @@ module CTOS
 {
     export class Memory
     {
-        private m_Memory: Array<number>;
+        private m_Memory: Array<Byte>;
 
         constructor()
         {
-            for (var i: number = 0; i < 768; ++i)
-            {
-                this.m_Memory[i] = 0;
-            }
         }
 
-        // sets value in a particular address in this block of memory
-        public set(address: number, value: number): void
+        // Sets Byte in a particular address in this block of memory
+        public set(address: number, hexValue: string): void
         {
             if (address > this.m_Memory.length)
             {
@@ -28,12 +24,12 @@ module CTOS
             }
             else
             {
-                this.m_Memory[address] = value;
+                this.m_Memory[address] = new Byte(hexValue);
             }
         }
 
-        // Get value from a particular address in this block of memory
-        public get(address: number, value: number): number
+        // Get Byte from a particular address in this block of memory
+        public get(address: number): Byte
         {
             if (address > this.m_Memory.length)
             {
