@@ -29,8 +29,8 @@ module CTOS
         //
         // Global iables
         //
-        static m_CPU: CTOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
-
+        static m_CPU: Cpu;  // Utilize TypeScript's type annotation system to ensure that CPU is an instance of the Cpu class.
+        static m_MemoryManager: MemoryManager; // Interface with our memory
         static m_OSClock: number = 0;  // Page 23.
 
         //oops mode
