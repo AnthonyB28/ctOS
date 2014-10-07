@@ -6,6 +6,9 @@ var CTOS;
 (function (CTOS) {
     var Memory = (function () {
         function Memory() {
+            for (var i = 0; i < 256; ++i) {
+                this.m_Memory[i] = new CTOS.Byte("0");
+            }
         }
         // Sets Byte in a particular address in this block of memory
         Memory.prototype.set = function (address, hexValue) {
@@ -23,7 +26,7 @@ var CTOS;
                 CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
 
                 //Need to do something with this properly.
-                return 0;
+                return new CTOS.Byte("0");
             } else {
                 return this.m_Memory[address];
             }
