@@ -23,7 +23,7 @@ var CTOS;
             return availableMemory;
         };
 
-        // Loads the program into memory.
+        // Loads the program into memory & returns PID
         MemoryManager.prototype.LoadProgram = function (program) {
             var memBlock = new CTOS.Memory();
             var memoryAddress = 0;
@@ -37,6 +37,8 @@ var CTOS;
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
+
+            return pcb.m_PID;
         };
 
         // Gets the byte from memory using address

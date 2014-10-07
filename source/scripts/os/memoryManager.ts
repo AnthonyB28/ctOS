@@ -35,8 +35,8 @@ module CTOS
             return availableMemory;
         }
 
-        // Loads the program into memory.
-        public LoadProgram(program: Array<string>): void
+        // Loads the program into memory & returns PID
+        public LoadProgram(program: Array<string>): number
         {
             var memBlock: Memory = new Memory();
             var memoryAddress: number = 0;
@@ -50,6 +50,8 @@ module CTOS
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
+
+            return pcb.m_PID;
         }
 
         // Gets the byte from memory using address
