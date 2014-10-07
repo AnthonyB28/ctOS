@@ -91,7 +91,7 @@ module CTOS
                 var interrupt = Globals.m_KernelInterruptQueue.dequeue();
                 this.InterruptHandler(interrupt.irq, interrupt.params);
             }
-            else if (Globals.m_CPU.isExecuting) 
+            else if (Globals.m_CPU.m_IsExecuting) 
             { 
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
                 Globals.m_CPU.Cycle();

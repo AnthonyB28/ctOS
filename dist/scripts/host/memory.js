@@ -7,6 +7,7 @@ var CTOS;
 (function (CTOS) {
     var Memory = (function () {
         function Memory() {
+            this.m_Memory = new Array();
             for (var i = 0; i < 256; ++i) {
                 this.m_Memory[i] = new CTOS.Byte("0");
             }

@@ -13,6 +13,7 @@ module CTOS
 
         constructor()
         {
+            this.m_Memory = new Array<Byte>();
             for(var i : number = 0; i < 256; ++i)
             {
                 this.m_Memory[i] = new Byte("0");

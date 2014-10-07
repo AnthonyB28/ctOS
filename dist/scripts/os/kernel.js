@@ -80,7 +80,7 @@ var CTOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = CTOS.Globals.m_KernelInterruptQueue.dequeue();
                 this.InterruptHandler(interrupt.irq, interrupt.params);
-            } else if (CTOS.Globals.m_CPU.isExecuting) {
+            } else if (CTOS.Globals.m_CPU.m_IsExecuting) {
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
                 CTOS.Globals.m_CPU.Cycle();
             } else {

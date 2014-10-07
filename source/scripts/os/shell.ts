@@ -343,28 +343,36 @@ module CTOS
         {
             var programToParse: string = Globals.m_ProgramInput.innerHTML;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
-            var programInput: Array<String> = programToParse.split(" "); // Split to each code
+            var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
-            programInput.every(function(code) // JS can't break a ForEach? WTF
+            if (programInput.length > 0)
             {
-                if (!Utils.IsValidHex(code))
+                programInput.every(function (code) // JS can't break a ForEach? WTF
                 {
-                    isValid = false;
-                    Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
-                    Globals.m_StdOut.AdvanceLine();
-                    Globals.m_StdOut.PutText("First issue: " + code);
-                    return false; // stop the loop
-                }
-                else
-                {
-                    return true; // continue the loop
-                }
-            });
+                    if (!Utils.IsValidHex(code))
+                    {
+                        isValid = false;
+                        Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                        Globals.m_StdOut.AdvanceLine();
+                        Globals.m_StdOut.PutText("First issue: " + code);
+                        return false; // stop the loop
+                    }
+                    else
+                    {
+                        return true; // continue the loop
+                    }
+                });
+            }
+            else
+            {
+                isValid = false;
+            }
 
             if (isValid)
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                Globals.m_MemoryManager.LoadProgram(programInput);
             }
         }
 

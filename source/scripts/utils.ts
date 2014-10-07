@@ -21,24 +21,16 @@ module CTOS {
         }
 
         // Returns whether a string is a valid hex number or not
-        public static IsValidHex(str: String): boolean
+        public static IsValidHex(str: string): boolean
         {
-            for (var i = 0; i < str.length; ++i)
+            if (str.length == 2 && parseInt(str, 16) >= 0)
             {
-                // Is character valid hex?
-                if (str[i].search(/[0-9A-F]/gi) == -1)
-                {
-                    /*
-                    - [0-9A-F] searches any number or letters that are hex
-                    - "g" makes it global, search through entire string (necessary?)
-                    - "i" ignores case
-                    */
-                    return false;
-                }
+                return true;
             }
-
-            return true;
-            
+            else
+            {
+                return false;
+            }
         }
 
         public static rot13(str: string): string {

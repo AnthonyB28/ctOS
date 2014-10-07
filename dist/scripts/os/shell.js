@@ -275,21 +275,26 @@ var CTOS;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
             var isValid = true;
-            programInput.every(function (code) {
-                if (!CTOS.Utils.IsValidHex(code)) {
-                    isValid = false;
-                    CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
-                    CTOS.Globals.m_StdOut.AdvanceLine();
-                    CTOS.Globals.m_StdOut.PutText("First issue: " + code);
-                    return false;
-                } else {
-                    return true;
-                }
-            });
+            if (programInput.length > 0) {
+                programInput.every(function (code) {
+                    if (!CTOS.Utils.IsValidHex(code)) {
+                        isValid = false;
+                        CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                        CTOS.Globals.m_StdOut.AdvanceLine();
+                        CTOS.Globals.m_StdOut.PutText("First issue: " + code);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            } else {
+                isValid = false;
+            }
 
             if (isValid) {
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
                 CTOS.Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
             }
         };
 

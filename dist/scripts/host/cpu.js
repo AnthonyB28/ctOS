@@ -13,27 +13,27 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var CTOS;
 (function (CTOS) {
     var Cpu = (function () {
-        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting) {
-            if (typeof PC === "undefined") { PC = 0; }
-            if (typeof Acc === "undefined") { Acc = 0; }
-            if (typeof Xreg === "undefined") { Xreg = 0; }
-            if (typeof Yreg === "undefined") { Yreg = 0; }
-            if (typeof Zflag === "undefined") { Zflag = 0; }
-            if (typeof isExecuting === "undefined") { isExecuting = false; }
-            this.PC = PC;
-            this.Acc = Acc;
-            this.Xreg = Xreg;
-            this.Yreg = Yreg;
-            this.Zflag = Zflag;
-            this.isExecuting = isExecuting;
+        function Cpu(m_ProgramCounter, m_Accumulator, m_XReg, m_YReg, m_ZFlag, m_IsExecuting) {
+            if (typeof m_ProgramCounter === "undefined") { m_ProgramCounter = 0; }
+            if (typeof m_Accumulator === "undefined") { m_Accumulator = 0; }
+            if (typeof m_XReg === "undefined") { m_XReg = 0; }
+            if (typeof m_YReg === "undefined") { m_YReg = 0; }
+            if (typeof m_ZFlag === "undefined") { m_ZFlag = 0; }
+            if (typeof m_IsExecuting === "undefined") { m_IsExecuting = false; }
+            this.m_ProgramCounter = m_ProgramCounter;
+            this.m_Accumulator = m_Accumulator;
+            this.m_XReg = m_XReg;
+            this.m_YReg = m_YReg;
+            this.m_ZFlag = m_ZFlag;
+            this.m_IsExecuting = m_IsExecuting;
         }
         Cpu.prototype.Init = function () {
-            this.PC = 0;
-            this.Acc = 0;
-            this.Xreg = 0;
-            this.Yreg = 0;
-            this.Zflag = 0;
-            this.isExecuting = false;
+            this.m_ProgramCounter = 0;
+            this.m_Accumulator = 0;
+            this.m_XReg = 0;
+            this.m_YReg = 0;
+            this.m_ZFlag = 0;
+            this.m_IsExecuting = false;
         };
 
         Cpu.prototype.Cycle = function () {
@@ -89,18 +89,33 @@ var CTOS;
                     CTOS.Globals.m_Console.PutText("Invalid Op: : " + op.toString());
                     break;
             }
+
+            ++this.m_ProgramCounter;
+        };
+
+        // Op codes call for little endian, swap their order and return the decimal address
+        Cpu.prototype.LittleEndianConversion = function () {
+            ++this.m_ProgramCounter;
+            var sigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            ++this.m_ProgramCounter;
+            var insigByte = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+
+            // Swap the bytes to get the proper address
+            var addressByte = new CTOS.Byte(insigByte + sigByte);
+            return addressByte.GetDecimal();
         };
 
         // A9 = LDA
         // Load accumulator with constant
         Cpu.prototype.LoadAccConstant = function () {
-            //this.Acc = get next adress
+            ++this.m_ProgramCounter;
+            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
         };
 
         // AD = LDA
         // Load accumulator from memory
         Cpu.prototype.LoadAccMem = function () {
-            //this.Acc = next 2 bytes which is mem address
+            this.m_Accumulator = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetHex();
         };
 
         // 8D = STA
@@ -159,7 +174,7 @@ var CTOS;
         // D0 = BNE
         // Branch X bytes if Z = 0
         Cpu.prototype.Branch = function () {
-            if (this.Zflag == 0) {
+            if (this.m_ZFlag == 0) {
                 // Jump forward however many bytes
                 // Probably need to make sure we don't go out of bounds
             }

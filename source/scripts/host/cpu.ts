@@ -19,22 +19,22 @@ module CTOS {
 
     export class Cpu {
 
-        constructor(public PC: number = 0,
-                    public Acc: number = 0,
-                    public Xreg: number = 0,
-                    public Yreg: number = 0,
-                    public Zflag: number = 0,
-                    public isExecuting: boolean = false) {
+        constructor(public m_ProgramCounter: number = 0,
+                    public m_Accumulator: number = 0,
+                    public m_XReg: number = 0,
+                    public m_YReg: number = 0,
+                    public m_ZFlag: number = 0,
+                    public m_IsExecuting: boolean = false) {
 
         }
 
         public Init(): void {
-            this.PC = 0;
-            this.Acc = 0;
-            this.Xreg = 0;
-            this.Yreg = 0;
-            this.Zflag = 0;
-            this.isExecuting = false;
+            this.m_ProgramCounter = 0;
+            this.m_Accumulator = 0;
+            this.m_XReg = 0;
+            this.m_YReg = 0;
+            this.m_ZFlag = 0;
+            this.m_IsExecuting = false;
         }
 
         public Cycle(): void {
@@ -79,20 +79,36 @@ module CTOS {
                     Globals.m_Console.PutText("Invalid Op: : " + op.toString());
                     break;
             }
+
+            ++this.m_ProgramCounter;
+        }
+
+        // Op codes call for little endian, swap their order and return the decimal address
+        private LittleEndianConversion(): number
+        {
+            ++this.m_ProgramCounter;
+            var sigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+            ++this.m_ProgramCounter;
+            var insigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetRawHex();
+
+            // Swap the bytes to get the proper address
+            var addressByte: Byte = new Byte(insigByte + sigByte);
+            return addressByte.GetDecimal();
         }
 
         // A9 = LDA
         // Load accumulator with constant
         private LoadAccConstant(): void
         {
-            //this.Acc = get next adress
+            ++this.m_ProgramCounter;
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
         }
 
         // AD = LDA
         // Load accumulator from memory
         private LoadAccMem(): void
         {
-            //this.Acc = next 2 bytes which is mem address
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetHex();
         }
 
         // 8D = STA
@@ -161,7 +177,7 @@ module CTOS {
         // Branch X bytes if Z = 0
         private Branch(): void
         {
-            if (this.Zflag == 0)
+            if (this.m_ZFlag == 0)
             {
                 // Jump forward however many bytes
                 // Probably need to make sure we don't go out of bounds
