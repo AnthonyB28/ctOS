@@ -71,5 +71,17 @@ module CTOS
             }
         }
 
+        public SetByte(address: number, hexValue: string): void
+        {
+            if (address >= 256)
+            {
+                this.SetByte(address - 256, hexValue); // loop around if we're larger than 255
+            }
+            else
+            {
+                this.m_Memory[0].set(address, hexValue);
+            }
+        }
+
     }
 }

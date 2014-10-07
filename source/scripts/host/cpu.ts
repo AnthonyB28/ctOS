@@ -60,6 +60,8 @@ module CTOS {
                     this.LoadAccConstant(); break;
                 case Instructions.Op_AD:
                     this.LoadAccMem(); break;
+                case Instructions.Op_8D:
+                    this.StoreAcc(); break;
                 case Instructions.Op_6D:
                     this.AddCarry(); break;
                 case Instructions.Op_A2:
@@ -123,7 +125,7 @@ module CTOS {
         // Store accumulator in memory
         private StoreAcc(): void
         {
-            // Memory Manager, store the next 2 bytes at accumulator as address
+            Globals.m_MemoryManager.SetByte(this.LittleEndianConversion(), this.m_Accumulator.toString(16));
         }
 
         // 6D = ADC
@@ -179,7 +181,7 @@ module CTOS {
             pcb.m_Y = this.m_YReg;
             pcb.m_Z = this.m_ZFlag;
             pcb.m_State = 4; // Terminated
-            //Globals.m_KernelResidentQueue.enqueue(pcb); 
+            // Globals.m_KernelResidentQueue.enqueue(pcb); 
             // Not sure what to do now... Need to display PCB
         }
 

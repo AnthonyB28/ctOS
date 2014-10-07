@@ -59,6 +59,9 @@ var CTOS;
                 case CTOS.Instructions.Op_AD:
                     this.LoadAccMem();
                     break;
+                case CTOS.Instructions.Op_8D:
+                    this.StoreAcc();
+                    break;
                 case CTOS.Instructions.Op_6D:
                     this.AddCarry();
                     break;
@@ -129,7 +132,7 @@ var CTOS;
         // 8D = STA
         // Store accumulator in memory
         Cpu.prototype.StoreAcc = function () {
-            // Memory Manager, store the next 2 bytes at accumulator as address
+            CTOS.Globals.m_MemoryManager.SetByte(this.LittleEndianConversion(), this.m_Accumulator.toString(16));
         };
 
         // 6D = ADC
@@ -178,7 +181,7 @@ var CTOS;
             pcb.m_Y = this.m_YReg;
             pcb.m_Z = this.m_ZFlag;
             pcb.m_State = 4; // Terminated
-            //Globals.m_KernelResidentQueue.enqueue(pcb);
+            // Globals.m_KernelResidentQueue.enqueue(pcb);
             // Not sure what to do now... Need to display PCB
         };
 

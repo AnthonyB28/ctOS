@@ -52,6 +52,14 @@ var CTOS;
                 return this.m_Memory[0].get(address);
             }
         };
+
+        MemoryManager.prototype.SetByte = function (address, hexValue) {
+            if (address >= 256) {
+                this.SetByte(address - 256, hexValue); // loop around if we're larger than 255
+            } else {
+                this.m_Memory[0].set(address, hexValue);
+            }
+        };
         return MemoryManager;
     })();
     CTOS.MemoryManager = MemoryManager;
