@@ -139,7 +139,7 @@ var CTOS;
         // Add content of address to contents of accumulator
         // Store result in accumulator
         Cpu.prototype.AddCarry = function () {
-            // this.Acc = next 2 bytes + Accumulator
+            this.m_Accumulator += CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // A2 = LDX

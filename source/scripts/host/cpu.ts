@@ -133,7 +133,7 @@ module CTOS {
         // Store result in accumulator
         private AddCarry(): void
         {
-            // this.Acc = next 2 bytes + Accumulator
+            this.m_Accumulator += Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // A2 = LDX
