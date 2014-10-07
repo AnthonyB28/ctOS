@@ -145,25 +145,27 @@ var CTOS;
         // A2 = LDX
         // Load X register with constant
         Cpu.prototype.LoadXConst = function () {
-            // similar to LDA
+            ++this.m_ProgramCounter;
+            this.m_XReg = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         };
 
         // AE = LDX
         // Load the X register from memory
         Cpu.prototype.LoadXMem = function () {
-            // similar to LDA
+            this.m_XReg = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // A0 = LDY
         // Load the Y register with constant
         Cpu.prototype.LoadYConst = function () {
-            // similar to LDA
+            ++this.m_ProgramCounter;
+            this.m_YReg = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         };
 
         // AC = LDY
         // Load the Y register from memory
         Cpu.prototype.LoadYMem = function () {
-            // similar to LDA
+            this.m_YReg = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // EA = NOP

@@ -140,28 +140,30 @@ module CTOS {
         // Load X register with constant
         private LoadXConst(): void
         {
-            // similar to LDA
+            ++this.m_ProgramCounter;
+            this.m_XReg = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         }
 
         // AE = LDX
         // Load the X register from memory
         private LoadXMem(): void
         {
-            // similar to LDA
+            this.m_XReg = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // A0 = LDY
         // Load the Y register with constant
         private LoadYConst(): void
         {
-            // similar to LDA
+            ++this.m_ProgramCounter;
+            this.m_YReg = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         }
 
         // AC = LDY
         // Load the Y register from memory
         private LoadYMem(): void
         {
-            // similar to LDA
+            this.m_YReg = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // EA = NOP
