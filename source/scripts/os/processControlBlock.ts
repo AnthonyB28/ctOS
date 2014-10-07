@@ -20,6 +20,6 @@ module CTOS
         public m_Z: number = 0; // Treat like a boolean for sim purposes
 
         public m_MemBase: number = 0;
-        public m_MemLimit: number = 0;
+        public m_MemLimit: number = 0; // base + size (255)
     }
 }

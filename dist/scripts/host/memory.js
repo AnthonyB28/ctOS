@@ -1,6 +1,7 @@
 ﻿/* ------------
 Memory
 Representation of memory hardware such as cache/RAM.
+Limit = base + size, which is 0-255 in our case
 ------------ */
 var CTOS;
 (function (CTOS) {
