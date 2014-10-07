@@ -39,6 +39,8 @@ var CTOS;
         Globals.m_Trace = true;
 
         Globals.m_KernelInterruptQueue = null;
+        Globals.m_KernelReadyQueue = null;
+        Globals.m_KernelResidentQueue = null;
         Globals.m_KernelBuffers = null;
         Globals.m_KernelInputQueue = null;
 

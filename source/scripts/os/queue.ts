@@ -34,6 +34,16 @@ module CTOS {
             return retVal;
         }
 
+        public dequeueAtIndex(index: number)
+        {
+            var retVal = null;
+            if (this.q.length > index)
+            {
+                retVal = this.q.splice(index, 1);
+            }
+            return retVal;
+        }
+
         public toString() {
             var retVal = "";
             for (var i in this.q) {

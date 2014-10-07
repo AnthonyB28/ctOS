@@ -30,13 +30,15 @@ var CTOS;
             for (var i = 0; i < program.length; ++i) {
                 memBlock.set(i, program[i]);
             }
-
-            // Create a new PCB, give it a PID, set the base & limit of the program memory
-            var pcb = new CTOS.ProcessControlBlock();
-
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
+
+            // Create a new PCB, give it a PID, set the base & limit of the program memory
+            var pcb = new CTOS.ProcessControlBlock();
+            pcb.m_MemBase = memoryBlockLocation * 256;
+            pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
 
             return pcb.m_PID;
         };

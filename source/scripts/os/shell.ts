@@ -22,9 +22,8 @@ module CTOS
         public m_SecretMsg: string = "Svir cyhf svir zvahf bar vf avar. Avar qvivqrq ol guerr vf guerr. Unys Yvsr 3 pbasvezrq.";
         public m_Apologies = "[sorry]";
 
-        constructor() {
-
-        }
+        constructor() 
+        {}
 
         public Init(): void
         {
@@ -42,6 +41,12 @@ module CTOS
             sc = new ShellCommand(this.shellLoad,
                                   "load",
                                   "- Loads the program from Program Input box.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // run
+            sc = new ShellCommand(this.shellRun,
+                                    "run",
+                                    "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -65,7 +70,7 @@ module CTOS
             // man <topic>
             sc = new ShellCommand(this.shellMan,
                                   "man",
-                                  "<topic> - Displays the MANual page for <topic>.");
+                                  "<topic> - Displays the Manual page for <topic>.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // trace <on | off>
@@ -339,7 +344,7 @@ module CTOS
             Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         }
 
-        public shellLoad(args): void
+        public shellLoad(): void
         {
             var programToParse: string = Globals.m_ProgramInput.innerHTML;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
@@ -372,7 +377,27 @@ module CTOS
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                Globals.m_MemoryManager.LoadProgram(programInput);
+                Globals.m_StdOut.PutText(Globals.m_MemoryManager.LoadProgram(programInput).toString() + " has been loaded!");
+            }
+        }
+
+        public shellRun(args): void
+        {
+            if (args.length == 1)
+            {
+                var pcb: ProcessControlBlock = Globals.m_KernelResidentQueue.dequeueAtIndex(args[0]);
+                if (pcb)
+                {
+                    Globals.m_KernelReadyQueue.enqueue(pcb);
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("PID is not in Resident Queue");
+                }
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
             }
         }
 
@@ -401,7 +426,8 @@ module CTOS
 
         public shellMan(args): void
         {
-            if (args.length > 0) {
+            if (args.length > 0) 
+            {
                 var topic = args[0];
                 switch (topic) {
                     case "help":
@@ -410,7 +436,9 @@ module CTOS
                     default:
                         Globals.m_StdOut.PutText("No manual entry for " + args[0] + ".");
                 }
-            } else {
+            }
+            else
+            {
                 Globals.m_StdOut.PutText("Usage: man <topic>  Please supply a topic.");
             }
         }
@@ -453,9 +481,12 @@ module CTOS
 
         public shellPrompt(args): void
         {
-            if (args.length > 0) {
+            if (args.length > 0) 
+            {
                 Globals.m_OsShell.m_PromptStr = args[0];
-            } else {
+            }
+            else
+            {
                 Globals.m_StdOut.PutText("Usage: prompt <string>  Please supply a string.");
             }
         }

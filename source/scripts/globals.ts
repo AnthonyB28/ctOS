@@ -52,6 +52,8 @@ module CTOS
         // The OS Kernel and its queues.
         static m_Kernel: CTOS.Kernel;
         static m_KernelInterruptQueue = null;
+        static m_KernelReadyQueue : Queue = null;
+        static m_KernelResidentQueue: Queue = null;
         static m_KernelBuffers: any[] = null;
         static m_KernelInputQueue = null;
 

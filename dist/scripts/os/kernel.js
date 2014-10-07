@@ -19,6 +19,8 @@ var CTOS;
             // Initialize our global queues.
             CTOS.Globals.m_KernelInterruptQueue = new CTOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
             CTOS.Globals.m_KernelBuffers = new Array(); // Buffers... for the kernel.
+            CTOS.Globals.m_KernelResidentQueue = new CTOS.Queue();
+            CTOS.Globals.m_KernelReadyQueue = new CTOS.Queue();
             CTOS.Globals.m_KernelInputQueue = new CTOS.Queue(); // Where device input lands before being processed out somewhere.
             CTOS.Globals.m_Console = new CTOS.Console(); // The command line interface / console I/O device.
 

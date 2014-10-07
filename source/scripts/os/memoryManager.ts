@@ -44,12 +44,15 @@ module CTOS
             {
                 memBlock.set(i, program[i]);
             }
-            // Create a new PCB, give it a PID, set the base & limit of the program memory
-            var pcb: ProcessControlBlock = new ProcessControlBlock();
-
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
             this.m_Memory[memoryBlockLocation] = memBlock;
+
+            // Create a new PCB, give it a PID, set the base & limit of the program memory
+            var pcb: ProcessControlBlock = new ProcessControlBlock();
+            pcb.m_MemBase = memoryBlockLocation * 256;
+            pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            Globals.m_KernelResidentQueue.enqueue(pcb);
 
             return pcb.m_PID;
         }

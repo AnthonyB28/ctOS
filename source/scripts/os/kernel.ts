@@ -24,6 +24,8 @@ module CTOS
             // Initialize our global queues.
             Globals.m_KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
             Globals.m_KernelBuffers = new Array();         // Buffers... for the kernel.
+            Globals.m_KernelResidentQueue = new Queue();
+            Globals.m_KernelReadyQueue = new Queue();
             Globals.m_KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
             Globals.m_Console = new Console();          // The command line interface / console I/O device.
 

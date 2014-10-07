@@ -31,6 +31,10 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellLoad, "load", "- Loads the program from Program Input box.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // run
+            sc = new CTOS.ShellCommand(this.shellRun, "run", "<PID> - Runs the program by ID that is in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.m_CommandList[this.m_CommandList.length] = sc;
@@ -44,7 +48,7 @@ var CTOS;
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // man <topic>
-            sc = new CTOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the MANual page for <topic>.");
+            sc = new CTOS.ShellCommand(this.shellMan, "man", "<topic> - Displays the Manual page for <topic>.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // trace <on | off>
@@ -270,7 +274,7 @@ var CTOS;
             CTOS.Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         };
 
-        Shell.prototype.shellLoad = function (args) {
+        Shell.prototype.shellLoad = function () {
             var programToParse = CTOS.Globals.m_ProgramInput.innerHTML;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
@@ -294,7 +298,20 @@ var CTOS;
             if (isValid) {
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
                 CTOS.Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
+                CTOS.Globals.m_StdOut.PutText(CTOS.Globals.m_MemoryManager.LoadProgram(programInput).toString() + " has been loaded!");
+            }
+        };
+
+        Shell.prototype.shellRun = function (args) {
+            if (args.length == 1) {
+                var pcb = CTOS.Globals.m_KernelResidentQueue.dequeueAtIndex(args[0]);
+                if (pcb) {
+                    CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
+                }
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
             }
         };
 

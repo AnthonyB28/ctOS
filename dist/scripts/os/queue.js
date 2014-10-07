@@ -32,6 +32,14 @@ var CTOS;
             return retVal;
         };
 
+        Queue.prototype.dequeueAtIndex = function (index) {
+            var retVal = null;
+            if (this.q.length > index) {
+                retVal = this.q.splice(index, 1);
+            }
+            return retVal;
+        };
+
         Queue.prototype.toString = function () {
             var retVal = "";
             for (var i in this.q) {
