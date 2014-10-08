@@ -245,6 +245,28 @@ module CTOS {
             // Check x reg
             // if 01 then print integer in Y
             // if 02 then print 00-terminated string in Y
+            if (this.m_X == 1)
+            {
+                Globals.m_StdOut.PutText(this.m_Y.toString());
+                Globals.m_StdOut.AdvanceLine();
+                Globals.m_OsShell.PutPrompt();
+            }
+            else if (this.m_X == 2)
+            {
+                var message: string = "";
+                var address: number = this.m_Y;
+                var value: number = Globals.m_MemoryManager.GetByte(this.m_Y).GetDecimal();
+                while (value != 0)
+                {
+                    message += String.fromCharCode(value);
+                    ++address;
+                    value = Globals.m_MemoryManager.GetByte(address).GetDecimal();
+                }
+
+                Globals.m_StdOut.PutText(message);
+                Globals.m_StdOut.AdvanceLine();
+                Globals.m_OsShell.PutPrompt();
+            }
         }
     }
 }

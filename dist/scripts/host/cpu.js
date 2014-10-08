@@ -233,6 +233,24 @@ var CTOS;
             // Check x reg
             // if 01 then print integer in Y
             // if 02 then print 00-terminated string in Y
+            if (this.m_X == 1) {
+                CTOS.Globals.m_StdOut.PutText(this.m_Y.toString());
+                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_OsShell.PutPrompt();
+            } else if (this.m_X == 2) {
+                var message = "";
+                var address = this.m_Y;
+                var value = CTOS.Globals.m_MemoryManager.GetByte(this.m_Y).GetDecimal();
+                while (value != 0) {
+                    message += String.fromCharCode(value);
+                    ++address;
+                    value = CTOS.Globals.m_MemoryManager.GetByte(address).GetDecimal();
+                }
+
+                CTOS.Globals.m_StdOut.PutText(message);
+                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_OsShell.PutPrompt();
+            }
         };
         return Cpu;
     })();
