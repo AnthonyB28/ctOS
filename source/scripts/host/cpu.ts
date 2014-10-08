@@ -21,9 +21,9 @@ module CTOS {
 
         constructor(public m_ProgramCounter: number = 0,
                     public m_Accumulator: number = 0,
-                    public m_XReg: number = 0,
-                    public m_YReg: number = 0,
-                    public m_ZFlag: number = 0,
+                    public m_X: number = 0,
+                    public m_Y: number = 0,
+                    public m_Z: number = 0,
                     public m_IsExecuting: boolean = false) {
 
         }
@@ -31,9 +31,9 @@ module CTOS {
         public Init(): void {
             this.m_ProgramCounter = 0;
             this.m_Accumulator = 0;
-            this.m_XReg = 0;
-            this.m_YReg = 0;
-            this.m_ZFlag = 0;
+            this.m_X = 0;
+            this.m_Y = 0;
+            this.m_Z = 0; // 0 or 1, treat like a bool
             this.m_IsExecuting = false;
         }
 
@@ -141,14 +141,14 @@ module CTOS {
         private LoadXConst(): void
         {
             ++this.m_ProgramCounter;
-            this.m_XReg = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+            this.m_X = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         }
 
         // AE = LDX
         // Load the X register from memory
         private LoadXMem(): void
         {
-            this.m_XReg = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            this.m_X = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // A0 = LDY
@@ -156,14 +156,14 @@ module CTOS {
         private LoadYConst(): void
         {
             ++this.m_ProgramCounter;
-            this.m_YReg = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+            this.m_Y = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         }
 
         // AC = LDY
         // Load the Y register from memory
         private LoadYMem(): void
         {
-            this.m_YReg = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            this.m_Y = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         }
 
         // EA = NOP
@@ -179,9 +179,9 @@ module CTOS {
             var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
             pcb.m_Accumulator = this.m_Accumulator;
             pcb.m_Counter = this.m_ProgramCounter;
-            pcb.m_X = this.m_XReg;
-            pcb.m_Y = this.m_YReg;
-            pcb.m_Z = this.m_ZFlag;
+            pcb.m_X = this.m_X;
+            pcb.m_Y = this.m_Y;
+            pcb.m_Z = this.m_Z;
             pcb.m_State = 4; // Terminated
             // Globals.m_KernelResidentQueue.enqueue(pcb); 
             // Not sure what to do now... Need to display PCB
@@ -191,14 +191,22 @@ module CTOS {
         // compare byte in mem to X. Sets Z if equal
         private Compare(): void
         {
-            // Check next 2 bytes, check to x, set z if equal
+            var dataToCheck : number = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            if (this.m_X == dataToCheck)
+            {
+                this.m_Z = 1;
+            }
+            else
+            {
+                this.m_Z = 0;
+            }
         }
 
         // D0 = BNE
         // Branch X bytes if Z = 0
         private Branch(): void
         {
-            if (this.m_ZFlag == 0)
+            if (this.m_Z == 0)
             {
                 // Jump forward however many bytes
                 // Probably need to make sure we don't go out of bounds

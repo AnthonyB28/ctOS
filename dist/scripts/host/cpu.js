@@ -13,26 +13,26 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var CTOS;
 (function (CTOS) {
     var Cpu = (function () {
-        function Cpu(m_ProgramCounter, m_Accumulator, m_XReg, m_YReg, m_ZFlag, m_IsExecuting) {
+        function Cpu(m_ProgramCounter, m_Accumulator, m_X, m_Y, m_Z, m_IsExecuting) {
             if (typeof m_ProgramCounter === "undefined") { m_ProgramCounter = 0; }
             if (typeof m_Accumulator === "undefined") { m_Accumulator = 0; }
-            if (typeof m_XReg === "undefined") { m_XReg = 0; }
-            if (typeof m_YReg === "undefined") { m_YReg = 0; }
-            if (typeof m_ZFlag === "undefined") { m_ZFlag = 0; }
+            if (typeof m_X === "undefined") { m_X = 0; }
+            if (typeof m_Y === "undefined") { m_Y = 0; }
+            if (typeof m_Z === "undefined") { m_Z = 0; }
             if (typeof m_IsExecuting === "undefined") { m_IsExecuting = false; }
             this.m_ProgramCounter = m_ProgramCounter;
             this.m_Accumulator = m_Accumulator;
-            this.m_XReg = m_XReg;
-            this.m_YReg = m_YReg;
-            this.m_ZFlag = m_ZFlag;
+            this.m_X = m_X;
+            this.m_Y = m_Y;
+            this.m_Z = m_Z;
             this.m_IsExecuting = m_IsExecuting;
         }
         Cpu.prototype.Init = function () {
             this.m_ProgramCounter = 0;
             this.m_Accumulator = 0;
-            this.m_XReg = 0;
-            this.m_YReg = 0;
-            this.m_ZFlag = 0;
+            this.m_X = 0;
+            this.m_Y = 0;
+            this.m_Z = 0; // 0 or 1, treat like a bool
             this.m_IsExecuting = false;
         };
 
@@ -146,26 +146,26 @@ var CTOS;
         // Load X register with constant
         Cpu.prototype.LoadXConst = function () {
             ++this.m_ProgramCounter;
-            this.m_XReg = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+            this.m_X = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         };
 
         // AE = LDX
         // Load the X register from memory
         Cpu.prototype.LoadXMem = function () {
-            this.m_XReg = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            this.m_X = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // A0 = LDY
         // Load the Y register with constant
         Cpu.prototype.LoadYConst = function () {
             ++this.m_ProgramCounter;
-            this.m_YReg = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+            this.m_Y = CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
         };
 
         // AC = LDY
         // Load the Y register from memory
         Cpu.prototype.LoadYMem = function () {
-            this.m_YReg = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            this.m_Y = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
         };
 
         // EA = NOP
@@ -179,9 +179,9 @@ var CTOS;
             var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
             pcb.m_Accumulator = this.m_Accumulator;
             pcb.m_Counter = this.m_ProgramCounter;
-            pcb.m_X = this.m_XReg;
-            pcb.m_Y = this.m_YReg;
-            pcb.m_Z = this.m_ZFlag;
+            pcb.m_X = this.m_X;
+            pcb.m_Y = this.m_Y;
+            pcb.m_Z = this.m_Z;
             pcb.m_State = 4; // Terminated
             // Globals.m_KernelResidentQueue.enqueue(pcb);
             // Not sure what to do now... Need to display PCB
@@ -190,13 +190,18 @@ var CTOS;
         // EC = CPX
         // compare byte in mem to X. Sets Z if equal
         Cpu.prototype.Compare = function () {
-            // Check next 2 bytes, check to x, set z if equal
+            var dataToCheck = CTOS.Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            if (this.m_X == dataToCheck) {
+                this.m_Z = 1;
+            } else {
+                this.m_Z = 0;
+            }
         };
 
         // D0 = BNE
         // Branch X bytes if Z = 0
         Cpu.prototype.Branch = function () {
-            if (this.m_ZFlag == 0) {
+            if (this.m_Z == 0) {
                 // Jump forward however many bytes
                 // Probably need to make sure we don't go out of bounds
             }
