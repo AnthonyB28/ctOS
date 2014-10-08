@@ -34,7 +34,7 @@ module CTOS
         static m_MemoryManager: MemoryManager; // Interface with our memory
         static m_OSClock: number = 0;  // Page 23.
         static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
-        static m_StepNext: boolean = true; // If step next & mode are activated, go to next execution.
+        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
 
         //oops mode
         static m_Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
