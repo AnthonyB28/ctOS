@@ -50,7 +50,7 @@ module CTOS {
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
             this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
-            Control.UpdateCPUTable(this);
+            Control.CPUTableUpdate(this);
         }
 
         public Execute(op: Byte): void

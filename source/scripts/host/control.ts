@@ -98,6 +98,9 @@ module CTOS {
             Globals.m_MemoryManager = new MemoryManager();
             Globals.m_CPU.Init();
 
+            //Write the Memory to table
+            Control.MemoryTableCreate();
+
             // ... then set the host clock pulse ...
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
@@ -164,12 +167,12 @@ module CTOS {
             notificationDiv.appendChild(notificationElement);
         }
 
-        public static UpdateCPUTable(cpu: Cpu)
+        public static CPUTableUpdate(cpu: Cpu): void
         {
             var CPUTable: HTMLTableElement = <HTMLTableElement> document.getElementById("CPUTable");
             var dataRow: HTMLTableRowElement = <HTMLTableRowElement> CPUTable.rows[1];
             var dataCell: HTMLTableCellElement = <HTMLTableCellElement> dataRow.cells[0];
-            dataCell.innerText = "0x"+Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex();
+            dataCell.innerText = "0x" + Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
             dataCell = <HTMLTableCellElement> dataRow.cells[1];
             dataCell.innerText = cpu.m_ProgramCounter.toString();
             dataCell = <HTMLTableCellElement> dataRow.cells[2];
@@ -180,6 +183,38 @@ module CTOS {
             dataCell.innerText = cpu.m_Y.toString();
             dataCell = <HTMLTableCellElement> dataRow.cells[5];
             dataCell.innerText = cpu.m_Z.toString();
+        }
+
+        public static MemoryTableCreate() : void
+        {
+            var MemTable : any = document.getElementById("MemTable");
+            for (var i = 0; i < 256 / 8; ++i)
+            {
+                var row = MemTable.insertRow(i);
+                row.className = "info";
+                for (var x = 0; x < 9; ++x)
+                {
+                    var cell = row.insertCell(x);
+                    if (x == 0)
+                    {
+                        cell.innerHTML = "0x" + (i * 8).toString(16).toLocaleUpperCase();
+                    }
+                    else
+                    {
+                        cell.innerHTML = "00";
+                    }
+                }
+            }
+        }
+
+        public static MemoryTableUpdateByte(address: number, hexValue: string) : void
+        {
+            var MemTable: any = document.getElementById("MemTable");
+            var row = address / 8;
+            row = Math.floor(row);
+            address %= 8;
+            address += 1;
+            MemTable.rows[row].cells[address].innerHTML = hexValue;
         }
     }
 }

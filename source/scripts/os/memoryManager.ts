@@ -43,6 +43,7 @@ module CTOS
             for (var i: number = 0; i < program.length; ++i)
             {
                 memBlock.set(i, program[i]);
+                Control.MemoryTableUpdateByte(i, program[i]);
             }
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
@@ -81,6 +82,7 @@ module CTOS
             {
                 this.m_Memory[0].set(address, hexValue);
             }
+            Control.MemoryTableUpdateByte(address, hexValue);
         }
 
     }

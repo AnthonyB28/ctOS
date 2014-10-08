@@ -29,6 +29,7 @@ var CTOS;
             var memoryAddress = 0;
             for (var i = 0; i < program.length; ++i) {
                 memBlock.set(i, program[i]);
+                CTOS.Control.MemoryTableUpdateByte(i, program[i]);
             }
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             this.m_MemInUse[memoryBlockLocation] = true;
@@ -59,6 +60,7 @@ var CTOS;
             } else {
                 this.m_Memory[0].set(address, hexValue);
             }
+            CTOS.Control.MemoryTableUpdateByte(address, hexValue);
         };
         return MemoryManager;
     })();

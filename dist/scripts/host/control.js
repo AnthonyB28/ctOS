@@ -90,6 +90,9 @@ var CTOS;
             CTOS.Globals.m_MemoryManager = new CTOS.MemoryManager();
             CTOS.Globals.m_CPU.Init();
 
+            //Write the Memory to table
+            Control.MemoryTableCreate();
+
             // ... then set the host clock pulse ...
             CTOS.Globals.m_HardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CTOS.Globals.CPU_CLOCK_INTERVAL);
 
@@ -152,11 +155,11 @@ var CTOS;
             notificationDiv.appendChild(notificationElement);
         };
 
-        Control.UpdateCPUTable = function (cpu) {
+        Control.CPUTableUpdate = function (cpu) {
             var CPUTable = document.getElementById("CPUTable");
             var dataRow = CPUTable.rows[1];
             var dataCell = dataRow.cells[0];
-            dataCell.innerText = "0x" + CTOS.Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex();
+            dataCell.innerText = "0x" + CTOS.Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
             dataCell = dataRow.cells[1];
             dataCell.innerText = cpu.m_ProgramCounter.toString();
             dataCell = dataRow.cells[2];
@@ -167,6 +170,31 @@ var CTOS;
             dataCell.innerText = cpu.m_Y.toString();
             dataCell = dataRow.cells[5];
             dataCell.innerText = cpu.m_Z.toString();
+        };
+
+        Control.MemoryTableCreate = function () {
+            var MemTable = document.getElementById("MemTable");
+            for (var i = 0; i < 256 / 8; ++i) {
+                var row = MemTable.insertRow(i);
+                row.className = "info";
+                for (var x = 0; x < 9; ++x) {
+                    var cell = row.insertCell(x);
+                    if (x == 0) {
+                        cell.innerHTML = "0x" + (i * 8).toString(16).toLocaleUpperCase();
+                    } else {
+                        cell.innerHTML = "00";
+                    }
+                }
+            }
+        };
+
+        Control.MemoryTableUpdateByte = function (address, hexValue) {
+            var MemTable = document.getElementById("MemTable");
+            var row = address / 8;
+            row = Math.floor(row);
+            address %= 8;
+            address += 1;
+            MemTable.rows[row].cells[address].innerHTML = hexValue;
         };
         return Control;
     })();
