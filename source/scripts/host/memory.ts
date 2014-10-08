@@ -14,14 +14,11 @@ module CTOS
         constructor()
         {
             this.m_Memory = new Array<Byte>();
-            for(var i : number = 0; i < 256; ++i)
-            {
-                this.m_Memory[i] = new Byte("0");
-            }
+            this.Reset();
         }
 
         // Sets Byte in a particular address in this block of memory
-        public set(address: number, hexValue: string): void
+        public Set(address: number, hexValue: string): void
         {
             if (address > this.m_Memory.length)
             {
@@ -35,7 +32,7 @@ module CTOS
         }
 
         // Get Byte from a particular address in this block of memory
-        public get(address: number): Byte
+        public Get(address: number): Byte
         {
             if (address > this.m_Memory.length)
             {
@@ -46,6 +43,14 @@ module CTOS
             else
             {
                 return this.m_Memory[address];
+            }
+        }
+
+        public Reset()
+        {
+            for (var i: number = 0; i < 256; ++i)
+            {
+                this.m_Memory[i] = new Byte("0");
             }
         }
     }

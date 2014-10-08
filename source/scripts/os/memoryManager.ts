@@ -38,23 +38,27 @@ module CTOS
         // Loads the program into memory & returns PID
         public LoadProgram(program: Array<string>): number
         {
-            var memBlock: Memory = new Memory();
-            var memoryAddress: number = 0;
-            for (var i: number = 0; i < program.length; ++i)
-            {
-                memBlock.set(i, program[i]);
-                Control.MemoryTableUpdateByte(i, program[i]);
-            }
-            var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
-            this.m_MemInUse[memoryBlockLocation] = true;
-            this.m_Memory[memoryBlockLocation] = memBlock;
-
+            
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb: ProcessControlBlock = new ProcessControlBlock();
+            var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             pcb.m_MemBase = memoryBlockLocation * 256;
             pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
-            Globals.m_KernelResidentQueue.enqueue(pcb);
 
+            // Reset memory block & update display
+            this.m_Memory[memoryBlockLocation].Reset();
+            Control.MemoryTableResetBlock(memoryBlockLocation);
+
+            // Load our program into the block of memory
+            for (var i: number = pcb.m_MemBase; i < pcb.m_MemBase + program.length; ++i)
+            {
+                var address: number = i % 256;
+                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
+                Control.MemoryTableUpdateByte(address, program[address]);
+            }
+            
+            this.m_MemInUse[memoryBlockLocation] = true;
+            Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         }
 
@@ -68,7 +72,7 @@ module CTOS
             }
             else
             {
-                return this.m_Memory[0].get(address);
+                return this.m_Memory[0].Get(address);
             }
         }
 
@@ -80,7 +84,7 @@ module CTOS
             }
             else
             {
-                this.m_Memory[0].set(address, hexValue);
+                this.m_Memory[0].Set(address, hexValue);
             }
             Control.MemoryTableUpdateByte(address, hexValue);
         }

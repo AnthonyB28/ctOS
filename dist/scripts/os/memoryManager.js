@@ -25,22 +25,24 @@ var CTOS;
 
         // Loads the program into memory & returns PID
         MemoryManager.prototype.LoadProgram = function (program) {
-            var memBlock = new CTOS.Memory();
-            var memoryAddress = 0;
-            for (var i = 0; i < program.length; ++i) {
-                memBlock.set(i, program[i]);
-                CTOS.Control.MemoryTableUpdateByte(i, program[i]);
-            }
-            var memoryBlockLocation = this.GetAvailableMemoryLocation();
-            this.m_MemInUse[memoryBlockLocation] = true;
-            this.m_Memory[memoryBlockLocation] = memBlock;
-
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb = new CTOS.ProcessControlBlock();
+            var memoryBlockLocation = this.GetAvailableMemoryLocation();
             pcb.m_MemBase = memoryBlockLocation * 256;
             pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
-            CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
 
+            // Reset memory block & update display
+            this.m_Memory[memoryBlockLocation].Reset();
+            CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
+
+            for (var i = pcb.m_MemBase; i < pcb.m_MemBase + program.length; ++i) {
+                var address = i % 256;
+                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
+                CTOS.Control.MemoryTableUpdateByte(address, program[address]);
+            }
+
+            this.m_MemInUse[memoryBlockLocation] = true;
+            CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         };
 
@@ -50,7 +52,7 @@ var CTOS;
             if (address >= 256) {
                 return this.GetByte(address - 256);
             } else {
-                return this.m_Memory[0].get(address);
+                return this.m_Memory[0].Get(address);
             }
         };
 
@@ -58,7 +60,7 @@ var CTOS;
             if (address >= 256) {
                 this.SetByte(address - 256, hexValue); // loop around if we're larger than 255
             } else {
-                this.m_Memory[0].set(address, hexValue);
+                this.m_Memory[0].Set(address, hexValue);
             }
             CTOS.Control.MemoryTableUpdateByte(address, hexValue);
         };

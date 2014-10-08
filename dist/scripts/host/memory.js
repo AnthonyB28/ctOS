@@ -8,12 +8,10 @@ var CTOS;
     var Memory = (function () {
         function Memory() {
             this.m_Memory = new Array();
-            for (var i = 0; i < 256; ++i) {
-                this.m_Memory[i] = new CTOS.Byte("0");
-            }
+            this.Reset();
         }
         // Sets Byte in a particular address in this block of memory
-        Memory.prototype.set = function (address, hexValue) {
+        Memory.prototype.Set = function (address, hexValue) {
             if (address > this.m_Memory.length) {
                 CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
                 //Need to do something with this properly.
@@ -23,7 +21,7 @@ var CTOS;
         };
 
         // Get Byte from a particular address in this block of memory
-        Memory.prototype.get = function (address) {
+        Memory.prototype.Get = function (address) {
             if (address > this.m_Memory.length) {
                 CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
 
@@ -31,6 +29,12 @@ var CTOS;
                 return new CTOS.Byte("0");
             } else {
                 return this.m_Memory[address];
+            }
+        };
+
+        Memory.prototype.Reset = function () {
+            for (var i = 0; i < 256; ++i) {
+                this.m_Memory[i] = new CTOS.Byte("0");
             }
         };
         return Memory;

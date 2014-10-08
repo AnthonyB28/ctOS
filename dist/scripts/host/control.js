@@ -158,17 +158,20 @@ var CTOS;
             elem.scrollTop = 0;
         };
 
+        // Adds the unlocked achievement to the side menu
         Control.AchievementAddDisplay = function (id, achievement) {
             var achievementElement = document.createElement("achievement" + id.toString());
             achievementElement.innerHTML = "</br> " + achievement.m_Description + " " + achievement.m_Score.toString();
             document.getElementById("cbp-spmenu-s1").appendChild(achievementElement);
         };
 
+        // Increases the "gamer score" in the side menu
         Control.AchievementIncrementScore = function (score) {
             var scoreElement = document.getElementById("achievementScore");
             scoreElement.innerText = "Achievements : " + score.toString();
         };
 
+        // Brings up the achievement unlocked notification
         Control.AchievementNotify = function (id) {
             var notificationDiv = document.getElementById("achievementNotifDiv");
             var notificationElement = document.createElement("achievement" + id.toString() + "Alert");
@@ -177,6 +180,7 @@ var CTOS;
             notificationDiv.appendChild(notificationElement);
         };
 
+        // Updates the CPU table with the cpu information
         Control.CPUTableUpdate = function (cpu) {
             var CPUTable = document.getElementById("CPUTable");
             var dataRow = CPUTable.rows[1];
@@ -194,10 +198,12 @@ var CTOS;
             dataCell.innerText = cpu.m_Z.toString();
         };
 
+        // Creates the initial memory table display
+        // Currently only ONE block of memory for P2, will have to do for P3
         Control.MemoryTableCreate = function () {
-            var MemTable = document.getElementById("MemTable");
+            var memTable = document.getElementById("MemTable");
             for (var i = 0; i < 256 / 8; ++i) {
-                var row = MemTable.insertRow(i);
+                var row = memTable.insertRow(i);
                 row.className = "info";
                 for (var x = 0; x < 9; ++x) {
                     var cell = row.insertCell(x);
@@ -210,13 +216,27 @@ var CTOS;
             }
         };
 
+        // Updates a single byte in memory
+        // Currently only the first block in memory, might have to change for P3
         Control.MemoryTableUpdateByte = function (address, hexValue) {
-            var MemTable = document.getElementById("MemTable");
+            var memTable = document.getElementById("MemTable");
             var row = address / 8;
             row = Math.floor(row);
             address %= 8;
             address += 1;
-            MemTable.rows[row].cells[address].innerHTML = hexValue;
+            memTable.rows[row].cells[address].innerHTML = hexValue;
+        };
+
+        // Resets the a whole block of memory specificed to 0 in the display
+        Control.MemoryTableResetBlock = function (block) {
+            var base = block * 256 / 8;
+            var limit = base + 255 / 8;
+            var memTable = document.getElementById("MemTable");
+            for (var i = base; i < limit; ++i) {
+                for (var x = 1; x < 9; ++x) {
+                    memTable.rows[i].cells[x].innerHTML = "00";
+                }
+            }
         };
         return Control;
     })();

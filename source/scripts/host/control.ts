@@ -101,7 +101,6 @@ module CTOS {
 
             //Write the Memory to table
             Control.MemoryTableCreate();
-
             // ... then set the host clock pulse ...
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
@@ -172,6 +171,7 @@ module CTOS {
             elem.scrollTop = 0;
         }
 
+        // Adds the unlocked achievement to the side menu
         public static AchievementAddDisplay(id : number, achievement: Achievement): void
         {
             var achievementElement = document.createElement("achievement" + id.toString());
@@ -179,12 +179,14 @@ module CTOS {
             document.getElementById("cbp-spmenu-s1").appendChild(achievementElement);
         }
 
+        // Increases the "gamer score" in the side menu
         public static AchievementIncrementScore(score: number): void
         {
             var scoreElement = document.getElementById("achievementScore");
             scoreElement.innerText = "Achievements : " + score.toString();
         }
 
+        // Brings up the achievement unlocked notification
         public static AchievementNotify(id: number): void
         {
             var notificationDiv = document.getElementById("achievementNotifDiv");
@@ -194,6 +196,7 @@ module CTOS {
             notificationDiv.appendChild(notificationElement);
         }
 
+        // Updates the CPU table with the cpu information
         public static CPUTableUpdate(cpu: Cpu): void
         {
             var CPUTable: HTMLTableElement = <HTMLTableElement> document.getElementById("CPUTable");
@@ -212,12 +215,14 @@ module CTOS {
             dataCell.innerText = cpu.m_Z.toString();
         }
 
+        // Creates the initial memory table display
+        // Currently only ONE block of memory for P2, will have to do for P3
         public static MemoryTableCreate() : void
         {
-            var MemTable : any = document.getElementById("MemTable");
-            for (var i = 0; i < 256 / 8; ++i)
+            var memTable : any = document.getElementById("MemTable");
+            for (var i : number = 0; i < 256 / 8; ++i)
             {
-                var row = MemTable.insertRow(i);
+                var row = memTable.insertRow(i);
                 row.className = "info";
                 for (var x = 0; x < 9; ++x)
                 {
@@ -234,14 +239,31 @@ module CTOS {
             }
         }
 
+        // Updates a single byte in memory
+        // Currently only the first block in memory, might have to change for P3
         public static MemoryTableUpdateByte(address: number, hexValue: string) : void
         {
-            var MemTable: any = document.getElementById("MemTable");
+            var memTable: any = document.getElementById("MemTable");
             var row = address / 8;
             row = Math.floor(row);
             address %= 8;
             address += 1;
-            MemTable.rows[row].cells[address].innerHTML = hexValue;
+            memTable.rows[row].cells[address].innerHTML = hexValue;
+        }
+
+        // Resets the a whole block of memory specificed to 0 in the display
+        public static MemoryTableResetBlock(block: number)
+        {
+            var base: number = block * 256 / 8;
+            var limit: number = base + 255 / 8;
+            var memTable: any = document.getElementById("MemTable");
+            for (var i: number = base; i < limit; ++i)
+            {
+                for (var x: number = 1; x < 9; ++x)
+                {
+                    memTable.rows[i].cells[x].innerHTML = "00";
+                }
+            }
         }
     }
 }
