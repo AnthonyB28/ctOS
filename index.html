@@ -140,7 +140,7 @@
                 </div>
             </div>
             <div class="col-sm-4">
-                <div id="divCPUTable" style="width:150px">
+                <div id="divCPUTable" style="width:150px; float: left;">
                     <label>CPU</label>
                     <br />
                     <table id="CPUTable" class="table table-condensed table-bordered">
@@ -166,6 +166,28 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="divMemTable" style="width:150px; float:right">
+                    <label>Memory</label>
+                    <br />
+                    <div style="overflow-y:auto; height:150px; width:300px">
+                        <table id="MemTable" class="table table-condensed table-bordered">
+                            <tbody>
+                                <tr class="info">
+                                    <td>0x00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                    <td>00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
                 <div id="divLog">
                     <label>Log</label>
                     <br>
