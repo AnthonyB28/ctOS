@@ -43,12 +43,24 @@ var CTOS;
         };
 
         Cpu.prototype.Cycle = function () {
-            CTOS.Globals.m_Kernel.Trace('CPU cycle');
+            if (!CTOS.Globals.m_StepMode) {
+                CTOS.Globals.m_Kernel.Trace('CPU cycle');
 
-            // TODO: Accumulate CPU usage and profiling statistics here.
-            // Do the real work here. Be sure to set this.isExecuting appropriately.
-            this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
-            CTOS.Control.CPUTableUpdate(this);
+                // TODO: Accumulate CPU usage and profiling statistics here.
+                // Do the real work here. Be sure to set this.isExecuting appropriately.
+                this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                CTOS.Control.CPUTableUpdate(this);
+            } else {
+                if (CTOS.Globals.m_StepNext) {
+                    CTOS.Globals.m_Kernel.Trace('CPU cycle');
+
+                    // TODO: Accumulate CPU usage and profiling statistics here.
+                    // Do the real work here. Be sure to set this.isExecuting appropriately.
+                    this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                    CTOS.Control.CPUTableUpdate(this);
+                    CTOS.Globals.m_StepNext = false;
+                }
+            }
         };
 
         Cpu.prototype.Execute = function (op) {

@@ -24,6 +24,8 @@ var CTOS;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_OSClock = 0;
+        Globals.m_StepMode = false;
+        Globals.m_StepNext = true;
 
         Globals.m_Mode = 0;
 

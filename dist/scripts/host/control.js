@@ -1,4 +1,4 @@
-///<reference path="../globals.ts" />
+﻿///<reference path="../globals.ts" />
 ///<reference path="../os/canvastext.ts" />
 /* ------------
 Control.ts
@@ -81,6 +81,7 @@ var CTOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnStep").disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -122,6 +123,27 @@ var CTOS;
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        };
+
+        // Enter or exit step mode
+        Control.hostBtnStepActivate_click = function (btn) {
+            if (CTOS.Globals.m_StepMode) {
+                CTOS.Globals.m_StepMode = false;
+                CTOS.Globals.m_StepNext = false;
+                btn.className = "btn btn-success";
+                btn.innerText = "Step";
+            } else {
+                CTOS.Globals.m_StepMode = true;
+                btn.className = "btn btn-danger";
+                btn.innerText = "Exit Step";
+                var nextBtn = document.getElementById("btnStepNext");
+                nextBtn.disabled = false;
+            }
+        };
+
+        // Continue stepping
+        Control.hostBtnStepNext_click = function (btn) {
+            CTOS.Globals.m_StepNext = true;
         };
 
         Control.scrollConsoleDown = function () {

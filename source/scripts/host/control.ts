@@ -89,6 +89,7 @@ module CTOS {
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnStep").disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -129,6 +130,32 @@ module CTOS {
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        }
+
+        // Enter or exit step mode
+        public static hostBtnStepActivate_click(btn): void
+        {
+            if (Globals.m_StepMode)
+            {
+                Globals.m_StepMode = false;
+                Globals.m_StepNext = false;
+                btn.className = "btn btn-success";
+                btn.innerText = "Step";
+            }
+            else
+            {
+                Globals.m_StepMode = true;
+                btn.className = "btn btn-danger";
+                btn.innerText = "Exit Step";
+                var nextBtn = document.getElementById("btnStepNext");
+                nextBtn.disabled = false;
+            }
+        }
+
+        // Continue stepping
+        public static hostBtnStepNext_click(btn): void
+        {
+            Globals.m_StepNext = true;
         }
 
         public static scrollConsoleDown() : void

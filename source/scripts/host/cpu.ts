@@ -46,11 +46,26 @@ module CTOS {
 
         public Cycle(): void 
         {
-            Globals.m_Kernel.Trace('CPU cycle');
-            // TODO: Accumulate CPU usage and profiling statistics here.
-            // Do the real work here. Be sure to set this.isExecuting appropriately.
-            this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
-            Control.CPUTableUpdate(this);
+            if (!Globals.m_StepMode) // Not stepping, just perform normal
+            {
+                Globals.m_Kernel.Trace('CPU cycle');
+                // TODO: Accumulate CPU usage and profiling statistics here.
+                // Do the real work here. Be sure to set this.isExecuting appropriately.
+                this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                Control.CPUTableUpdate(this);
+            }
+            else // We are in step mode, only continue if we click next.
+            {
+                if (Globals.m_StepNext)
+                {
+                    Globals.m_Kernel.Trace('CPU cycle');
+                    // TODO: Accumulate CPU usage and profiling statistics here.
+                    // Do the real work here. Be sure to set this.isExecuting appropriately.
+                    this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                    Control.CPUTableUpdate(this);
+                    Globals.m_StepNext = false;
+                }
+            }
         }
 
         public Execute(op: Byte): void
