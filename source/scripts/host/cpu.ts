@@ -206,10 +206,26 @@ module CTOS {
         // Branch X bytes if Z = 0
         private Branch(): void
         {
+            ++this.m_ProgramCounter;
             if (this.m_Z == 0)
             {
-                // Jump forward however many bytes
-                // Probably need to make sure we don't go out of bounds
+                this.JumpProgramCounter(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal());
+            }
+        }
+
+        // Helper function for BNE
+        // If the jump goes over the 255 boundary, we need to loop it
+        private JumpProgramCounter(jumpTo: number): void
+        {
+            // Jump the count forward
+            var jumpCheck: number = this.m_ProgramCounter + jumpTo;
+            if (jumpCheck > 255)
+            {
+                this.JumpProgramCounter(jumpCheck);
+            }
+            else
+            {
+                this.m_ProgramCounter = jumpCheck;
             }
         }
 
