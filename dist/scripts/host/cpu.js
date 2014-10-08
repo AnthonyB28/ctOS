@@ -222,7 +222,10 @@ var CTOS;
         // EE = INC
         // Increment the value of a byte
         Cpu.prototype.Increment = function () {
-            // check next 2 bytes, find the address, increment its data
+            var address = this.LittleEndianConversion();
+            var valueToInc = CTOS.Globals.m_MemoryManager.GetByte(address).GetDecimal();
+            ++valueToInc;
+            CTOS.Globals.m_MemoryManager.SetByte(address, valueToInc.toString(16));
         };
 
         // FF = SYS

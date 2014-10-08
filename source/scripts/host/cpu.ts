@@ -233,7 +233,10 @@ module CTOS {
         // Increment the value of a byte
         private Increment(): void
         {
-            // check next 2 bytes, find the address, increment its data
+            var address : number = this.LittleEndianConversion()
+            var valueToInc: number = Globals.m_MemoryManager.GetByte(address).GetDecimal();
+            ++valueToInc;
+            Globals.m_MemoryManager.SetByte(address, valueToInc.toString(16));
         }
 
         // FF = SYS
