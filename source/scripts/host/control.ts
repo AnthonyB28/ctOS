@@ -163,5 +163,23 @@ module CTOS {
             notificationElement.innerHTML = "</br> </br><div class=\"alert alert-info\" role=\"alert\">Achievement unlocked!</div>";
             notificationDiv.appendChild(notificationElement);
         }
+
+        public static UpdateCPUTable(cpu: Cpu)
+        {
+            var CPUTable: HTMLTableElement = <HTMLTableElement> document.getElementById("CPUTable");
+            var dataRow: HTMLTableRowElement = <HTMLTableRowElement> CPUTable.rows[1];
+            var dataCell: HTMLTableCellElement = <HTMLTableCellElement> dataRow.cells[0];
+            dataCell.innerText = "0x"+Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex();
+            dataCell = <HTMLTableCellElement> dataRow.cells[1];
+            dataCell.innerText = cpu.m_ProgramCounter.toString();
+            dataCell = <HTMLTableCellElement> dataRow.cells[2];
+            dataCell.innerText = cpu.m_Accumulator.toString();
+            dataCell = <HTMLTableCellElement> dataRow.cells[3];
+            dataCell.innerText = cpu.m_X.toString();
+            dataCell = <HTMLTableCellElement> dataRow.cells[4];
+            dataCell.innerText = cpu.m_Y.toString();
+            dataCell = <HTMLTableCellElement> dataRow.cells[5];
+            dataCell.innerText = cpu.m_Z.toString();
+        }
     }
 }

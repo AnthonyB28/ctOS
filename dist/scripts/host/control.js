@@ -151,6 +151,23 @@ var CTOS;
             notificationElement.innerHTML = "</br> </br><div class=\"alert alert-info\" role=\"alert\">Achievement unlocked!</div>";
             notificationDiv.appendChild(notificationElement);
         };
+
+        Control.UpdateCPUTable = function (cpu) {
+            var CPUTable = document.getElementById("CPUTable");
+            var dataRow = CPUTable.rows[1];
+            var dataCell = dataRow.cells[0];
+            dataCell.innerText = "0x" + CTOS.Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex();
+            dataCell = dataRow.cells[1];
+            dataCell.innerText = cpu.m_ProgramCounter.toString();
+            dataCell = dataRow.cells[2];
+            dataCell.innerText = cpu.m_Accumulator.toString();
+            dataCell = dataRow.cells[3];
+            dataCell.innerText = cpu.m_X.toString();
+            dataCell = dataRow.cells[4];
+            dataCell.innerText = cpu.m_Y.toString();
+            dataCell = dataRow.cells[5];
+            dataCell.innerText = cpu.m_Z.toString();
+        };
         return Control;
     })();
     CTOS.Control = Control;

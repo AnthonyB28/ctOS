@@ -140,15 +140,42 @@
                 </div>
             </div>
             <div class="col-sm-4">
+                <div id="divCPUTable" style="width:150px">
+                    <label>CPU</label>
+                    <br />
+                    <table id="CPUTable" class="table table-condensed table-bordered">
+                        <thead>
+                            <tr class="info">
+                                <th>OP</th>
+                                <th>PC</th>
+                                <th>ACC</th>
+                                <th>X</th>
+                                <th>Y</th>
+                                <th>Z</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="info">
+                                <td>0x00</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div id="divLog">
-                    <label> Host Log </label>
+                    <label>Log</label>
                     <br>
                     <textarea name="taHostLog"
                               id="taHostLog"
                               rows="20"
-                              cols="48"></textarea>
+                              cols="48" style="height: 100px"></textarea>
                 </div>
-                <div id="divUserProgramInput">
+                <br/>
+                <div id="divUserProgramInput" style="height:200px">
                     <label>
                         User Program Input
                     </label>

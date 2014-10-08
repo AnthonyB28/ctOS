@@ -48,6 +48,7 @@ var CTOS;
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
             this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+            CTOS.Control.UpdateCPUTable(this);
         };
 
         Cpu.prototype.Execute = function (op) {
@@ -97,7 +98,9 @@ var CTOS;
                     break;
                 default:
                     // TODO interupt?
-                    CTOS.Globals.m_Console.PutText("Invalid Op: : " + op.toString());
+                    CTOS.Globals.m_Console.PutText("Invalid Op: : " + op.GetHex());
+                    CTOS.Globals.m_Console.AdvanceLine();
+                    CTOS.Globals.m_OsShell.PutPrompt();
                     break;
             }
 
@@ -213,7 +216,7 @@ var CTOS;
             // Jump the count forward
             var jumpCheck = this.m_ProgramCounter + jumpTo;
             if (jumpCheck > 255) {
-                this.JumpProgramCounter(jumpCheck);
+                this.JumpProgramCounter(jumpCheck - 255);
             } else {
                 this.m_ProgramCounter = jumpCheck;
             }

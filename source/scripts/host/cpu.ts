@@ -44,11 +44,13 @@ module CTOS {
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         }
 
-        public Cycle(): void {
+        public Cycle(): void 
+        {
             Globals.m_Kernel.Trace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
             this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+            Control.UpdateCPUTable(this);
         }
 
         public Execute(op: Byte): void
@@ -86,7 +88,9 @@ module CTOS {
                     this.SysCall(); break;
                 default:
                     // TODO interupt?
-                    Globals.m_Console.PutText("Invalid Op: : " + op.toString());
+                    Globals.m_Console.PutText("Invalid Op: : " + op.GetHex());
+                    Globals.m_Console.AdvanceLine();
+                    Globals.m_OsShell.PutPrompt();
                     break;
             }
 
@@ -221,7 +225,7 @@ module CTOS {
             var jumpCheck: number = this.m_ProgramCounter + jumpTo;
             if (jumpCheck > 255)
             {
-                this.JumpProgramCounter(jumpCheck);
+                this.JumpProgramCounter(jumpCheck-255);
             }
             else
             {
