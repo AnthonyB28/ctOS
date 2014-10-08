@@ -228,23 +228,15 @@ module CTOS {
             ++this.m_ProgramCounter;
             if (this.m_Z == 0)
             {
-                this.JumpProgramCounter(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal());
-            }
-        }
-
-        // Helper function for BNE
-        // If the jump goes over the 255 boundary, we need to loop it
-        private JumpProgramCounter(jumpTo: number): void
-        {
-            // Jump the count forward
-            var jumpCheck: number = this.m_ProgramCounter + jumpTo;
-            if (jumpCheck > 255)
-            {
-                this.JumpProgramCounter(jumpCheck-255);
-            }
-            else
-            {
-                this.m_ProgramCounter = jumpCheck;
+                var jumpCheck = this.m_ProgramCounter + Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+                if (jumpCheck > 255) // We need to loop around if we go out of bounds
+                {
+                    this.m_ProgramCounter = jumpCheck - 256;
+                }
+                else
+                {
+                    this.m_ProgramCounter = jumpCheck;
+                }
             }
         }
 
