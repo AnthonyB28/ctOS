@@ -26,9 +26,12 @@ var CTOS;
             // Increment the hardware (host) clock.
             CTOS.Globals.m_OSClock++;
 
-            //Update the time GUI
-            var currentDate = new Date();
-            CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            // Update the time GUI
+            // Only update every few pulses, otherwise speed is compromised here....
+            if (CTOS.Globals.m_OSClock % 10 == 0) {
+                var currentDate = new Date();
+                CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            }
 
             // Call the kernel clock pulse event handler.
             CTOS.Globals.m_Kernel.OnCPUClockPulse();
