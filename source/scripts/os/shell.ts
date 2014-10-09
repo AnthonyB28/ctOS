@@ -387,26 +387,31 @@ module CTOS
             }
         }
 
+        // Run a program using a PID in args
         public shellRun(args): void
         {
-            if (args.length == 1)
+            if (args.length == 1) // Must have a PID provided
             {
                 var pcb: ProcessControlBlock = null;
+
+                // Need to check to see if a PCB is in the Resident Queue
                 for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
                 {
-                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.q[i];
+                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
                     if (pcbInQueue.m_PID == args[0])
                     {
-                        pcb = Globals.m_KernelResidentQueue.dequeueAtIndex(i);
+                        pcb = Globals.m_KernelResidentQueue.remove(i);
                         break;
                     }
                 }
-                if (pcb)
+
+                if (pcb) // Get ready to run PCB & put it in the ready queue
                 {
+                    pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
-                else
+                else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
                 {
                     Globals.m_StdOut.PutText("PID is not in Resident Queue");
                 }

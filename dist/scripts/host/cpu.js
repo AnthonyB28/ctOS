@@ -39,6 +39,8 @@ var CTOS;
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         Cpu.prototype.RunProgram = function () {
             this.Init();
+            var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
+            pcb.m_State = CTOS.ProcessControlBlock.STATE_RUNNING;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         };
 
@@ -51,9 +53,9 @@ var CTOS;
             pcb.m_X = this.m_X;
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
-            pcb.m_State = 4; // Terminated
+            pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
             // Globals.m_KernelResidentQueue.enqueue(pcb);
-            // Not sure what to do now... Need to display PCB
+            // Not sure what to do now? P3?
         };
 
         Cpu.prototype.Cycle = function () {

@@ -30,6 +30,7 @@ var CTOS;
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             pcb.m_MemBase = memoryBlockLocation * 256;
             pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
 
             // Reset memory block & update display
             this.m_Memory[memoryBlockLocation].Reset();
@@ -70,7 +71,7 @@ var CTOS;
         // Memory was attempted to be accessed out of bounds
         MemoryManager.prototype.OutOfBoundsRequest = function (address) {
             var params = new Array();
-            var pcb = CTOS.Globals.m_KernelReadyQueue.q[0];
+            var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
             params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
             params[1] = address;
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));

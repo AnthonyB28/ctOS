@@ -1,4 +1,4 @@
-/* ------------
+﻿/* ------------
 Queue.ts
 A simple Queue, which is really just a dressed-up JavaScript Array.
 See the Javascript Array documentation at
@@ -14,6 +14,10 @@ var CTOS;
         }
         Queue.prototype.getSize = function () {
             return this.q.length;
+        };
+
+        Queue.prototype.peek = function (index) {
+            return this.q[index];
         };
 
         Queue.prototype.isEmpty = function () {
@@ -32,7 +36,7 @@ var CTOS;
             return retVal;
         };
 
-        Queue.prototype.dequeueAtIndex = function (index) {
+        Queue.prototype.remove = function (index) {
             var retVal = null;
             if (this.q.length > index) {
                 retVal = this.q.splice(index, 1);

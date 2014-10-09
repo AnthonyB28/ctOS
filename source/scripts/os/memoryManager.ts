@@ -44,6 +44,7 @@ module CTOS
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             pcb.m_MemBase = memoryBlockLocation * 256;
             pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            pcb.m_State = ProcessControlBlock.STATE_NEW;
 
             // Reset memory block & update display
             this.m_Memory[memoryBlockLocation].Reset();
@@ -95,7 +96,7 @@ module CTOS
         private OutOfBoundsRequest(address: number): void
         {
             var params: Array<number> = new Array<number>();
-            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.q[0];
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
             params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
             params[1] = address;
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));

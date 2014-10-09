@@ -41,6 +41,8 @@ module CTOS {
         public RunProgram(): void
         {
             this.Init();
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+            pcb.m_State = ProcessControlBlock.STATE_RUNNING;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         }
 
@@ -54,9 +56,9 @@ module CTOS {
             pcb.m_X = this.m_X;
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
-            pcb.m_State = 4; // Terminated
+            pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
             // Globals.m_KernelResidentQueue.enqueue(pcb); 
-            // Not sure what to do now... Need to display PCB
+            // Not sure what to do now? P3?
         }
 
         public Cycle(): void 

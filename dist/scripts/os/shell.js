@@ -1,4 +1,4 @@
-///<reference path="shellCommand.ts" />
+﻿///<reference path="shellCommand.ts" />
 ///<reference path="userCommand.ts" />
 ///<reference path="../utils.ts" />
 ///<reference path="../secret.ts"/>
@@ -307,17 +307,21 @@ var CTOS;
             }
         };
 
+        // Run a program using a PID in args
         Shell.prototype.shellRun = function (args) {
             if (args.length == 1) {
                 var pcb = null;
+
                 for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
-                    var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.q[i];
+                    var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
                     if (pcbInQueue.m_PID == args[0]) {
-                        pcb = CTOS.Globals.m_KernelResidentQueue.dequeueAtIndex(i);
+                        pcb = CTOS.Globals.m_KernelResidentQueue.remove(i);
                         break;
                     }
                 }
+
                 if (pcb) {
+                    pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {

@@ -13,8 +13,12 @@ module CTOS
     export class ProcessControlBlock
     {
         static m_GPID: number = -1; // Represents the latest PID loaded
+        static STATE_NEW = 0;
+        static STATE_RUNNING = 1;
+        static STATE_WAITING = 2;
+        static STATE_READY = 3;
+        static STATE_TERMINATED = 4;
 
-        // 0 = new ; 1 = running ; 2 = waiting ; 3 = ready; 4 = terminated
         public m_State: number = 0; // May not be needed until P3?
 
         public m_PID: number = ++ProcessControlBlock.m_GPID; // Increment for every instance
