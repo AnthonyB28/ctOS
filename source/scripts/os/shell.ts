@@ -346,7 +346,7 @@ module CTOS
 
         public shellLoad(): void
         {
-            var programToParse: string = Globals.m_ProgramInput.innerHTML;
+            var programToParse: string = Globals.m_ProgramInput.value;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;

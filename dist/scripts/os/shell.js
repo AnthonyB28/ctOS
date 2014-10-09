@@ -275,7 +275,7 @@ var CTOS;
         };
 
         Shell.prototype.shellLoad = function () {
-            var programToParse = CTOS.Globals.m_ProgramInput.innerHTML;
+            var programToParse = CTOS.Globals.m_ProgramInput.value;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
             var isValid = true;
