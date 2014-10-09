@@ -35,6 +35,7 @@ module CTOS {
             this.m_Y = 0;
             this.m_Z = 0; // 0 or 1, treat like a bool
             this.m_IsExecuting = false;
+            Control.CPUTableUpdate(this);
         }
 
         // Resets the CPU and sets IsExecuting, triggered by Interupt
