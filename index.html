@@ -150,7 +150,7 @@
             <div class="col-lg-6">
                 <label> CLI </label>
                 <br>
-                <div id="divConsole" style="width:524px; height:510px; overflow-y:scroll;">
+                <div id="divConsole" style="width:524px; height:510px;">
                     <canvas id="display"
                             width="500"
                             height="500"
@@ -238,8 +238,7 @@
         <script type="text/javascript" src="dist/scripts/menus.js"></script>
         <script src="dist/styles/js/main.js"></script>
 
-        <!--Allows click and scroll on the canvas. Meh right now-->
-        <script>
+        <!--Allows click and scroll on the canvas. Meh right now 
     $.fn.attachDragger = function () {
         var attachment = false, lastPosition, position, difference;
         $($(this).selector).on("mousedown mouseup mousemove", function (e) {
@@ -256,14 +255,15 @@
         $(window).on("mouseup", function () {
             attachment = false;
         });
-    }
-    $(document).ready(function () { $("divConsole").attachDragger(); });
-    // Allows fade out of Achievements
-    window.setInterval(function () {
-        $(".flash").fadeTo(500, 0).slideUp(500, function () {
-            $(this).remove();
-        });
-    }, 5000);
+        $(document).ready(function () { $("divConsole").attachDragger(); });
+    }-->
+        <!-- Fading effect for achievements-->
+        <script>
+            window.setInterval(function () {
+                $(".flash").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
         </script>  
     </body>
 </html>
