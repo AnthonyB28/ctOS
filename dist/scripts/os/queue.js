@@ -1,4 +1,4 @@
-﻿/* ------------
+/* ------------
 Queue.ts
 A simple Queue, which is really just a dressed-up JavaScript Array.
 See the Javascript Array documentation at

@@ -67,7 +67,20 @@ var CTOS;
 
             // Update the log console.
             var taLog = document.getElementById("taHostLog");
-            taLog.value = str + taLog.value;
+
+            var replaceIdleMsg = false;
+            var lastMsg = taLog.value.substr(0, taLog.value.indexOf("\n"));
+            if (lastMsg) {
+                if (lastMsg.indexOf("msg:Idle") > 0) {
+                    replaceIdleMsg = true;
+                }
+            }
+
+            if (!replaceIdleMsg) {
+                taLog.value = str + taLog.value;
+            } else {
+                taLog.value = taLog.value.replace(lastMsg + "\n", str);
+            }
             // Optionally update a log database or some streaming service.
         };
 

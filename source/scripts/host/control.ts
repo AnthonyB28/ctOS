@@ -72,8 +72,26 @@ module CTOS {
             var str: string = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
 
             // Update the log console.
-            var taLog = <HTMLInputElement> document.getElementById("taHostLog");
-            taLog.value = str + taLog.value;
+            var taLog: any = document.getElementById("taHostLog");
+
+            var replaceIdleMsg: boolean = false;
+            var lastMsg: string = taLog.value.substr(0, taLog.value.indexOf("\n"));
+            if (lastMsg)
+            {
+                if (lastMsg.indexOf("msg:Idle") > 0)
+                {
+                    replaceIdleMsg = true;
+                }
+            }
+
+            if (!replaceIdleMsg)
+            {
+                taLog.value = str + taLog.value;
+            }
+            else
+            {  
+                taLog.value = taLog.value.replace(lastMsg+"\n", str);
+            }
             // Optionally update a log database or some streaming service.
         }
 

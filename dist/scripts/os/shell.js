@@ -1,4 +1,4 @@
-﻿///<reference path="shellCommand.ts" />
+///<reference path="shellCommand.ts" />
 ///<reference path="userCommand.ts" />
 ///<reference path="../utils.ts" />
 ///<reference path="../secret.ts"/>
