@@ -10,7 +10,7 @@ module CTOS
     export class MemoryManager
     {
         private m_Memory: Array<Memory>; // Representation of memory in our machine.
-        private m_MemInUse: Array<boolean>; // List of addresses in use.
+        private m_MemInUse: Array<boolean>; // List of blocks in use.
 
         constructor()
         {
@@ -68,25 +68,37 @@ module CTOS
         {
             if (address >= 256)
             {
-                return this.GetByte(address - 256); // loop around if we're larger than 255
+                this.OutOfBoundsRequest(address);
             }
             else
             {
                 return this.m_Memory[0].Get(address);
             }
         }
-
+        
+        // Set the byte @ address in memory with value in hex
+        // TODO assumes P2 where we only do 256 bytes and only block 0 in memory
         public SetByte(address: number, hexValue: string): void
         {
             if (address >= 256)
             {
-                this.SetByte(address - 256, hexValue); // loop around if we're larger than 255
+                this.OutOfBoundsRequest(address);
             }
             else
             {
                 this.m_Memory[0].Set(address, hexValue);
+                Control.MemoryTableUpdateByte(address, hexValue);
             }
-            Control.MemoryTableUpdateByte(address, hexValue);
+        }
+
+        // Memory was attempted to be accessed out of bounds
+        private OutOfBoundsRequest(address: number): void
+        {
+            var params: Array<number> = new Array<number>();
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.q[0];
+            params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+            params[1] = address;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
         }
 
     }

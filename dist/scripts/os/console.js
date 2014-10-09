@@ -90,6 +90,13 @@ var CTOS;
             }
         };
 
+        // Program requested System call
+        Console.prototype.SysCall = function (msg) {
+            this.PutText(msg);
+            this.AdvanceLine();
+            CTOS.Globals.m_OsShell.PutPrompt();
+        };
+
         // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
         // up is true if going back in the history (up arrow) - decrements cmdHistoryIndex
         Console.prototype.CmdHistoryLookup = function (up) {

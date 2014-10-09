@@ -279,13 +279,12 @@ var CTOS;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
             var isValid = true;
+            var invalidMsg = "";
             if (programInput.length > 0) {
                 programInput.every(function (code) {
                     if (!CTOS.Utils.IsValidHex(code)) {
                         isValid = false;
-                        CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
-                        CTOS.Globals.m_StdOut.AdvanceLine();
-                        CTOS.Globals.m_StdOut.PutText("First issue: " + code);
+                        invalidMsg = code;
                         return false;
                     } else {
                         return true;
@@ -293,12 +292,18 @@ var CTOS;
                 });
             } else {
                 isValid = false;
+                invalidMsg = "Empty";
             }
 
             if (isValid) {
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
-                CTOS.Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                CTOS.Globals.m_StdOut.PutText(CTOS.Globals.m_MemoryManager.LoadProgram(programInput).toString() + " has been loaded!");
+
+                //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_StdOut.PutText("Issue: " + invalidMsg);
             }
         };
 
@@ -314,7 +319,7 @@ var CTOS;
                 }
                 if (pcb) {
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
-                    CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.CPU_RUN_PROGRAM, null));
+                    CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
                 }

@@ -64,7 +64,7 @@ module CTOS {
                 // Note the pressed key code in the params (Mozilla-specific).
                 var params = new Array(event.which, event.shiftKey);
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.KEYBOARD_IRQ, params));
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_KEYBOARD, params));
             }
         }
     }

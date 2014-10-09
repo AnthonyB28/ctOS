@@ -50,19 +50,30 @@ var CTOS;
         // TODO assumes P2 where we only do 256 bytes and only sector 0 in memory
         MemoryManager.prototype.GetByte = function (address) {
             if (address >= 256) {
-                return this.GetByte(address - 256);
+                this.OutOfBoundsRequest(address);
             } else {
                 return this.m_Memory[0].Get(address);
             }
         };
 
+        // Set the byte @ address in memory with value in hex
+        // TODO assumes P2 where we only do 256 bytes and only block 0 in memory
         MemoryManager.prototype.SetByte = function (address, hexValue) {
             if (address >= 256) {
-                this.SetByte(address - 256, hexValue); // loop around if we're larger than 255
+                this.OutOfBoundsRequest(address);
             } else {
                 this.m_Memory[0].Set(address, hexValue);
+                CTOS.Control.MemoryTableUpdateByte(address, hexValue);
             }
-            CTOS.Control.MemoryTableUpdateByte(address, hexValue);
+        };
+
+        // Memory was attempted to be accessed out of bounds
+        MemoryManager.prototype.OutOfBoundsRequest = function (address) {
+            var params = new Array();
+            var pcb = CTOS.Globals.m_KernelReadyQueue.q[0];
+            params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+            params[1] = address;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
         };
         return MemoryManager;
     })();

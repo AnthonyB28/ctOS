@@ -350,6 +350,7 @@ module CTOS
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
+            var invalidMsg = "";
             if (programInput.length > 0)
             {
                 programInput.every(function (code) // JS can't break a ForEach? WTF
@@ -357,9 +358,7 @@ module CTOS
                     if (!Utils.IsValidHex(code))
                     {
                         isValid = false;
-                        Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
-                        Globals.m_StdOut.AdvanceLine();
-                        Globals.m_StdOut.PutText("First issue: " + code);
+                        invalidMsg = code;
                         return false; // stop the loop
                     }
                     else
@@ -371,13 +370,20 @@ module CTOS
             else
             {
                 isValid = false;
+                invalidMsg = "Empty";
             }
 
             if (isValid)
             {
                 Globals.m_AchievementSystem.Unlock(11);
-                Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                Globals.m_StdOut.PutText(Globals.m_MemoryManager.LoadProgram(programInput).toString() + " has been loaded!");
+                //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                Globals.m_StdOut.PutText("PID[" + Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                Globals.m_StdOut.AdvanceLine();
+                Globals.m_StdOut.PutText("Issue: " + invalidMsg);
             }
         }
 
@@ -398,7 +404,7 @@ module CTOS
                 if (pcb)
                 {
                     Globals.m_KernelReadyQueue.enqueue(pcb);
-                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.CPU_RUN_PROGRAM, null));
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
                 else
                 {

@@ -44,6 +44,21 @@ module CTOS {
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         }
 
+        // Stops executing program and saves to PCB
+        public EndProgram(): void
+        {
+            this.m_IsExecuting = false;
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+            pcb.m_Accumulator = this.m_Accumulator;
+            pcb.m_Counter = this.m_ProgramCounter;
+            pcb.m_X = this.m_X;
+            pcb.m_Y = this.m_Y;
+            pcb.m_Z = this.m_Z;
+            pcb.m_State = 4; // Terminated
+            // Globals.m_KernelResidentQueue.enqueue(pcb); 
+            // Not sure what to do now... Need to display PCB
+        }
+
         public Cycle(): void 
         {
             if (!Globals.m_StepMode) // Not stepping, just perform normal
@@ -100,7 +115,7 @@ module CTOS {
                 case Instructions.Op_EE:
                     this.Increment(); break;
                 case Instructions.Op_FF:
-                    this.SysCall(); break;
+                    this.SysCallRequest(); break;
                 default:
                     // TODO interupt?
                     Globals.m_Console.PutText("Invalid Op: : " + op.GetHex());
@@ -194,16 +209,7 @@ module CTOS {
         // 00 = BRK
         private Break(): void
         {
-            this.m_IsExecuting = false;
-            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
-            pcb.m_Accumulator = this.m_Accumulator;
-            pcb.m_Counter = this.m_ProgramCounter;
-            pcb.m_X = this.m_X;
-            pcb.m_Y = this.m_Y;
-            pcb.m_Z = this.m_Z;
-            pcb.m_State = 4; // Terminated
-            // Globals.m_KernelResidentQueue.enqueue(pcb); 
-            // Not sure what to do now... Need to display PCB
+            this.EndProgram();
         }
 
         // EC = CPX
@@ -251,20 +257,18 @@ module CTOS {
         }
 
         // FF = SYS
-        private SysCall(): void
+        // System call interupt by checking x register
+        private SysCallRequest(): void
         {
-            // Check x reg
-            // if 01 then print integer in Y
-            // if 02 then print 00-terminated string in Y
-            if (this.m_X == 1)
+            var params: Array<string> = new Array<string>(); // Sending only 1 string, but to keep interupts formatted, we pass "params"
+            var message: string = "";
+
+            if (this.m_X == 1) // print integer in Y
             {
-                Globals.m_StdOut.PutText(this.m_Y.toString());
-                Globals.m_StdOut.AdvanceLine();
-                Globals.m_OsShell.PutPrompt();
+                message = this.m_Y.toString();
             }
-            else if (this.m_X == 2)
+            else if (this.m_X == 2) // print 00-terminated string in Y
             {
-                var message: string = "";
                 var address: number = this.m_Y;
                 var value: number = Globals.m_MemoryManager.GetByte(this.m_Y).GetDecimal();
                 while (value != 0)
@@ -273,11 +277,9 @@ module CTOS {
                     ++address;
                     value = Globals.m_MemoryManager.GetByte(address).GetDecimal();
                 }
-
-                Globals.m_StdOut.PutText(message);
-                Globals.m_StdOut.AdvanceLine();
-                Globals.m_OsShell.PutPrompt();
             }
+            params[0] = message;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_SYS_CALL, params));
         }
     }
 }

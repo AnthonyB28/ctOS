@@ -116,6 +116,14 @@ module CTOS {
             }
         }
 
+        // Program requested System call
+        public SysCall(msg : string): void
+        {
+            this.PutText(msg);
+            this.AdvanceLine();
+            Globals.m_OsShell.PutPrompt();
+        }
+
         // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
         // up is true if going back in the history (up arrow) - decrements cmdHistoryIndex
         private CmdHistoryLookup(up: boolean): void

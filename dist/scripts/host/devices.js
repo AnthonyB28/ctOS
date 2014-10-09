@@ -58,7 +58,7 @@ var CTOS;
                 var params = new Array(event.which, event.shiftKey);
 
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.KEYBOARD_IRQ, params));
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_KEYBOARD, params));
             }
         };
         return Devices;

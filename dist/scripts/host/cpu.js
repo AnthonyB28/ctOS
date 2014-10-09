@@ -42,6 +42,20 @@ var CTOS;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         };
 
+        // Stops executing program and saves to PCB
+        Cpu.prototype.EndProgram = function () {
+            this.m_IsExecuting = false;
+            var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+            pcb.m_Accumulator = this.m_Accumulator;
+            pcb.m_Counter = this.m_ProgramCounter;
+            pcb.m_X = this.m_X;
+            pcb.m_Y = this.m_Y;
+            pcb.m_Z = this.m_Z;
+            pcb.m_State = 4; // Terminated
+            // Globals.m_KernelResidentQueue.enqueue(pcb);
+            // Not sure what to do now... Need to display PCB
+        };
+
         Cpu.prototype.Cycle = function () {
             if (!CTOS.Globals.m_StepMode) {
                 CTOS.Globals.m_Kernel.Trace('CPU cycle');
@@ -106,7 +120,7 @@ var CTOS;
                     this.Increment();
                     break;
                 case CTOS.Instructions.Op_FF:
-                    this.SysCall();
+                    this.SysCallRequest();
                     break;
                 default:
                     // TODO interupt?
@@ -190,16 +204,7 @@ var CTOS;
 
         // 00 = BRK
         Cpu.prototype.Break = function () {
-            this.m_IsExecuting = false;
-            var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
-            pcb.m_Accumulator = this.m_Accumulator;
-            pcb.m_Counter = this.m_ProgramCounter;
-            pcb.m_X = this.m_X;
-            pcb.m_Y = this.m_Y;
-            pcb.m_Z = this.m_Z;
-            pcb.m_State = 4; // Terminated
-            // Globals.m_KernelResidentQueue.enqueue(pcb);
-            // Not sure what to do now... Need to display PCB
+            this.EndProgram();
         };
 
         // EC = CPX
@@ -237,16 +242,14 @@ var CTOS;
         };
 
         // FF = SYS
-        Cpu.prototype.SysCall = function () {
-            // Check x reg
-            // if 01 then print integer in Y
-            // if 02 then print 00-terminated string in Y
+        // System call interupt by checking x register
+        Cpu.prototype.SysCallRequest = function () {
+            var params = new Array();
+            var message = "";
+
             if (this.m_X == 1) {
-                CTOS.Globals.m_StdOut.PutText(this.m_Y.toString());
-                CTOS.Globals.m_StdOut.AdvanceLine();
-                CTOS.Globals.m_OsShell.PutPrompt();
+                message = this.m_Y.toString();
             } else if (this.m_X == 2) {
-                var message = "";
                 var address = this.m_Y;
                 var value = CTOS.Globals.m_MemoryManager.GetByte(this.m_Y).GetDecimal();
                 while (value != 0) {
@@ -254,11 +257,9 @@ var CTOS;
                     ++address;
                     value = CTOS.Globals.m_MemoryManager.GetByte(address).GetDecimal();
                 }
-
-                CTOS.Globals.m_StdOut.PutText(message);
-                CTOS.Globals.m_StdOut.AdvanceLine();
-                CTOS.Globals.m_OsShell.PutPrompt();
             }
+            params[0] = message;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_SYS_CALL, params));
         };
         return Cpu;
     })();

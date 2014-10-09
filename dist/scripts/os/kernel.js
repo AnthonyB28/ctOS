@@ -112,15 +112,22 @@ var CTOS;
             this.Trace("Handling IRQ~" + irq);
 
             switch (irq) {
-                case CTOS.Globals.TIMER_IRQ:
+                case CTOS.Globals.INTERRUPT_REQUEST_TIMER:
                     this.TimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
-                case CTOS.Globals.KEYBOARD_IRQ:
+                case CTOS.Globals.INTERRUPT_REQUEST_KEYBOARD:
                     CTOS.Globals.m_KrnKeyboardDriver.isr(params); // Kernel mode device driver
                     CTOS.Globals.m_StdIn.HandleInput();
                     break;
-                case CTOS.Globals.CPU_RUN_PROGRAM:
+                case CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM:
                     CTOS.Globals.m_CPU.RunProgram();
+                    break;
+                case CTOS.Globals.INTERRUPT_REQUEST_SYS_CALL:
+                    CTOS.Globals.m_StdOut.SysCall(params[0]);
+                    break;
+                case CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS:
+                    CTOS.Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "]" + "went out of memory bounds @" + params[1].toString());
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

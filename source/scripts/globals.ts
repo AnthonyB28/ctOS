@@ -20,11 +20,11 @@ module CTOS
 
         static CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
         
-        static TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-                                // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-        static KEYBOARD_IRQ: number = 1;
-        static CPU_RUN_PROGRAM: number = 2;
-
+        static INTERRUPT_REQUEST_TIMER: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
+        static INTERRUPT_REQUEST_KEYBOARD: number = 1; // Keyboard input
+        static INTERRUPT_REQUEST_CPU_RUN_PROGRAM: number = 2; // Request to run program on CPU
+        static INTERRUPT_REQUEST_SYS_CALL: number = 3; // Syscall request to print to screen.
+        static INTERRUPT_MEMORY_OUT_OF_BOUNDS: number = 4; // Program runs over block of memory.
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //

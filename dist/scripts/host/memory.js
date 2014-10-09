@@ -12,26 +12,15 @@ var CTOS;
         }
         // Sets Byte in a particular address in this block of memory
         Memory.prototype.Set = function (address, hexValue) {
-            if (address > this.m_Memory.length) {
-                CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
-                //Need to do something with this properly.
-            } else {
-                this.m_Memory[address] = new CTOS.Byte(hexValue);
-            }
+            this.m_Memory[address] = new CTOS.Byte(hexValue);
         };
 
         // Get Byte from a particular address in this block of memory
         Memory.prototype.Get = function (address) {
-            if (address > this.m_Memory.length) {
-                CTOS.Globals.m_Console.PutText("Accessing memory out of bounds");
-
-                //Need to do something with this properly.
-                return new CTOS.Byte("0");
-            } else {
-                return this.m_Memory[address];
-            }
+            return this.m_Memory[address];
         };
 
+        // Reset memory block to 0s
         Memory.prototype.Reset = function () {
             for (var i = 0; i < 256; ++i) {
                 this.m_Memory[i] = new CTOS.Byte("0");

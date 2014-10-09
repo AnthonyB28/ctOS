@@ -224,7 +224,7 @@ var CTOS;
             row = Math.floor(row);
             address %= 8;
             address += 1;
-            memTable.rows[row].cells[address].innerHTML = hexValue;
+            memTable.rows[row].cells[address].innerHTML = hexValue.toLocaleUpperCase();
         };
 
         // Resets the a whole block of memory specificed to 0 in the display

@@ -16,11 +16,11 @@ var CTOS;
 
         Globals.CPU_CLOCK_INTERVAL = 100;
 
-        Globals.TIMER_IRQ = 0;
-
-        Globals.KEYBOARD_IRQ = 1;
-        Globals.CPU_RUN_PROGRAM = 2;
-
+        Globals.INTERRUPT_REQUEST_TIMER = 0;
+        Globals.INTERRUPT_REQUEST_KEYBOARD = 1;
+        Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM = 2;
+        Globals.INTERRUPT_REQUEST_SYS_CALL = 3;
+        Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS = 4;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_OSClock = 0;
