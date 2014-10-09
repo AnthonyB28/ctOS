@@ -159,18 +159,19 @@ var CTOS;
             CTOS.Globals.m_StepNext = true;
         };
 
-        Control.scrollConsoleDown = function () {
-            // Auto-scroll down
-            var elem = document.getElementById('divConsole');
-            elem.scrollTop = elem.scrollHeight;
-        };
-
-        Control.scrollConsoleTop = function () {
-            // Auto-scroll up & reset height
-            var elem = document.getElementById('divConsole');
-            elem.scrollTop = 0;
-        };
-
+        /*public static scrollConsoleDown() : void
+        {
+        // Auto-scroll down
+        var elem = document.getElementById('divConsole');
+        elem.scrollTop = elem.scrollHeight;
+        }
+        
+        public static scrollConsoleTop() : void
+        {
+        // Auto-scroll up & reset height
+        var elem = document.getElementById('divConsole');
+        elem.scrollTop = 0;
+        }*/
         // Adds the unlocked achievement to the side menu
         Control.AchievementAddDisplay = function (id, achievement) {
             var achievementElement = document.createElement("achievement" + id.toString());

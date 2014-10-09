@@ -175,7 +175,7 @@ module CTOS {
             Globals.m_StepNext = true;
         }
 
-        public static scrollConsoleDown() : void
+        /*public static scrollConsoleDown() : void
         {
             // Auto-scroll down
             var elem = document.getElementById('divConsole');
@@ -187,7 +187,7 @@ module CTOS {
             // Auto-scroll up & reset height
             var elem = document.getElementById('divConsole');
             elem.scrollTop = 0;
-        }
+        }*/
 
         // Adds the unlocked achievement to the side menu
         public static AchievementAddDisplay(id : number, achievement: Achievement): void

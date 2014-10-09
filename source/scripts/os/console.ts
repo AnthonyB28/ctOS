@@ -35,7 +35,7 @@ module CTOS {
         public ClearScreen(): void 
         {
             Globals.m_DrawingContext.clearRect(0, 0, Globals.m_Canvas.width, Globals.m_Canvas.height);
-            Control.scrollConsoleTop();
+            //Control.scrollConsoleTop();
             Globals.m_Canvas.height = 500;
         }
 
@@ -299,18 +299,19 @@ module CTOS {
         public AdvanceLine(): void 
         {
             this.m_CurrentXPosition = 0;
-            this.m_CurrentYPosition += Globals.m_DefaultFontSize + Globals.m_FontHeightMargin;
+            var newLineSpace: number = Globals.m_DefaultFontSize + Globals.m_FontHeightMargin;
+            this.m_CurrentYPosition += newLineSpace;
 
             // Auto-Scroll in the Y
             if (this.m_CurrentYPosition > Globals.m_Canvas.height)
             {
                 // Get the entire console we previously had as an image
-                var canvasImage = Globals.m_DrawingContext.getImageData(0, 0, Globals.m_Canvas.width, Globals.m_Canvas.height);
+                var canvasImage = Globals.m_DrawingContext.getImageData(0, newLineSpace, Globals.m_Canvas.width, Globals.m_Canvas.height);
                 // Increase the heigh and put the image above
-                Globals.m_Canvas.height += Globals.m_DefaultFontSize + Globals.m_FontHeightMargin;
+                //Globals.m_Canvas.height += newLineSpace;
                 Globals.m_DrawingContext.putImageData(canvasImage, 0, 0);
-
-                Control.scrollConsoleDown();
+                this.m_CurrentYPosition -= newLineSpace;
+                //Control.scrollConsoleDown();
             }
         }
     }
