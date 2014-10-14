@@ -21,6 +21,7 @@ var CTOS;
         Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM = 2;
         Globals.INTERRUPT_REQUEST_SYS_CALL = 3;
         Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS = 4;
+        Globals.INTERRUPT_INVALID_OP = 5;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_OSClock = 0;

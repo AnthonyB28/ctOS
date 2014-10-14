@@ -122,9 +122,11 @@ module CTOS {
                     this.SysCallRequest(); break;
                 default:
                     // TODO interupt?
-                    Globals.m_Console.PutText("Invalid Op: : " + op.GetHex());
-                    Globals.m_Console.AdvanceLine();
-                    Globals.m_OsShell.PutPrompt();
+                    var params: Array<any> = new Array<any>();
+                    var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+                    params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+                    params[1] = op;
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_INVALID_OP,params));
                     break;
             }
 

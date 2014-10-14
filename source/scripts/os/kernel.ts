@@ -150,7 +150,11 @@ module CTOS
                     break;
                 case Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS: // Program tried to access out of memory block
                     Globals.m_CPU.EndProgram();
-                    this.Trace("PID[" + params[0].toString() + "]" + "went out of memory bounds @" + params[1].toString());
+                    this.Trace("PID[" + params[0].toString() + "] went out of memory bounds @" + params[1].toString());
+                    break;
+                case Globals.INTERRUPT_INVALID_OP: // Operation we don't use was here. Get Hex
+                    Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

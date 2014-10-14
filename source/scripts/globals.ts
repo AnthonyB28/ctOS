@@ -25,6 +25,7 @@ module CTOS
         static INTERRUPT_REQUEST_CPU_RUN_PROGRAM: number = 2; // Request to run program on CPU
         static INTERRUPT_REQUEST_SYS_CALL: number = 3; // Syscall request to print to screen.
         static INTERRUPT_MEMORY_OUT_OF_BOUNDS: number = 4; // Program runs over block of memory.
+        static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //

@@ -127,7 +127,11 @@ var CTOS;
                     break;
                 case CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS:
                     CTOS.Globals.m_CPU.EndProgram();
-                    this.Trace("PID[" + params[0].toString() + "]" + "went out of memory bounds @" + params[1].toString());
+                    this.Trace("PID[" + params[0].toString() + "] went out of memory bounds @" + params[1].toString());
+                    break;
+                case CTOS.Globals.INTERRUPT_INVALID_OP:
+                    CTOS.Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
