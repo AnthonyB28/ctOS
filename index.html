@@ -16,6 +16,9 @@
 		<script type="text/javascript" src="dist/scripts/globals.js"></script>
 
 		<!-- Host (Hardware Simulation) Routines -->
+        <script type="text/javascript" src="dist/scripts/host/byte.js"></script>
+        <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
+        <script type="text/javascript" src="dist/scripts/host/instructions.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/control.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/devices.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
@@ -26,11 +29,14 @@
 		<script type="text/javascript" src="dist/scripts/os/console.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+        <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
+        <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/queue.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/shell.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
+
 
 		<!-- Other Routines -->
 		<script type="text/javascript" src="dist/scripts/utils.js"></script>
@@ -64,6 +70,16 @@
         <div class="navbar-header">
             <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
                 <h3 id="achievementScore">Achievements : 0</h3>
+            </nav>
+            <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
+                <h3>Programs</h3><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram1_click(this);">Counts to 2 & Prints Done</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram2_click(this);">Bob's Prints "2 and 5"</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram3_click(this);">Bob's <br /> Prints "counting 0 counting 1 <br /> hello world counting 2"</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram4_click(this);">Tom's Memory Eating Program</button>
             </nav>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
@@ -107,6 +123,9 @@
       </div>
     </div>
 
+    <!-- Achievement notification div-->
+    <div class="container achievementDiv" id="achievementNotifDiv"></div>
+
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" id="jumbotron">
       <div class="container">
@@ -126,7 +145,7 @@
             <div class="col-lg-6">
                 <label> CLI </label>
                 <br>
-                <div id="divConsole" style="width:524px; height:510px; overflow-y:scroll;">
+                <div id="divConsole" style="width:524px; height:510px;">
                     <canvas id="display"
                             width="500"
                             height="500"
@@ -134,18 +153,76 @@
                 </div>
             </div>
             <div class="col-sm-4">
+                <br />
+                <div id="divCPUTable" style="width:150px; float: left;">
+                    <label>CPU</label>
+                    <br/>
+                    <button type="button"
+                            id="btnStep"
+                            name="btnStep"
+                            class="btn btn-success"
+                            disabled
+                            tabindex="2"
+                            onclick="CTOS.Control.hostBtnStepActivate_click(this);">
+                        Step
+                    </button>
+                    <button type="button"
+                            id="btnStepNext"
+                            name="btnStepNext"
+                            class="btn btn-primary"
+                            disabled
+                            tabindex="2"
+                            onclick="CTOS.Control.hostBtnStepNext_click(this);">
+                        Next
+                    </button>
+                    <div style="line-height:50%;"> <!-- mini line break for better spacing -->
+                        <br>
+                    </div>
+                    <table id="CPUTable" class="table table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>OP</th>
+                                <th>PC</th>
+                                <th>ACC</th>
+                                <th>X</th>
+                                <th>Y</th>
+                                <th>Z</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0x00</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="divMemTable" style="width:155px; float:right;" >
+                    <label>Memory</label>
+                    <br />
+                    <div id="MemTableDiv">
+                        <table id="MemTable" class="table table-condensed table-bordered"></table>
+                    </div>
+                </div>
+                <div style="clear:both"></div>
                 <div id="divLog">
-                    <label> Host Log </label>
+                    <label>Log</label>
                     <br>
                     <textarea name="taHostLog"
                               id="taHostLog"
                               rows="20"
-                              cols="48"></textarea>
+                              cols="48" style="height: 100px"></textarea>
                 </div>
-                <div id="divUserProgramInput">
+                <br/>
+                <div id="divUserProgramInput" style="height:200px">
                     <label>
                         User Program Input
                     </label>
+                    <button class="btn btn-info" id="showRight">Show/Hide Programs</button>
                     <br>
                     <textarea name="taProgramInput"
                               id="taProgramInput"
@@ -154,12 +231,8 @@
 
                 </div>
             </div>
-            <div class="col-sm-2">
-                <div class="container" id="achievementNotifDiv">
-
-                </div>
-            </div>
         </div>
+       </div>
       <hr />
       <footer>
         <p class="footerText" style="clear:both;">
@@ -178,8 +251,7 @@
         <script type="text/javascript" src="dist/scripts/menus.js"></script>
         <script src="dist/styles/js/main.js"></script>
 
-        <!--Allows click and scroll on the canvas. Meh right now-->
-        <script>
+        <!--Allows click and scroll on the canvas. Meh right now 
     $.fn.attachDragger = function () {
         var attachment = false, lastPosition, position, difference;
         $($(this).selector).on("mousedown mouseup mousemove", function (e) {
@@ -196,14 +268,15 @@
         $(window).on("mouseup", function () {
             attachment = false;
         });
-    }
-    $(document).ready(function () { $("divConsole").attachDragger(); });
-    // Allows fade out of Achievements
-    window.setInterval(function () {
-        $(".flash").fadeTo(500, 0).slideUp(500, function () {
-            $(this).remove();
-        });
-    }, 5000);
+        $(document).ready(function () { $("divConsole").attachDragger(); });
+    }-->
+        <!-- Fading effect for achievements-->
+        <script>
+            window.setInterval(function () {
+                $(".flash").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000);
         </script>  
     </body>
 </html>

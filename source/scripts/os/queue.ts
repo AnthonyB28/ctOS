@@ -18,6 +18,11 @@ module CTOS {
             return this.q.length;
         }
 
+        public peek(index: number)
+        {
+            return this.q[index];
+        }
+
         public isEmpty(){
             return (this.q.length == 0);
         }
@@ -30,6 +35,16 @@ module CTOS {
             var retVal = null;
             if (this.q.length > 0) {
                 retVal = this.q.shift();
+            }
+            return retVal;
+        }
+
+        public remove(index: number)
+        {
+            var retVal = null;
+            if (this.q.length > index)
+            {
+                retVal = this.q.splice(index, 1);
             }
             return retVal;
         }

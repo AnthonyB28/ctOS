@@ -26,9 +26,12 @@ var CTOS;
             // Increment the hardware (host) clock.
             CTOS.Globals.m_OSClock++;
 
-            //Update the time GUI
-            var currentDate = new Date();
-            CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            // Update the time GUI
+            // Only update every few pulses, otherwise speed is compromised here....
+            if (CTOS.Globals.m_OSClock % 10 == 0) {
+                var currentDate = new Date();
+                CTOS.Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            }
 
             // Call the kernel clock pulse event handler.
             CTOS.Globals.m_Kernel.OnCPUClockPulse();
@@ -58,7 +61,7 @@ var CTOS;
                 var params = new Array(event.which, event.shiftKey);
 
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.KEYBOARD_IRQ, params));
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_KEYBOARD, params));
             }
         };
         return Devices;

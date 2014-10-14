@@ -16,6 +16,10 @@ var CTOS;
             return this.q.length;
         };
 
+        Queue.prototype.peek = function (index) {
+            return this.q[index];
+        };
+
         Queue.prototype.isEmpty = function () {
             return (this.q.length == 0);
         };
@@ -28,6 +32,14 @@ var CTOS;
             var retVal = null;
             if (this.q.length > 0) {
                 retVal = this.q.shift();
+            }
+            return retVal;
+        };
+
+        Queue.prototype.remove = function (index) {
+            var retVal = null;
+            if (this.q.length > index) {
+                retVal = this.q.splice(index, 1);
             }
             return retVal;
         };

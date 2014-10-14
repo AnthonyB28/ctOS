@@ -22,9 +22,8 @@ module CTOS
         public m_SecretMsg: string = "Svir cyhf svir zvahf bar vf avar. Avar qvivqrq ol guerr vf guerr. Unys Yvsr 3 pbasvezrq.";
         public m_Apologies = "[sorry]";
 
-        constructor() {
-
-        }
+        constructor() 
+        {}
 
         public Init(): void
         {
@@ -42,6 +41,12 @@ module CTOS
             sc = new ShellCommand(this.shellLoad,
                                   "load",
                                   "- Loads the program from Program Input box.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // run
+            sc = new ShellCommand(this.shellRun,
+                                    "run",
+                                    "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -65,7 +70,7 @@ module CTOS
             // man <topic>
             sc = new ShellCommand(this.shellMan,
                                   "man",
-                                  "<topic> - Displays the MANual page for <topic>.");
+                                  "<topic> - Displays the Manual page for <topic>.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // trace <on | off>
@@ -339,39 +344,89 @@ module CTOS
             Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         }
 
-        public shellLoad(args): void
+        public shellLoad(): void
         {
-            var programToParse: string = Globals.m_ProgramInput.innerHTML;
+            var programToParse: string = Globals.m_ProgramInput.value;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
-            var programInput: Array<String> = programToParse.split(" "); // Split to each code
+            var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
-            programInput.every(function(code) // JS can't break a ForEach? WTF
+            var invalidMsg = "";
+            if (programInput.length > 0)
             {
-                if (!Utils.IsValidHex(code))
+                programInput.every(function (code) // JS can't break a ForEach? WTF
                 {
-                    isValid = false;
-                    Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
-                    Globals.m_StdOut.AdvanceLine();
-                    Globals.m_StdOut.PutText("First issue: " + code);
-                    return false; // stop the loop
-                }
-                else
-                {
-                    return true; // continue the loop
-                }
-            });
+                    if (!Utils.IsValidHex(code))
+                    {
+                        isValid = false;
+                        invalidMsg = code;
+                        return false; // stop the loop
+                    }
+                    else
+                    {
+                        return true; // continue the loop
+                    }
+                });
+            }
+            else
+            {
+                isValid = false;
+                invalidMsg = "Empty";
+            }
 
             if (isValid)
             {
                 Globals.m_AchievementSystem.Unlock(11);
-                Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
+                Globals.m_StdOut.PutText("PID[" + Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
+                Globals.m_StdOut.AdvanceLine();
+                Globals.m_StdOut.PutText("Issue: " + invalidMsg);
+            }
+        }
+
+        // Run a program using a PID in args
+        public shellRun(args): void
+        {
+            if (args.length == 1) // Must have a PID provided
+            {
+                var pcb: ProcessControlBlock = null;
+
+                // Need to check to see if a PCB is in the Resident Queue
+                for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
+                {
+                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
+                    if (pcbInQueue.m_PID == args[0])
+                    {
+                        pcb = Globals.m_KernelResidentQueue.remove(i);
+                        break;
+                    }
+                }
+
+                if (pcb) // Get ready to run PCB & put it in the ready queue
+                {
+                    pcb.m_State = ProcessControlBlock.STATE_READY;
+                    Globals.m_KernelReadyQueue.enqueue(pcb);
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
+                }
+                else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
+                {
+                    Globals.m_StdOut.PutText("PID is not in Resident Queue");
+                }
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
             }
         }
 
         public shellHelp(args): void
         {
             Globals.m_StdOut.PutText("Commands:");
-            for (var i in Globals.m_OsShell.m_CommandList) {
+            for (var i in Globals.m_OsShell.m_CommandList) 
+            {
                 Globals.m_StdOut.AdvanceLine();
                 Globals.m_StdOut.PutText("  " + Globals.m_OsShell.m_CommandList[i].command + " " + Globals.m_OsShell.m_CommandList[i].description);
             }
@@ -393,7 +448,8 @@ module CTOS
 
         public shellMan(args): void
         {
-            if (args.length > 0) {
+            if (args.length > 0) 
+            {
                 var topic = args[0];
                 switch (topic) {
                     case "help":
@@ -402,7 +458,9 @@ module CTOS
                     default:
                         Globals.m_StdOut.PutText("No manual entry for " + args[0] + ".");
                 }
-            } else {
+            }
+            else
+            {
                 Globals.m_StdOut.PutText("Usage: man <topic>  Please supply a topic.");
             }
         }
@@ -445,9 +503,12 @@ module CTOS
 
         public shellPrompt(args): void
         {
-            if (args.length > 0) {
+            if (args.length > 0) 
+            {
                 Globals.m_OsShell.m_PromptStr = args[0];
-            } else {
+            }
+            else
+            {
                 Globals.m_StdOut.PutText("Usage: prompt <string>  Please supply a string.");
             }
         }

@@ -33,15 +33,20 @@
   <ItemGroup>
     <TypeScriptCompile Include="source\scripts\achievements.ts" />
     <TypeScriptCompile Include="source\scripts\globals.ts" />
+    <TypeScriptCompile Include="source\scripts\host\byte.ts" />
     <TypeScriptCompile Include="source\scripts\host\control.ts" />
     <TypeScriptCompile Include="source\scripts\host\cpu.ts" />
     <TypeScriptCompile Include="source\scripts\host\devices.ts" />
+    <TypeScriptCompile Include="source\scripts\host\instructions.ts" />
+    <TypeScriptCompile Include="source\scripts\host\memory.ts" />
+    <TypeScriptCompile Include="source\scripts\os\memoryManager.ts" />
     <TypeScriptCompile Include="source\scripts\os\canvastext.ts" />
     <TypeScriptCompile Include="source\scripts\os\console.ts" />
     <TypeScriptCompile Include="source\scripts\os\deviceDriver.ts" />
     <TypeScriptCompile Include="source\scripts\os\deviceDriverKeyboard.ts" />
     <TypeScriptCompile Include="source\scripts\os\interrupt.ts" />
     <TypeScriptCompile Include="source\scripts\os\kernel.ts" />
+    <TypeScriptCompile Include="source\scripts\os\processControlBlock.ts" />
     <TypeScriptCompile Include="source\scripts\os\queue.ts" />
     <TypeScriptCompile Include="source\scripts\os\shell.ts" />
     <TypeScriptCompile Include="source\scripts\os\shellCommand.ts" />

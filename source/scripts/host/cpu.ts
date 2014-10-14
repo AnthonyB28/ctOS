@@ -19,28 +19,274 @@ module CTOS {
 
     export class Cpu {
 
-        constructor(public PC: number = 0,
-                    public Acc: number = 0,
-                    public Xreg: number = 0,
-                    public Yreg: number = 0,
-                    public Zflag: number = 0,
-                    public isExecuting: boolean = false) {
+        constructor(public m_ProgramCounter: number = 0,
+                    public m_Accumulator: number = 0,
+                    public m_X: number = 0,
+                    public m_Y: number = 0,
+                    public m_Z: number = 0,
+                    public m_IsExecuting: boolean = false) {
 
         }
 
-        public init(): void {
-            this.PC = 0;
-            this.Acc = 0;
-            this.Xreg = 0;
-            this.Yreg = 0;
-            this.Zflag = 0;
-            this.isExecuting = false;
+        public Init(): void {
+            this.m_ProgramCounter = 0;
+            this.m_Accumulator = 0;
+            this.m_X = 0;
+            this.m_Y = 0;
+            this.m_Z = 0; // 0 or 1, treat like a bool
+            this.m_IsExecuting = false;
+            Control.CPUTableUpdate(this);
         }
 
-        public cycle(): void {
-            Globals.m_Kernel.Trace('CPU cycle');
-            // TODO: Accumulate CPU usage and profiling statistics here.
-            // Do the real work here. Be sure to set this.isExecuting appropriately.
+        // Resets the CPU and sets IsExecuting, triggered by Interupt
+        public RunProgram(): void
+        {
+            this.Init();
+            Control.MemoryTableColorOpCode(this.m_ProgramCounter);
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+            pcb.m_State = ProcessControlBlock.STATE_RUNNING;
+            this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+        }
+
+        // Stops executing program and saves to PCB
+        public EndProgram(): void
+        {
+            this.m_IsExecuting = false;
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+            pcb.m_Accumulator = this.m_Accumulator;
+            pcb.m_Counter = this.m_ProgramCounter;
+            pcb.m_X = this.m_X;
+            pcb.m_Y = this.m_Y;
+            pcb.m_Z = this.m_Z;
+            pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+            Globals.m_AchievementSystem.Unlock(16);
+            // Globals.m_KernelResidentQueue.enqueue(pcb); 
+            // Not sure what to do now? P3?
+        }
+
+        public Cycle(): void 
+        {
+            if (!Globals.m_StepMode) // Not stepping, just perform normal
+            {
+                Globals.m_Kernel.Trace('CPU cycle');
+                // TODO: Accumulate CPU usage and profiling statistics here.
+                // Do the real work here. Be sure to set this.isExecuting appropriately.
+                this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                Control.CPUTableUpdate(this);
+                Control.MemoryTableColorOpCode(this.m_ProgramCounter);
+            }
+            else // We are in step mode, only continue if we click next.
+            {
+                if (Globals.m_StepNext)
+                {
+                    Globals.m_Kernel.Trace('CPU cycle');
+                    this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
+                    Control.CPUTableUpdate(this);
+                    Control.MemoryTableColorOpCode(this.m_ProgramCounter);
+                    Globals.m_StepNext = false;
+                }
+            }
+        }
+
+        public Execute(op: Byte): void
+        {
+            var opDecimal: number = op.GetDecimal();
+            switch (opDecimal)
+            {
+                case Instructions.Op_A9:
+                    this.LoadAccConstant(); break;
+                case Instructions.Op_AD:
+                    this.LoadAccMem(); break;
+                case Instructions.Op_8D:
+                    this.StoreAcc(); break;
+                case Instructions.Op_6D:
+                    this.AddCarry(); break;
+                case Instructions.Op_A2:
+                    this.LoadXConst(); break;
+                case Instructions.Op_AE:
+                    this.LoadXMem(); break;
+                case Instructions.Op_A0:
+                    this.LoadYConst(); break;
+                case Instructions.Op_AC:
+                    this.LoadYMem(); break;
+                case Instructions.Op_EA:
+                    this.NoOp(); break;
+                case Instructions.Op_00:
+                    this.Break(); return; break;
+                case Instructions.Op_EC:
+                    this.Compare(); break;
+                case Instructions.Op_D0:
+                    this.Branch(); break;
+                case Instructions.Op_EE:
+                    this.Increment(); break;
+                case Instructions.Op_FF:
+                    this.SysCallRequest(); break;
+                default:
+                    // TODO interupt?
+                    var params: Array<any> = new Array<any>();
+                    var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+                    params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+                    params[1] = op;
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_INVALID_OP,params));
+                    break;
+            }
+
+            ++this.m_ProgramCounter;
+        }
+
+        // Op codes call for little endian, swap their order and return the decimal address
+        private LittleEndianConversion(): number
+        {
+            ++this.m_ProgramCounter;
+            var sigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
+            ++this.m_ProgramCounter;
+            var insigByte: string = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetHex();
+
+            // Swap the bytes to get the proper address
+            var addressByte: Byte = new Byte(insigByte + sigByte);
+            return addressByte.GetDecimal();
+        }
+
+        // A9 = LDA
+        // Load accumulator with constant
+        private LoadAccConstant(): void
+        {
+            ++this.m_ProgramCounter;
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+        }
+
+        // AD = LDA
+        // Load accumulator from memory
+        private LoadAccMem(): void
+        {
+            this.m_Accumulator = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+        }
+
+        // 8D = STA
+        // Store accumulator in memory
+        private StoreAcc(): void
+        {
+            Globals.m_MemoryManager.SetByte(this.LittleEndianConversion(), this.m_Accumulator.toString(16));
+        }
+
+        // 6D = ADC
+        // Add content of address to contents of accumulator
+        // Store result in accumulator
+        private AddCarry(): void
+        {
+            this.m_Accumulator += Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+        }
+
+        // A2 = LDX
+        // Load X register with constant
+        private LoadXConst(): void
+        {
+            ++this.m_ProgramCounter;
+            this.m_X = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+        }
+
+        // AE = LDX
+        // Load the X register from memory
+        private LoadXMem(): void
+        {
+            this.m_X = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+        }
+
+        // A0 = LDY
+        // Load the Y register with constant
+        private LoadYConst(): void
+        {
+            ++this.m_ProgramCounter;
+            this.m_Y = Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+        }
+
+        // AC = LDY
+        // Load the Y register from memory
+        private LoadYMem(): void
+        {
+            this.m_Y = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+        }
+
+        // EA = NOP
+        private NoOp(): void
+        {
+            // Do we need to do something here? Maybe? TODO
+        }
+
+        // 00 = BRK
+        private Break(): void
+        {
+            this.EndProgram();
+        }
+
+        // EC = CPX
+        // compare byte in mem to X. Sets Z if equal
+        private Compare(): void
+        {
+            var dataToCheck : number = Globals.m_MemoryManager.GetByte(this.LittleEndianConversion()).GetDecimal();
+            if (this.m_X == dataToCheck)
+            {
+                this.m_Z = 1;
+            }
+            else
+            {
+                this.m_Z = 0;
+            }
+        }
+
+        // D0 = BNE
+        // Branch X bytes if Z = 0
+        private Branch(): void
+        {
+            ++this.m_ProgramCounter;
+            if (this.m_Z == 0)
+            {
+                var jumpCheck = this.m_ProgramCounter + Globals.m_MemoryManager.GetByte(this.m_ProgramCounter).GetDecimal();
+                if (jumpCheck > 255) // We need to loop around if we go out of bounds
+                {
+                    this.m_ProgramCounter = jumpCheck - 256;
+                }
+                else
+                {
+                    this.m_ProgramCounter = jumpCheck;
+                }
+            }
+        }
+
+        // EE = INC
+        // Increment the value of a byte
+        private Increment(): void
+        {
+            var address : number = this.LittleEndianConversion()
+            var valueToInc: number = Globals.m_MemoryManager.GetByte(address).GetDecimal();
+            ++valueToInc;
+            Globals.m_MemoryManager.SetByte(address, valueToInc.toString(16));
+        }
+
+        // FF = SYS
+        // System call interupt by checking x register
+        private SysCallRequest(): void
+        {
+            var params: Array<string> = new Array<string>(); // Sending only 1 string, but to keep interupts formatted, we pass "params"
+            var message: string = "";
+
+            if (this.m_X == 1) // print integer in Y
+            {
+                message = this.m_Y.toString();
+            }
+            else if (this.m_X == 2) // print 00-terminated string in Y
+            {
+                var address: number = this.m_Y;
+                var value: number = Globals.m_MemoryManager.GetByte(this.m_Y).GetDecimal();
+                while (value != 0)
+                {
+                    message += String.fromCharCode(value);
+                    ++address;
+                    value = Globals.m_MemoryManager.GetByte(address).GetDecimal();
+                }
+            }
+            params[0] = message;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_SYS_CALL, params));
         }
     }
 }

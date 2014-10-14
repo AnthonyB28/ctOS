@@ -35,7 +35,8 @@ var CTOS;
 
         Console.prototype.ClearScreen = function () {
             CTOS.Globals.m_DrawingContext.clearRect(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
-            CTOS.Control.scrollConsoleTop();
+
+            //Control.scrollConsoleTop();
             CTOS.Globals.m_Canvas.height = 500;
         };
 
@@ -88,6 +89,13 @@ var CTOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        // Program requested System call
+        Console.prototype.SysCall = function (msg) {
+            this.PutText(msg);
+            this.AdvanceLine();
+            CTOS.Globals.m_OsShell.PutPrompt();
         };
 
         // Writes the cmd from history based on cmdHistoryIndex to buffer and canvas
@@ -233,18 +241,19 @@ var CTOS;
 
         Console.prototype.AdvanceLine = function () {
             this.m_CurrentXPosition = 0;
-            this.m_CurrentYPosition += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
+            var newLineSpace = CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
+            this.m_CurrentYPosition += newLineSpace;
 
             // Auto-Scroll in the Y
             if (this.m_CurrentYPosition > CTOS.Globals.m_Canvas.height) {
                 // Get the entire console we previously had as an image
-                var canvasImage = CTOS.Globals.m_DrawingContext.getImageData(0, 0, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
+                var canvasImage = CTOS.Globals.m_DrawingContext.getImageData(0, newLineSpace, CTOS.Globals.m_Canvas.width, CTOS.Globals.m_Canvas.height);
 
                 // Increase the heigh and put the image above
-                CTOS.Globals.m_Canvas.height += CTOS.Globals.m_DefaultFontSize + CTOS.Globals.m_FontHeightMargin;
+                //Globals.m_Canvas.height += newLineSpace;
                 CTOS.Globals.m_DrawingContext.putImageData(canvasImage, 0, 0);
-
-                CTOS.Control.scrollConsoleDown();
+                this.m_CurrentYPosition -= newLineSpace;
+                //Control.scrollConsoleDown();
             }
         };
         return Console;

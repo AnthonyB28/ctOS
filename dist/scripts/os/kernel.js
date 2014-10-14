@@ -19,6 +19,8 @@ var CTOS;
             // Initialize our global queues.
             CTOS.Globals.m_KernelInterruptQueue = new CTOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
             CTOS.Globals.m_KernelBuffers = new Array(); // Buffers... for the kernel.
+            CTOS.Globals.m_KernelResidentQueue = new CTOS.Queue();
+            CTOS.Globals.m_KernelReadyQueue = new CTOS.Queue();
             CTOS.Globals.m_KernelInputQueue = new CTOS.Queue(); // Where device input lands before being processed out somewhere.
             CTOS.Globals.m_Console = new CTOS.Console(); // The command line interface / console I/O device.
 
@@ -80,9 +82,9 @@ var CTOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = CTOS.Globals.m_KernelInterruptQueue.dequeue();
                 this.InterruptHandler(interrupt.irq, interrupt.params);
-            } else if (CTOS.Globals.m_CPU.isExecuting) {
+            } else if (CTOS.Globals.m_CPU.m_IsExecuting) {
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
-                CTOS.Globals.m_CPU.cycle();
+                CTOS.Globals.m_CPU.Cycle();
             } else {
                 // If there are no interrupts and there is nothing being executed then just be idle. {
                 this.Trace("Idle");
@@ -110,12 +112,28 @@ var CTOS;
             this.Trace("Handling IRQ~" + irq);
 
             switch (irq) {
-                case CTOS.Globals.TIMER_IRQ:
+                case CTOS.Globals.INTERRUPT_REQUEST_TIMER:
                     this.TimerISR(); // Kernel built-in routine for timers (not the clock).
                     break;
-                case CTOS.Globals.KEYBOARD_IRQ:
+                case CTOS.Globals.INTERRUPT_REQUEST_KEYBOARD:
                     CTOS.Globals.m_KrnKeyboardDriver.isr(params); // Kernel mode device driver
                     CTOS.Globals.m_StdIn.HandleInput();
+                    break;
+                case CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM:
+                    CTOS.Globals.m_CPU.RunProgram();
+                    break;
+                case CTOS.Globals.INTERRUPT_REQUEST_SYS_CALL:
+                    CTOS.Globals.m_StdOut.SysCall(params[0]);
+                    break;
+                case CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS:
+                    CTOS.Globals.m_AchievementSystem.Unlock(14);
+                    CTOS.Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] went out of memory bounds @" + params[1].toString());
+                    break;
+                case CTOS.Globals.INTERRUPT_INVALID_OP:
+                    CTOS.Globals.m_AchievementSystem.Unlock(15);
+                    CTOS.Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

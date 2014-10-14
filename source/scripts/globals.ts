@@ -16,22 +16,26 @@ module CTOS
         // Global "CONSTANTS" (There is currently no const or final or readonly type annotation in TypeScript.)
         
         static APP_NAME: string    = "ctOS";   // 'cause washDogs
-        static APP_VERSION: string = "2.0";   // What did you expect? ... Everything
+        static APP_VERSION: string = "2.5";   // What did you expect? ... Everything
 
         static CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 1000 = 1 second.
-
-        static TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
-                                // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
-        static KEYBOARD_IRQ: number = 1;
-
+        
+        static INTERRUPT_REQUEST_TIMER: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority). NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
+        static INTERRUPT_REQUEST_KEYBOARD: number = 1; // Keyboard input
+        static INTERRUPT_REQUEST_CPU_RUN_PROGRAM: number = 2; // Request to run program on CPU
+        static INTERRUPT_REQUEST_SYS_CALL: number = 3; // Syscall request to print to screen.
+        static INTERRUPT_MEMORY_OUT_OF_BOUNDS: number = 4; // Program runs over block of memory.
+        static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //
-        // Global iables
+        // Global variables
         //
-        static m_CPU: CTOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
-
+        static m_CPU: Cpu;  // Utilize TypeScript's type annotation system to ensure that CPU is an instance of the Cpu class.
+        static m_MemoryManager: MemoryManager; // Interface with our memory
         static m_OSClock: number = 0;  // Page 23.
+        static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
+        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
 
         //oops mode
         static m_Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
@@ -40,6 +44,8 @@ module CTOS
         static m_Canvas: HTMLCanvasElement = null; 
         static m_Status: HTMLLabelElement = null;
         static m_Time: HTMLLabelElement = null;
+        static m_MemTable: any = null;
+        static m_CPUTable: HTMLTableElement = null;
         static m_ProgramInput: HTMLTextAreaElement = null;
         static m_DrawingContext = null;  
        
@@ -51,7 +57,9 @@ module CTOS
 
         // The OS Kernel and its queues.
         static m_Kernel: CTOS.Kernel;
-        static m_KernelInterruptQueue = null;
+        static m_KernelInterruptQueue : Queue = null;
+        static m_KernelReadyQueue : Queue = null;
+        static m_KernelResidentQueue: Queue = null;
         static m_KernelBuffers: any[] = null;
         static m_KernelInputQueue = null;
 

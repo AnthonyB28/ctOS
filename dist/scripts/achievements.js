@@ -22,6 +22,11 @@
             this.m_Achievements[10] = new Achievement(5, "On An Island");
             this.m_Achievements[11] = new Achievement(10, "Hex Sucess");
             this.m_Achievements[12] = new Achievement(10, "Social Butterfly");
+            this.m_Achievements[13] = new Achievement(10, "Step Mode Master");
+            this.m_Achievements[14] = new Achievement(20, "OUT OF BOUNDS!");
+            this.m_Achievements[15] = new Achievement(5, "Invalid Op Fool");
+            this.m_Achievements[16] = new Achievement(25, "My First Program");
+            this.m_Achievements[17] = new Achievement(5, "CopyPasta");
         }
         AchievementSystem.prototype.Unlock = function (achievementID) {
             // If an achievement has already been unlocked, ignore

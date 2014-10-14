@@ -58,6 +58,37 @@ label {
   text-align: center;
 }
 
+#MemTableDiv{
+    overflow-y:auto; 
+    overflow-x:hidden;
+    height:150px; 
+    width:300px;
+    border:solid;
+    border-color:white;
+}
+
+.achievementDiv
+{
+    position: absolute;
+    left:70%;
+    top:2%;
+}
+
+#CPUTable th
+{
+    color:white;
+}
+
+#CPUTable td
+{
+    color:white;
+}
+
+#MemTable td
+{
+    color:white;
+}
+
 /* General styles for all menus */
  
 .cbp-spmenu {

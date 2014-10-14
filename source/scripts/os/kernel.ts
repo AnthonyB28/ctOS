@@ -24,6 +24,8 @@ module CTOS
             // Initialize our global queues.
             Globals.m_KernelInterruptQueue = new Queue();  // A (currently) non-priority queue for interrupt requests (IRQs).
             Globals.m_KernelBuffers = new Array();         // Buffers... for the kernel.
+            Globals.m_KernelResidentQueue = new Queue();
+            Globals.m_KernelReadyQueue = new Queue();
             Globals.m_KernelInputQueue = new Queue();      // Where device input lands before being processed out somewhere.
             Globals.m_Console = new Console();          // The command line interface / console I/O device.
 
@@ -91,10 +93,10 @@ module CTOS
                 var interrupt = Globals.m_KernelInterruptQueue.dequeue();
                 this.InterruptHandler(interrupt.irq, interrupt.params);
             }
-            else if (Globals.m_CPU.isExecuting) 
+            else if (Globals.m_CPU.m_IsExecuting) 
             { 
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
-                Globals.m_CPU.cycle();
+                Globals.m_CPU.Cycle();
             }
             else
             {   
@@ -131,13 +133,30 @@ module CTOS
             // TODO: Consider using an Interrupt Vector in the future.
             // Note: There is no need to "dismiss" or acknowledge the interrupts in our design here.
             //       Maybe the hardware simulation will grow to support/require that in the future.
-            switch (irq) {
-                case Globals.TIMER_IRQ:
+            switch (irq)
+            {
+                case Globals.INTERRUPT_REQUEST_TIMER:
                     this.TimerISR();              // Kernel built-in routine for timers (not the clock).
                     break;
-                case Globals.KEYBOARD_IRQ:
+                case Globals.INTERRUPT_REQUEST_KEYBOARD:
                     Globals.m_KrnKeyboardDriver.isr(params);   // Kernel mode device driver
                     Globals.m_StdIn.HandleInput();
+                    break;
+                case Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM: // Begin to run program
+                    Globals.m_CPU.RunProgram();
+                    break;
+                case Globals.INTERRUPT_REQUEST_SYS_CALL: // System call from CPU
+                    Globals.m_StdOut.SysCall(params[0]);
+                    break;
+                case Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS: // Program tried to access out of memory block
+                    Globals.m_AchievementSystem.Unlock(14);
+                    Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] went out of memory bounds @" + params[1].toString());
+                    break;
+                case Globals.INTERRUPT_INVALID_OP: // Operation we don't use was here. Get Hex
+                    Globals.m_AchievementSystem.Unlock(15);
+                    Globals.m_CPU.EndProgram();
+                    this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

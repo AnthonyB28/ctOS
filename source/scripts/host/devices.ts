@@ -34,9 +34,13 @@ module CTOS {
             // Increment the hardware (host) clock.
             Globals.m_OSClock++;
 
-            //Update the time GUI
-            var currentDate: Date = new Date();
-            Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            // Update the time GUI
+            // Only update every few pulses, otherwise speed is compromised here....
+            if (Globals.m_OSClock % 10 == 0)
+            {
+                var currentDate: Date = new Date();
+                Globals.m_Time.textContent = "Time : " + currentDate.toLocaleDateString() + " " + currentDate.toLocaleTimeString();
+            }
 
             // Call the kernel clock pulse event handler.
             Globals.m_Kernel.OnCPUClockPulse();
@@ -64,7 +68,7 @@ module CTOS {
                 // Note the pressed key code in the params (Mozilla-specific).
                 var params = new Array(event.which, event.shiftKey);
                 // Enqueue this interrupt on the kernel interrupt queue so that it gets to the Interrupt handler.
-                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.KEYBOARD_IRQ, params));
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_KEYBOARD, params));
             }
         }
     }
