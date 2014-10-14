@@ -25,7 +25,12 @@
 //
 module CTOS {
 
-    export class Control {
+    export class Control
+    {
+
+        private static m_LastExecutedOpPos: Array<number> = new Array<number>();
+        private static m_LastMemoryAddress1Pos: Array<number> = new Array<number>();
+        private static m_LastMemoryAddress2Pos: Array<number> = new Array<number>();
 
         public static hostInit(): void 
         {
@@ -41,6 +46,9 @@ module CTOS {
 
             // Get the program input box
             Globals.m_ProgramInput = <HTMLTextAreaElement>document.getElementById('taProgramInput');
+
+            //Write the Memory to table
+            Control.MemoryTableCreate();
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CanvasTextFunctions.Enable(Globals.m_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
@@ -117,8 +125,6 @@ module CTOS {
             Globals.m_MemoryManager = new MemoryManager();
             Globals.m_CPU.Init();
 
-            //Write the Memory to table
-            Control.MemoryTableCreate();
             // ... then set the host clock pulse ...
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
@@ -220,6 +226,7 @@ module CTOS {
             var CPUTable: HTMLTableElement = <HTMLTableElement> document.getElementById("CPUTable");
             var dataRow: HTMLTableRowElement = <HTMLTableRowElement> CPUTable.rows[1];
             var dataCell: HTMLTableCellElement = <HTMLTableCellElement> dataRow.cells[0];
+
             dataCell.innerText = "0x" + Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
             dataCell = <HTMLTableCellElement> dataRow.cells[1];
             dataCell.innerText = cpu.m_ProgramCounter.toString();
@@ -241,7 +248,6 @@ module CTOS {
             for (var i : number = 0; i < 256 / 8; ++i)
             {
                 var row = memTable.insertRow(i);
-                row.className = "info";
                 for (var x = 0; x < 9; ++x)
                 {
                     var cell = row.insertCell(x);
@@ -257,16 +263,129 @@ module CTOS {
             }
         }
 
+        // Translates address into column, row array
+        public static MemoryTableTranslateAddress(address: number): Array<number>
+        {
+            var toReturn: Array<number> = new Array<number>();
+            var row = address / 8;
+            row = Math.floor(row);
+            address %= 8;
+            address += 1;
+            toReturn[0] = address;
+            toReturn[1] = row;
+            return toReturn;
+        }
+
+        // Clears previous set memory addresses and then sets new ones. Provide null to skip.
+        public static MemoryTableColorMemoryAddress(address1: number, address2:number): void
+        {
+            var memTable: any = document.getElementById("MemTable");
+
+            if (this.m_LastMemoryAddress1Pos.length > 0)
+            {
+                var cell: any = memTable.rows[this.m_LastMemoryAddress1Pos[1]].cells[this.m_LastMemoryAddress1Pos[0]];
+                cell.style.color = "white";
+            }
+            if (this.m_LastMemoryAddress2Pos.length > 0)
+            {
+                var cell: any = memTable.rows[this.m_LastMemoryAddress2Pos[1]].cells[this.m_LastMemoryAddress2Pos[0]];
+                cell.style.color = "white";
+            }
+
+            if (address1)
+            {
+                // Set the new memory color
+                var columnRow: Array<number> = this.MemoryTableTranslateAddress(address1);
+                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                cell.style.color = "LightGreen";
+                this.m_LastMemoryAddress1Pos = columnRow;
+            }
+            else
+            {
+                this.m_LastMemoryAddress1Pos = new Array<number>();
+            }
+
+            if (address2)
+            {
+                // Set the new memory color
+                columnRow = this.MemoryTableTranslateAddress(address2);
+                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                cell.style.color = "LightGreen";
+                this.m_LastMemoryAddress2Pos = columnRow;
+            }
+            else
+            {
+                this.m_LastMemoryAddress2Pos = new Array<number>();
+            }
+        }
+
+        // Colors op code at adress and reset. Provide null to just clear
+        public static MemoryTableColorOpCode(address: number): void
+        {
+            var memTable: any = document.getElementById("MemTable");
+
+            if (this.m_LastExecutedOpPos.length > 0)
+            {
+                // Reset last op color
+                var cell: any = memTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
+                cell.style.color = "white";
+            }
+
+            if (address)
+            {
+                // Set the new op color
+                var columnRow: Array<number> = this.MemoryTableTranslateAddress(address);
+                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                cell.style.color = "LightSkyBlue";
+
+                // Save
+                this.m_LastExecutedOpPos = columnRow;
+
+                switch (parseInt(cell.innerText, 16))
+                {
+                    case Instructions.Op_A9:
+                        this.MemoryTableColorMemoryAddress(address + 1, null); break;
+                    case Instructions.Op_AD:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_8D:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_6D:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_A2:
+                        this.MemoryTableColorMemoryAddress(address + 1, null); break;
+                    case Instructions.Op_AE:
+                        this.MemoryTableColorMemoryAddress(address + 1, null); break;
+                    case Instructions.Op_A0:
+                        this.MemoryTableColorMemoryAddress(address + 1, null); break;
+                    case Instructions.Op_AC:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_EA:
+                        this.MemoryTableColorMemoryAddress(null, null); break;
+                    case Instructions.Op_00:
+                        this.MemoryTableColorMemoryAddress(null, null); break;
+                    case Instructions.Op_EC:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_D0:
+                        this.MemoryTableColorMemoryAddress(address + 1, null); break;
+                    case Instructions.Op_EE:
+                        this.MemoryTableColorMemoryAddress(address + 1, address + 2); break;
+                    case Instructions.Op_FF:
+                        this.MemoryTableColorMemoryAddress(null, null); break;
+                }
+            }
+            else
+            {
+                this.m_LastExecutedOpPos = new Array<number>();
+            }
+        }
+
         // Updates a single byte in memory
         // Currently only the first block in memory, might have to change for P3
         public static MemoryTableUpdateByte(address: number, hexValue: string) : void
         {
             var memTable: any = document.getElementById("MemTable");
-            var row = address / 8;
-            row = Math.floor(row);
-            address %= 8;
-            address += 1;
-            memTable.rows[row].cells[address].innerHTML = hexValue.toLocaleUpperCase();
+            var columnRow : Array<number> = this.MemoryTableTranslateAddress(address);
+            memTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
         }
 
         // Resets the a whole block of memory specificed to 0 in the display
@@ -282,6 +401,7 @@ module CTOS {
                     memTable.rows[i].cells[x].innerHTML = "00";
                 }
             }
+            this.MemoryTableColorMemoryAddress(null, null);
         }
     }
 }

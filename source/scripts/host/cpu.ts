@@ -42,6 +42,7 @@ module CTOS {
         public RunProgram(): void
         {
             this.Init();
+            Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
             pcb.m_State = ProcessControlBlock.STATE_RUNNING;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
@@ -71,16 +72,16 @@ module CTOS {
                 // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 Control.CPUTableUpdate(this);
+                Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             }
             else // We are in step mode, only continue if we click next.
             {
                 if (Globals.m_StepNext)
                 {
                     Globals.m_Kernel.Trace('CPU cycle');
-                    // TODO: Accumulate CPU usage and profiling statistics here.
-                    // Do the real work here. Be sure to set this.isExecuting appropriately.
                     this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     Control.CPUTableUpdate(this);
+                    Control.MemoryTableColorOpCode(this.m_ProgramCounter);
                     Globals.m_StepNext = false;
                 }
             }
@@ -110,7 +111,7 @@ module CTOS {
                 case Instructions.Op_EA:
                     this.NoOp(); break;
                 case Instructions.Op_00:
-                    this.Break(); break;
+                    this.Break(); return; break;
                 case Instructions.Op_EC:
                     this.Compare(); break;
                 case Instructions.Op_D0:

@@ -40,6 +40,7 @@ var CTOS;
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         Cpu.prototype.RunProgram = function () {
             this.Init();
+            CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
             pcb.m_State = CTOS.ProcessControlBlock.STATE_RUNNING;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
@@ -67,14 +68,13 @@ var CTOS;
                 // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 CTOS.Control.CPUTableUpdate(this);
+                CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             } else {
                 if (CTOS.Globals.m_StepNext) {
                     CTOS.Globals.m_Kernel.Trace('CPU cycle');
-
-                    // TODO: Accumulate CPU usage and profiling statistics here.
-                    // Do the real work here. Be sure to set this.isExecuting appropriately.
                     this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     CTOS.Control.CPUTableUpdate(this);
+                    CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
                     CTOS.Globals.m_StepNext = false;
                 }
             }
@@ -112,6 +112,7 @@ var CTOS;
                     break;
                 case CTOS.Instructions.Op_00:
                     this.Break();
+                    return;
                     break;
                 case CTOS.Instructions.Op_EC:
                     this.Compare();
