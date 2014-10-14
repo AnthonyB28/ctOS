@@ -149,10 +149,12 @@ module CTOS
                     Globals.m_StdOut.SysCall(params[0]);
                     break;
                 case Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS: // Program tried to access out of memory block
+                    Globals.m_AchievementSystem.Unlock(14);
                     Globals.m_CPU.EndProgram();
                     this.Trace("PID[" + params[0].toString() + "] went out of memory bounds @" + params[1].toString());
                     break;
                 case Globals.INTERRUPT_INVALID_OP: // Operation we don't use was here. Get Hex
+                    Globals.m_AchievementSystem.Unlock(15);
                     Globals.m_CPU.EndProgram();
                     this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;

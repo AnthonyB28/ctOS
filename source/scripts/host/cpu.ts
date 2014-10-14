@@ -59,6 +59,7 @@ module CTOS {
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+            Globals.m_AchievementSystem.Unlock(16);
             // Globals.m_KernelResidentQueue.enqueue(pcb); 
             // Not sure what to do now? P3?
         }

@@ -118,33 +118,17 @@
                       onclick="CTOS.Control.hostBtnReset_click(this);">
                   Reset
               </button>
-              <button type="button"
-                      id="btnStep"
-                      name="btnStep"
-                      class="btn btn-success"
-                      disabled
-                      tabindex="2"
-                      onclick="CTOS.Control.hostBtnStepActivate_click(this);">
-                  Step
-              </button>
-              <button type="button"
-                      id="btnStepNext"
-                      name="btnStepNext"
-                      class="btn btn-primary"
-                      disabled
-                      tabindex="2"
-                      onclick="CTOS.Control.hostBtnStepNext_click(this);">
-                  Next
-              </button>
           </form>
         </div><!--/.navbar-collapse -->
       </div>
     </div>
 
+    <!-- Achievement notification div-->
+    <div class="container achievementDiv" id="achievementNotifDiv"></div>
+
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" id="jumbotron">
       <div class="container">
-          <div class="container" style="position:absolute" id="achievementNotifDiv"></div>
         <label id="timeLabel">Time: </label>
             <br>
 		<label id="statusLabel">Status: status -string-</label>
@@ -169,9 +153,31 @@
                 </div>
             </div>
             <div class="col-sm-4">
+                <br />
                 <div id="divCPUTable" style="width:150px; float: left;">
                     <label>CPU</label>
-                    <br />
+                    <br/>
+                    <button type="button"
+                            id="btnStep"
+                            name="btnStep"
+                            class="btn btn-success"
+                            disabled
+                            tabindex="2"
+                            onclick="CTOS.Control.hostBtnStepActivate_click(this);">
+                        Step
+                    </button>
+                    <button type="button"
+                            id="btnStepNext"
+                            name="btnStepNext"
+                            class="btn btn-primary"
+                            disabled
+                            tabindex="2"
+                            onclick="CTOS.Control.hostBtnStepNext_click(this);">
+                        Next
+                    </button>
+                    <div style="line-height:50%;"> <!-- mini line break for better spacing -->
+                        <br>
+                    </div>
                     <table id="CPUTable" class="table table-condensed table-bordered">
                         <thead>
                             <tr>

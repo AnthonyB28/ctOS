@@ -67,6 +67,13 @@ label {
     border-color:white;
 }
 
+.achievementDiv
+{
+    position: absolute;
+    left:70%;
+    top:2%;
+}
+
 #CPUTable th
 {
     color:white;
