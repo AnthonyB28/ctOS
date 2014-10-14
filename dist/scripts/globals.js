@@ -32,6 +32,8 @@ var CTOS;
         Globals.m_Canvas = null;
         Globals.m_Status = null;
         Globals.m_Time = null;
+        Globals.m_MemTable = null;
+        Globals.m_CPUTable = null;
         Globals.m_ProgramInput = null;
         Globals.m_DrawingContext = null;
 

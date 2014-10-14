@@ -1,4 +1,4 @@
-///<reference path="../globals.ts" />
+﻿///<reference path="../globals.ts" />
 ///<reference path="../os/canvastext.ts" />
 /* ------------
 Control.ts
@@ -36,7 +36,11 @@ var CTOS;
             // Get the program input box
             CTOS.Globals.m_ProgramInput = document.getElementById('taProgramInput');
 
+            // Get the CPU Table
+            CTOS.Globals.m_CPUTable = document.getElementById("CPUTable");
+
             //Write the Memory to table
+            CTOS.Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
@@ -196,8 +200,7 @@ var CTOS;
 
         // Updates the CPU table with the cpu information
         Control.CPUTableUpdate = function (cpu) {
-            var CPUTable = document.getElementById("CPUTable");
-            var dataRow = CPUTable.rows[1];
+            var dataRow = CTOS.Globals.m_CPUTable.rows[1];
             var dataCell = dataRow.cells[0];
 
             dataCell.innerText = "0x" + CTOS.Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
@@ -216,9 +219,8 @@ var CTOS;
         // Creates the initial memory table display
         // Currently only ONE block of memory for P2, will have to do for P3
         Control.MemoryTableCreate = function () {
-            var memTable = document.getElementById("MemTable");
             for (var i = 0; i < 256 / 8; ++i) {
-                var row = memTable.insertRow(i);
+                var row = CTOS.Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x) {
                     var cell = row.insertCell(x);
                     if (x == 0) {
@@ -244,21 +246,19 @@ var CTOS;
 
         // Clears previous set memory addresses and then sets new ones. Provide null to skip.
         Control.MemoryTableColorMemoryAddress = function (address1, address2) {
-            var memTable = document.getElementById("MemTable");
-
             if (this.m_LastMemoryAddress1Pos.length > 0) {
-                var cell = memTable.rows[this.m_LastMemoryAddress1Pos[1]].cells[this.m_LastMemoryAddress1Pos[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[this.m_LastMemoryAddress1Pos[1]].cells[this.m_LastMemoryAddress1Pos[0]];
                 cell.style.color = "white";
             }
             if (this.m_LastMemoryAddress2Pos.length > 0) {
-                var cell = memTable.rows[this.m_LastMemoryAddress2Pos[1]].cells[this.m_LastMemoryAddress2Pos[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[this.m_LastMemoryAddress2Pos[1]].cells[this.m_LastMemoryAddress2Pos[0]];
                 cell.style.color = "white";
             }
 
             if (address1) {
                 // Set the new memory color
                 var columnRow = this.MemoryTableTranslateAddress(address1);
-                var cell = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightGreen";
                 this.m_LastMemoryAddress1Pos = columnRow;
             } else {
@@ -268,7 +268,7 @@ var CTOS;
             if (address2) {
                 // Set the new memory color
                 columnRow = this.MemoryTableTranslateAddress(address2);
-                var cell = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightGreen";
                 this.m_LastMemoryAddress2Pos = columnRow;
             } else {
@@ -278,18 +278,16 @@ var CTOS;
 
         // Colors op code at adress and reset. Provide null to just clear
         Control.MemoryTableColorOpCode = function (address) {
-            var memTable = document.getElementById("MemTable");
-
             if (this.m_LastExecutedOpPos.length > 0) {
                 // Reset last op color
-                var cell = memTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
                 cell.style.color = "white";
             }
 
             if (address) {
                 // Set the new op color
                 var columnRow = this.MemoryTableTranslateAddress(address);
-                var cell = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell = CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightSkyBlue";
 
                 // Save
@@ -347,19 +345,17 @@ var CTOS;
         // Updates a single byte in memory
         // Currently only the first block in memory, might have to change for P3
         Control.MemoryTableUpdateByte = function (address, hexValue) {
-            var memTable = document.getElementById("MemTable");
             var columnRow = this.MemoryTableTranslateAddress(address);
-            memTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
+            CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
         };
 
         // Resets the a whole block of memory specificed to 0 in the display
         Control.MemoryTableResetBlock = function (block) {
             var base = block * 256 / 8;
             var limit = base + 255 / 8;
-            var memTable = document.getElementById("MemTable");
             for (var i = base; i < limit; ++i) {
                 for (var x = 1; x < 9; ++x) {
-                    memTable.rows[i].cells[x].innerHTML = "00";
+                    CTOS.Globals.m_MemTable.rows[i].cells[x].innerHTML = "00";
                 }
             }
             this.MemoryTableColorMemoryAddress(null, null);

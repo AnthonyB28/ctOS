@@ -47,7 +47,11 @@ module CTOS {
             // Get the program input box
             Globals.m_ProgramInput = <HTMLTextAreaElement>document.getElementById('taProgramInput');
 
+            // Get the CPU Table
+            Globals.m_CPUTable = <HTMLTableElement> document.getElementById("CPUTable");
+
             //Write the Memory to table
+            Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
@@ -223,8 +227,7 @@ module CTOS {
         // Updates the CPU table with the cpu information
         public static CPUTableUpdate(cpu: Cpu): void
         {
-            var CPUTable: HTMLTableElement = <HTMLTableElement> document.getElementById("CPUTable");
-            var dataRow: HTMLTableRowElement = <HTMLTableRowElement> CPUTable.rows[1];
+            var dataRow: HTMLTableRowElement = <HTMLTableRowElement> Globals.m_CPUTable.rows[1];
             var dataCell: HTMLTableCellElement = <HTMLTableCellElement> dataRow.cells[0];
 
             dataCell.innerText = "0x" + Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
@@ -244,10 +247,9 @@ module CTOS {
         // Currently only ONE block of memory for P2, will have to do for P3
         public static MemoryTableCreate() : void
         {
-            var memTable : any = document.getElementById("MemTable");
             for (var i : number = 0; i < 256 / 8; ++i)
             {
-                var row = memTable.insertRow(i);
+                var row = Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x)
                 {
                     var cell = row.insertCell(x);
@@ -279,16 +281,15 @@ module CTOS {
         // Clears previous set memory addresses and then sets new ones. Provide null to skip.
         public static MemoryTableColorMemoryAddress(address1: number, address2:number): void
         {
-            var memTable: any = document.getElementById("MemTable");
 
             if (this.m_LastMemoryAddress1Pos.length > 0)
             {
-                var cell: any = memTable.rows[this.m_LastMemoryAddress1Pos[1]].cells[this.m_LastMemoryAddress1Pos[0]];
+                var cell: any = Globals.m_MemTable.rows[this.m_LastMemoryAddress1Pos[1]].cells[this.m_LastMemoryAddress1Pos[0]];
                 cell.style.color = "white";
             }
             if (this.m_LastMemoryAddress2Pos.length > 0)
             {
-                var cell: any = memTable.rows[this.m_LastMemoryAddress2Pos[1]].cells[this.m_LastMemoryAddress2Pos[0]];
+                var cell: any = Globals.m_MemTable.rows[this.m_LastMemoryAddress2Pos[1]].cells[this.m_LastMemoryAddress2Pos[0]];
                 cell.style.color = "white";
             }
 
@@ -296,7 +297,7 @@ module CTOS {
             {
                 // Set the new memory color
                 var columnRow: Array<number> = this.MemoryTableTranslateAddress(address1);
-                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell: any = Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightGreen";
                 this.m_LastMemoryAddress1Pos = columnRow;
             }
@@ -309,7 +310,7 @@ module CTOS {
             {
                 // Set the new memory color
                 columnRow = this.MemoryTableTranslateAddress(address2);
-                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell: any = Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightGreen";
                 this.m_LastMemoryAddress2Pos = columnRow;
             }
@@ -322,12 +323,10 @@ module CTOS {
         // Colors op code at adress and reset. Provide null to just clear
         public static MemoryTableColorOpCode(address: number): void
         {
-            var memTable: any = document.getElementById("MemTable");
-
             if (this.m_LastExecutedOpPos.length > 0)
             {
                 // Reset last op color
-                var cell: any = memTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
+                var cell: any = Globals.m_MemTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
                 cell.style.color = "white";
             }
 
@@ -335,7 +334,7 @@ module CTOS {
             {
                 // Set the new op color
                 var columnRow: Array<number> = this.MemoryTableTranslateAddress(address);
-                var cell: any = memTable.rows[columnRow[1]].cells[columnRow[0]];
+                var cell: any = Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]];
                 cell.style.color = "LightSkyBlue";
 
                 // Save
@@ -383,9 +382,8 @@ module CTOS {
         // Currently only the first block in memory, might have to change for P3
         public static MemoryTableUpdateByte(address: number, hexValue: string) : void
         {
-            var memTable: any = document.getElementById("MemTable");
             var columnRow : Array<number> = this.MemoryTableTranslateAddress(address);
-            memTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
+            Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
         }
 
         // Resets the a whole block of memory specificed to 0 in the display
@@ -393,12 +391,11 @@ module CTOS {
         {
             var base: number = block * 256 / 8;
             var limit: number = base + 255 / 8;
-            var memTable: any = document.getElementById("MemTable");
             for (var i: number = base; i < limit; ++i)
             {
                 for (var x: number = 1; x < 9; ++x)
                 {
-                    memTable.rows[i].cells[x].innerHTML = "00";
+                    Globals.m_MemTable.rows[i].cells[x].innerHTML = "00";
                 }
             }
             this.MemoryTableColorMemoryAddress(null, null);

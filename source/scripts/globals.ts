@@ -43,6 +43,8 @@ module CTOS
         static m_Canvas: HTMLCanvasElement = null; 
         static m_Status: HTMLLabelElement = null;
         static m_Time: HTMLLabelElement = null;
+        static m_MemTable: any = null;
+        static m_CPUTable: HTMLTableElement = null;
         static m_ProgramInput: HTMLTextAreaElement = null;
         static m_DrawingContext = null;  
        
