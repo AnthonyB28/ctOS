@@ -1,4 +1,4 @@
-///<reference path="../globals.ts" />
+﻿///<reference path="../globals.ts" />
 ///<reference path="../os/canvastext.ts" />
 /* ------------
 Control.ts
@@ -225,6 +225,9 @@ var CTOS;
             var dataCell = dataRow.cells[0];
 
             dataCell.innerText = "0x" + CTOS.Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
+            if (dataCell.innerText == "0x0") {
+                dataCell.innerText = "0x00";
+            }
             dataCell = dataRow.cells[1];
             dataCell.innerText = cpu.m_ProgramCounter.toString();
             dataCell = dataRow.cells[2];
@@ -245,7 +248,8 @@ var CTOS;
                 for (var x = 0; x < 9; ++x) {
                     var cell = row.insertCell(x);
                     if (x == 0) {
-                        cell.innerHTML = "0x" + (i * 8).toString(16).toLocaleUpperCase();
+                        var hex = (i * 8).toString(16).toLocaleUpperCase();
+                        cell.innerHTML = "0x" + hex;
                     } else {
                         cell.innerHTML = "00";
                     }
@@ -367,6 +371,9 @@ var CTOS;
         // Currently only the first block in memory, might have to change for P3
         Control.MemoryTableUpdateByte = function (address, hexValue) {
             var columnRow = this.MemoryTableTranslateAddress(address);
+            if (hexValue == "0") {
+                hexValue = "00";
+            }
             CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
         };
 

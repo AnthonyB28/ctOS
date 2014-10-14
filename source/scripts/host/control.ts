@@ -257,6 +257,10 @@ module CTOS {
             var dataCell: HTMLTableCellElement = <HTMLTableCellElement> dataRow.cells[0];
 
             dataCell.innerText = "0x" + Globals.m_MemoryManager.GetByte(cpu.m_ProgramCounter).GetHex().toLocaleUpperCase();
+            if (dataCell.innerText == "0x0")
+            {
+                dataCell.innerText = "0x00";
+            }
             dataCell = <HTMLTableCellElement> dataRow.cells[1];
             dataCell.innerText = cpu.m_ProgramCounter.toString();
             dataCell = <HTMLTableCellElement> dataRow.cells[2];
@@ -281,7 +285,8 @@ module CTOS {
                     var cell = row.insertCell(x);
                     if (x == 0)
                     {
-                        cell.innerHTML = "0x" + (i * 8).toString(16).toLocaleUpperCase();
+                        var hex: string = (i * 8).toString(16).toLocaleUpperCase();
+                        cell.innerHTML = "0x" + hex;
                     }
                     else
                     {
@@ -408,7 +413,11 @@ module CTOS {
         // Currently only the first block in memory, might have to change for P3
         public static MemoryTableUpdateByte(address: number, hexValue: string) : void
         {
-            var columnRow : Array<number> = this.MemoryTableTranslateAddress(address);
+            var columnRow: Array<number> = this.MemoryTableTranslateAddress(address);
+            if (hexValue == "0")
+            {
+                hexValue = "00";
+            }
             Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
         }
 
