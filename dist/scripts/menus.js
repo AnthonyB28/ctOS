@@ -117,11 +117,12 @@ showLeft.onclick = function () {
     classie.toggle(menuLeft, 'cbp-spmenu-open');
     disableOther('showLeft');
 };
-/*showRight.onclick = function () {
+showRight.onclick = function () {
     classie.toggle(this, 'active');
     classie.toggle(menuRight, 'cbp-spmenu-open');
     disableOther('showRight');
 };
+/*
 showTop.onclick = function () {
     classie.toggle(this, 'active');
     classie.toggle(menuTop, 'cbp-spmenu-open');

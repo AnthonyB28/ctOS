@@ -71,6 +71,16 @@
             <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
                 <h3 id="achievementScore">Achievements : 0</h3>
             </nav>
+            <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
+                <h3>Programs</h3><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram1_click(this);">Counts to 2 & Prints Done</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram2_click(this);">Bob's Prints "2 and 5"</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram3_click(this);">Bob's <br /> Prints "counting 0 counting 1 <br /> hello world counting 2"</button>
+                <br /><br />
+                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram4_click(this);">Tom's Memory Eating Program</button>
+            </nav>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
@@ -134,9 +144,7 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" id="jumbotron">
       <div class="container">
-          <div class="container" style="position:absolute" id="achievementNotifDiv">
-
-          </div>
+          <div class="container" style="position:absolute" id="achievementNotifDiv"></div>
         <label id="timeLabel">Time: </label>
             <br>
 		<label id="statusLabel">Status: status -string-</label>
@@ -208,6 +216,7 @@
                     <label>
                         User Program Input
                     </label>
+                    <button class="btn btn-info" id="showRight">Show/Hide Programs</button>
                     <br>
                     <textarea name="taProgramInput"
                               id="taProgramInput"
