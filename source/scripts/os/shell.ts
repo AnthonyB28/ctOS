@@ -43,6 +43,12 @@ module CTOS
                                   "- Loads the program from Program Input box.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // clearmem
+            sc = new ShellCommand(this.shellClearMem,
+                "clearmem",
+                "- Resets all memory blocks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // run
             sc = new ShellCommand(this.shellRun,
                                     "run",
@@ -377,7 +383,15 @@ module CTOS
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                Globals.m_StdOut.PutText("PID[" + Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput);
+                if (resultPID != -1)
+                {
+                    Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("Memory is full!");
+                }
             }
             else
             {
@@ -385,6 +399,12 @@ module CTOS
                 Globals.m_StdOut.AdvanceLine();
                 Globals.m_StdOut.PutText("Issue: " + invalidMsg);
             }
+        }
+
+        public shellClearMem(): void
+        {
+            Globals.m_MemoryManager.ClearMemory();
+            Globals.m_StdOut.PutText("Memory cleared.");
         }
 
         // Run a program using a PID in args

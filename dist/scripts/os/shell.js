@@ -31,6 +31,10 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellLoad, "load", "- Loads the program from Program Input box.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // clearmem
+            sc = new CTOS.ShellCommand(this.shellClearMem, "clearmem", "- Resets all memory blocks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // run
             sc = new CTOS.ShellCommand(this.shellRun, "run", "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
@@ -299,12 +303,22 @@ var CTOS;
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
 
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
+                if (resultPID != -1) {
+                    CTOS.Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("Memory is full!");
+                }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
                 CTOS.Globals.m_StdOut.AdvanceLine();
                 CTOS.Globals.m_StdOut.PutText("Issue: " + invalidMsg);
             }
+        };
+
+        Shell.prototype.shellClearMem = function () {
+            CTOS.Globals.m_MemoryManager.ClearMemory();
+            CTOS.Globals.m_StdOut.PutText("Memory cleared.");
         };
 
         // Run a program using a PID in args

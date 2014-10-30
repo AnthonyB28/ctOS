@@ -36,8 +36,8 @@ var CTOS;
             var pcb = new CTOS.ProcessControlBlock();
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1) {
-                // OUT OF MEMORY! TODO
-                return;
+                // OUT OF MEMORY!
+                return -1;
             }
 
             // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
@@ -104,6 +104,14 @@ var CTOS;
             params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
             params[1] = address;
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
+        };
+
+        MemoryManager.prototype.ClearMemory = function () {
+            for (var i = 0; i < MemoryManager.MAX_MEMORY_BLOCKS; ++i) {
+                this.m_Memory[i].Reset();
+                CTOS.Control.MemoryTableResetBlock(i);
+                this.m_MemInUse[i] = false;
+            }
         };
         MemoryManager.MAX_MEMORY = 256;
         MemoryManager.MAX_MEMORY_BLOCKS = 3;
