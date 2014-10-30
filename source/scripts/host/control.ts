@@ -277,7 +277,7 @@ module CTOS {
         // Currently only ONE block of memory for P2, will have to do for P3
         public static MemoryTableCreate() : void
         {
-            for (var i : number = 0; i < 256 / 8; ++i)
+            for (var i : number = 0; i < MemoryManager.MAX_MEMORY*MemoryManager.MAX_MEMORY_BLOCKS / 8; ++i)
             {
                 var row = Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x)
@@ -424,8 +424,8 @@ module CTOS {
         // Resets the a whole block of memory specificed to 0 in the display
         public static MemoryTableResetBlock(block: number)
         {
-            var base: number = block * 256 / 8;
-            var limit: number = base + 255 / 8;
+            var base: number = block * MemoryManager.MAX_MEMORY / 8;
+            var limit: number = base + MemoryManager.MAX_MEMORY / 8;
             for (var i: number = base; i < limit; ++i)
             {
                 for (var x: number = 1; x < 9; ++x)

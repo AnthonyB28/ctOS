@@ -243,7 +243,7 @@ var CTOS;
         // Creates the initial memory table display
         // Currently only ONE block of memory for P2, will have to do for P3
         Control.MemoryTableCreate = function () {
-            for (var i = 0; i < 256 / 8; ++i) {
+            for (var i = 0; i < CTOS.MemoryManager.MAX_MEMORY * CTOS.MemoryManager.MAX_MEMORY_BLOCKS / 8; ++i) {
                 var row = CTOS.Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x) {
                     var cell = row.insertCell(x);
@@ -379,8 +379,8 @@ var CTOS;
 
         // Resets the a whole block of memory specificed to 0 in the display
         Control.MemoryTableResetBlock = function (block) {
-            var base = block * 256 / 8;
-            var limit = base + 255 / 8;
+            var base = block * CTOS.MemoryManager.MAX_MEMORY / 8;
+            var limit = base + CTOS.MemoryManager.MAX_MEMORY / 8;
             for (var i = base; i < limit; ++i) {
                 for (var x = 1; x < 9; ++x) {
                     CTOS.Globals.m_MemTable.rows[i].cells[x].innerHTML = "00";
