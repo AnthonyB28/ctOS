@@ -65,12 +65,11 @@ var CTOS;
         // Gets the byte from memory using address
         MemoryManager.prototype.GetByte = function (address) {
             var memBase = 0;
-            if (CTOS.Globals.m_KernelReadyQueue) {
-                var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
-                memBase = pcb.m_MemBase;
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
             }
             var physicalAddress = address + memBase;
-            var translatedBlock = physicalAddress / MemoryManager.MAX_MEMORY;
+            var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
             var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
             if (address >= MemoryManager.MAX_MEMORY) {
                 this.OutOfBoundsRequest(address);
@@ -82,12 +81,11 @@ var CTOS;
         // Set the byte @ address in memory with value in hex
         MemoryManager.prototype.SetByte = function (address, hexValue) {
             var memBase = 0;
-            if (CTOS.Globals.m_KernelReadyQueue) {
-                var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
-                memBase = pcb.m_MemBase;
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
             }
             var physicalAddress = address + memBase;
-            var translatedBlock = physicalAddress / MemoryManager.MAX_MEMORY;
+            var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
             var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
             if (address >= MemoryManager.MAX_MEMORY) {
                 this.OutOfBoundsRequest(address);

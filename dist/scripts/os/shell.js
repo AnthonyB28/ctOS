@@ -39,6 +39,10 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellRun, "run", "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // runall
+            sc = new CTOS.ShellCommand(this.shellRunAll, "runall", "Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.m_CommandList[this.m_CommandList.length] = sc;
@@ -321,17 +325,23 @@ var CTOS;
             CTOS.Globals.m_StdOut.PutText("Memory cleared.");
         };
 
-        // Run a program using a PID in args
+        // Run a program using a PID in args, or take in an array with a PCB & its position in the residentQ
         Shell.prototype.shellRun = function (args) {
-            if (args.length == 1) {
+            var runAll = args.length > 1;
+            if (args.length == 1 || runAll) {
                 var pcb = null;
 
-                for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
-                    var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
-                    if (pcbInQueue.m_PID == args[0]) {
-                        pcb = CTOS.Globals.m_KernelResidentQueue.remove(i);
-                        break;
+                if (!runAll) {
+                    for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
+                        var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
+                        if (pcbInQueue.m_PID == args[0]) {
+                            pcb = CTOS.Globals.m_KernelResidentQueue.remove(i);
+                            break;
+                        }
                     }
+                } else {
+                    pcb = args[0];
+                    CTOS.Globals.m_StdOut.PutText("Putting PID[" + args[1].toString() + "] on the Ready Queue.");
                 }
 
                 if (pcb) {
@@ -343,6 +353,15 @@ var CTOS;
                 }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
+            }
+        };
+
+        Shell.prototype.shellRunAll = function (args) {
+            while (!CTOS.Globals.m_KernelResidentQueue.isEmpty()) {
+                var params = new Array();
+                params[0] = CTOS.Globals.m_KernelResidentQueue.dequeue();
+                params[1] = params[0].m_PID;
+                CTOS.Globals.m_OsShell.shellRun(params);
             }
         };
 

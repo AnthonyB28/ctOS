@@ -26,12 +26,14 @@ module CTOS
         static INTERRUPT_REQUEST_SYS_CALL: number = 3; // Syscall request to print to screen.
         static INTERRUPT_MEMORY_OUT_OF_BOUNDS: number = 4; // Program runs over block of memory.
         static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
+        static INTERRUPT_CPU_BRK: number = 6; // Program had an invalid op.
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //
         // Global variables
         //
         static m_CPU: Cpu;  // Utilize TypeScript's type annotation system to ensure that CPU is an instance of the Cpu class.
+        static m_CPUScheduler: CPUScheduler; // Round Robin scheduler for CPU
         static m_MemoryManager: MemoryManager; // Interface with our memory
         static m_OSClock: number = 0;  // Page 23.
         static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
@@ -62,6 +64,7 @@ module CTOS
         static m_KernelResidentQueue: Queue = null;
         static m_KernelBuffers: any[] = null;
         static m_KernelInputQueue = null;
+        static m_CurrentPCBExe: ProcessControlBlock = null;
 
         // Standard input and output
         static m_StdIn  = null;

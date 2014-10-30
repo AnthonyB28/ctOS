@@ -43,6 +43,7 @@ var CTOS;
             CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
             pcb.m_State = CTOS.ProcessControlBlock.STATE_RUNNING;
+            CTOS.Globals.m_CurrentPCBExe = pcb;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
         };
 
@@ -57,6 +58,7 @@ var CTOS;
             pcb.m_Z = this.m_Z;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
             CTOS.Globals.m_AchievementSystem.Unlock(16);
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_BRK, null));
             // Globals.m_KernelResidentQueue.enqueue(pcb);
             // Not sure what to do now? P3?
         };

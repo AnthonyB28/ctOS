@@ -22,6 +22,7 @@ var CTOS;
         Globals.INTERRUPT_REQUEST_SYS_CALL = 3;
         Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS = 4;
         Globals.INTERRUPT_INVALID_OP = 5;
+        Globals.INTERRUPT_CPU_BRK = 6;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_OSClock = 0;
@@ -49,6 +50,7 @@ var CTOS;
         Globals.m_KernelResidentQueue = null;
         Globals.m_KernelBuffers = null;
         Globals.m_KernelInputQueue = null;
+        Globals.m_CurrentPCBExe = null;
 
         Globals.m_StdIn = null;
         Globals.m_StdOut = null;

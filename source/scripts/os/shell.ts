@@ -55,6 +55,12 @@ module CTOS
                                     "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // runall
+            sc = new ShellCommand(this.shellRunAll,
+                "runall",
+                "Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
@@ -407,22 +413,31 @@ module CTOS
             Globals.m_StdOut.PutText("Memory cleared.");
         }
 
-        // Run a program using a PID in args
+        // Run a program using a PID in args, or take in an array with a PCB & its position in the residentQ
         public shellRun(args): void
         {
-            if (args.length == 1) // Must have a PID provided
+            var runAll: boolean = args.length > 1;
+            if (args.length == 1 || runAll) // Must have a PID provided
             {
                 var pcb: ProcessControlBlock = null;
 
-                // Need to check to see if a PCB is in the Resident Queue
-                for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
+                if (!runAll)
                 {
-                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
-                    if (pcbInQueue.m_PID == args[0])
+                    // Need to check to see if a PCB is in the Resident Queue
+                    for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
                     {
-                        pcb = Globals.m_KernelResidentQueue.remove(i);
-                        break;
+                        var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
+                        if (pcbInQueue.m_PID == args[0])
+                        {
+                            pcb = Globals.m_KernelResidentQueue.remove(i);
+                            break;
+                        }
                     }
+                }
+                else // We did run all, just take the param
+                {
+                    pcb = args[0];
+                    Globals.m_StdOut.PutText("Putting PID[" + args[1].toString() + "] on the Ready Queue.");
                 }
 
                 if (pcb) // Get ready to run PCB & put it in the ready queue
@@ -439,6 +454,18 @@ module CTOS
             else
             {
                 Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
+            }
+        }
+
+        public shellRunAll(args): void
+        {
+            // Need to check to see if a PCB is in the Resident Queue
+            while(!Globals.m_KernelResidentQueue.isEmpty())
+            {
+                var params: Array<any> = new Array<any>();
+                params[0] = Globals.m_KernelResidentQueue.dequeue();
+                params[1] = params[0].m_PID;
+                Globals.m_OsShell.shellRun(params);
             }
         }
 

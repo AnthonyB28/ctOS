@@ -109,6 +109,7 @@ var CTOS;
             // ... Create and initialize the CPU & memory (because it's part of the hardware)  ...
             CTOS.Globals.m_CPU = new CTOS.Cpu();
             CTOS.Globals.m_MemoryManager = new CTOS.MemoryManager();
+            CTOS.Globals.m_CPUScheduler = new CTOS.CPUScheduler();
             CTOS.Globals.m_CPU.Init();
 
             // ... then set the host clock pulse ...
@@ -303,6 +304,9 @@ var CTOS;
 
         // Colors op code at adress and reset. Provide null to just clear
         Control.MemoryTableColorOpCode = function (address) {
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                address += CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
             if (this.m_LastExecutedOpPos.length > 0) {
                 // Reset last op color
                 var cell = CTOS.Globals.m_MemTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];

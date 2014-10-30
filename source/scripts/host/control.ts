@@ -127,6 +127,7 @@ module CTOS {
             // ... Create and initialize the CPU & memory (because it's part of the hardware)  ...
             Globals.m_CPU = new Cpu();
             Globals.m_MemoryManager = new MemoryManager();
+            Globals.m_CPUScheduler = new CPUScheduler();
             Globals.m_CPU.Init();
 
             // ... then set the host clock pulse ...
@@ -354,6 +355,10 @@ module CTOS {
         // Colors op code at adress and reset. Provide null to just clear
         public static MemoryTableColorOpCode(address: number): void
         {
+            if (Globals.m_CurrentPCBExe)
+            {
+                address += Globals.m_CurrentPCBExe.m_MemBase;
+            }
             if (this.m_LastExecutedOpPos.length > 0)
             {
                 // Reset last op color

@@ -39,6 +39,7 @@
     <TypeScriptCompile Include="source\scripts\host\devices.ts" />
     <TypeScriptCompile Include="source\scripts\host\instructions.ts" />
     <TypeScriptCompile Include="source\scripts\host\memory.ts" />
+    <TypeScriptCompile Include="source\scripts\os\cpuScheduler.ts" />
     <TypeScriptCompile Include="source\scripts\os\memoryManager.ts" />
     <TypeScriptCompile Include="source\scripts\os\canvastext.ts" />
     <TypeScriptCompile Include="source\scripts\os\console.ts" />

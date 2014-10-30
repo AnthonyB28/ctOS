@@ -83,13 +83,12 @@ module CTOS
         public GetByte(address: number): Byte
         {
             var memBase: number = 0;
-            if (Globals.m_KernelReadyQueue)
+            if (Globals.m_CurrentPCBExe)
             {
-                var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
-                memBase = pcb.m_MemBase;
+                memBase = Globals.m_CurrentPCBExe.m_MemBase;
             }
             var physicalAddress: number = address + memBase;
-            var translatedBlock: number = physicalAddress / MemoryManager.MAX_MEMORY; // Which mem block
+            var translatedBlock: number = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY); // Which mem block
             var translatedAddress: number = physicalAddress % MemoryManager.MAX_MEMORY; // Address in that block
             if (address >= MemoryManager.MAX_MEMORY)
             {
@@ -105,13 +104,12 @@ module CTOS
         public SetByte(address: number, hexValue: string): void
         {
             var memBase: number = 0;
-            if (Globals.m_KernelReadyQueue)
+            if (Globals.m_CurrentPCBExe)
             {
-                var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
-                memBase = pcb.m_MemBase;
+                memBase = Globals.m_CurrentPCBExe.m_MemBase;
             }
             var physicalAddress: number = address + memBase;
-            var translatedBlock: number = physicalAddress / MemoryManager.MAX_MEMORY; // Which mem block
+            var translatedBlock: number = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY); // Which mem block
             var translatedAddress: number = physicalAddress % MemoryManager.MAX_MEMORY; // Address in that block
             if (address >= MemoryManager.MAX_MEMORY)
             {
