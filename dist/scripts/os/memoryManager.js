@@ -8,7 +8,7 @@ var CTOS;
     var MemoryManager = (function () {
         function MemoryManager() {
             this.m_Memory = new Array();
-            this.m_Memory[0] = new CTOS.Memory(); // for now we shall only have 1 set of 256 bytes of memory
+            this.m_Memory[MemoryManager.MAX_MEMORY_BLOCKS] = new CTOS.Memory(); // for now we shall only have 1 set of 256 bytes of memory
             this.m_MemInUse = new Array();
         }
         // Gets the first available memory block not in use, not needed for P2
@@ -28,32 +28,37 @@ var CTOS;
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb = new CTOS.ProcessControlBlock();
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
-            pcb.m_MemBase = memoryBlockLocation * 256;
-            pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+
+            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+
+            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
 
             // Reset memory block & update display
             this.m_Memory[memoryBlockLocation].Reset();
             CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
 
-            for (var i = pcb.m_MemBase; i < pcb.m_MemBase + program.length; ++i) {
-                var address = i % 256;
+            for (var i = pcb.m_MemBase; i <= pcb.m_MemLimit; ++i) {
+                var address = i % MemoryManager.MAX_MEMORY;
                 this.m_Memory[memoryBlockLocation].Set(address, program[address]);
                 CTOS.Control.MemoryTableUpdateByte(address, program[address]);
             }
 
-            this.m_MemInUse[memoryBlockLocation] = true;
+            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         };
 
         // Gets the byte from memory using address
-        // TODO assumes P2 where we only do 256 bytes and only sector 0 in memory
         MemoryManager.prototype.GetByte = function (address) {
-            if (address >= 256) {
+            var translatedBlock = address / MemoryManager.MAX_MEMORY;
+            var translatedAddress = address % MemoryManager.MAX_MEMORY;
+            if (translatedAddress >= MemoryManager.MAX_MEMORY) {
                 this.OutOfBoundsRequest(address);
             } else {
-                return this.m_Memory[0].Get(address);
+                return this.m_Memory[translatedBlock].Get(translatedAddress);
             }
         };
 
@@ -76,6 +81,8 @@ var CTOS;
             params[1] = address;
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
         };
+        MemoryManager.MAX_MEMORY = 256;
+        MemoryManager.MAX_MEMORY_BLOCKS = 3;
         return MemoryManager;
     })();
     CTOS.MemoryManager = MemoryManager;

@@ -9,16 +9,17 @@ module CTOS
 {
     export class MemoryManager
     {
+        static MAX_MEMORY: number = 256;
+        static MAX_MEMORY_BLOCKS: number = 3;
         private m_Memory: Array<Memory>; // Representation of memory in our machine.
         private m_MemInUse: Array<boolean>; // List of blocks in use.
 
         constructor()
         {
             this.m_Memory = new Array<Memory>();
-            this.m_Memory[0] = new Memory(); // for now we shall only have 1 set of 256 bytes of memory
+            this.m_Memory[MemoryManager.MAX_MEMORY_BLOCKS] = new Memory(); // for now we shall only have 1 set of 256 bytes of memory
             this.m_MemInUse = new Array<boolean>();
         }
-
 
         // Gets the first available memory block not in use, not needed for P2
         private GetAvailableMemoryLocation(): number
@@ -41,8 +42,10 @@ module CTOS
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb: ProcessControlBlock = new ProcessControlBlock();
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
-            pcb.m_MemBase = memoryBlockLocation * 256;
-            pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY; 
+            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
             pcb.m_State = ProcessControlBlock.STATE_NEW;
 
             // Reset memory block & update display
@@ -50,29 +53,30 @@ module CTOS
             Control.MemoryTableResetBlock(memoryBlockLocation);
 
             // Load our program into the block of memory
-            for (var i: number = pcb.m_MemBase; i < pcb.m_MemBase + program.length; ++i)
+            for (var i: number = pcb.m_MemBase; i <= pcb.m_MemLimit; ++i)
             {
-                var address: number = i % 256;
+                var address: number = i % MemoryManager.MAX_MEMORY;
                 this.m_Memory[memoryBlockLocation].Set(address, program[address]);
                 Control.MemoryTableUpdateByte(address, program[address]);
             }
             
-            this.m_MemInUse[memoryBlockLocation] = true;
+            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         }
 
         // Gets the byte from memory using address
-        // TODO assumes P2 where we only do 256 bytes and only sector 0 in memory
         public GetByte(address: number): Byte
         {
-            if (address >= 256)
+            var translatedBlock: number = address / MemoryManager.MAX_MEMORY; // Which mem block
+            var translatedAddress: number = address % MemoryManager.MAX_MEMORY; // Address in that block
+            if (translatedAddress >= MemoryManager.MAX_MEMORY)
             {
                 this.OutOfBoundsRequest(address);
             }
             else
             {
-                return this.m_Memory[0].Get(address);
+                return this.m_Memory[translatedBlock].Get(translatedAddress);
             }
         }
         
