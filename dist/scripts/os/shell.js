@@ -40,7 +40,15 @@ var CTOS;
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // runall
-            sc = new CTOS.ShellCommand(this.shellRunAll, "runall", "Runs all the programs in memory.");
+            sc = new CTOS.ShellCommand(this.shellRunAll, "runall", "- Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new CTOS.ShellCommand(this.shellQuantum, "quantum", "<number> - Sets the round robin quantum measured in clock ticks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new CTOS.ShellCommand(this.shellPs, "ps", "- Displays all the active processes.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -362,6 +370,32 @@ var CTOS;
                 params[0] = CTOS.Globals.m_KernelResidentQueue.dequeue();
                 params[1] = params[0].m_PID;
                 CTOS.Globals.m_OsShell.shellRun(params);
+            }
+        };
+
+        // Displays all running or ready processes
+        Shell.prototype.shellPs = function () {
+            for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
+                // Make sure this isnt null
+                if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
+                    switch (CTOS.Globals.m_KernelReadyQueue.peek(i).m_State) {
+                        case CTOS.ProcessControlBlock.STATE_RUNNING:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running.");
+                            break;
+                        case CTOS.ProcessControlBlock.STATE_READY:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready.");
+                            break;
+                    }
+                }
+            }
+        };
+
+        Shell.prototype.shellQuantum = function (args) {
+            if (args.length > 0) {
+                CTOS.Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));
+                CTOS.Globals.m_StdOut.PutText("Quantum set to: " + args[0]);
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         };
 

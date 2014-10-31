@@ -2,7 +2,8 @@
 {
     export class CPUScheduler
     {
-        constructor(private m_WaitingExe: boolean = false)
+        constructor(private m_WaitingExe: boolean = false,
+                    private m_Quantum: number = 6)
         { }
 
         public SetWaiting(): void
@@ -13,6 +14,11 @@
         public IsWaiting(): boolean
         {
             return this.m_WaitingExe;
+        }
+
+        public SetQuantum(quantum: number): void
+        {
+            this.m_Quantum = quantum;
         }
 
         public DoneExecuting(): void

@@ -58,7 +58,19 @@ module CTOS
             // runall
             sc = new ShellCommand(this.shellRunAll,
                 "runall",
-                "Runs all the programs in memory.");
+                "- Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new ShellCommand(this.shellQuantum,
+                "quantum",
+                "<number> - Sets the round robin quantum measured in clock ticks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new ShellCommand(this.shellPs,
+                "ps",
+                "- Displays all the active processes.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -466,6 +478,40 @@ module CTOS
                 params[0] = Globals.m_KernelResidentQueue.dequeue();
                 params[1] = params[0].m_PID;
                 Globals.m_OsShell.shellRun(params);
+            }
+        }
+
+        // Displays all running or ready processes
+        public shellPs(): void
+        {
+            for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize(); ++i)
+            {
+                // Make sure this isnt null
+                if (Globals.m_KernelReadyQueue.peek(i))
+                {
+                    switch (Globals.m_KernelReadyQueue.peek(i).m_State) // Processes only running or waiting.
+                    {
+                        case ProcessControlBlock.STATE_RUNNING:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running.");
+                            break;
+                        case ProcessControlBlock.STATE_READY:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready.");
+                            break;
+                    }
+                }
+            }
+        }
+
+        public shellQuantum(args): void
+        {
+            if (args.length > 0)
+            {
+                Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));
+                Globals.m_StdOut.PutText("Quantum set to: " + args[0]);
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         }
 
