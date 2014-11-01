@@ -481,6 +481,42 @@ module CTOS
             }
         }
 
+        public shellKill(args): void
+        {
+            if (args.length > 0)
+            {
+                for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize(); ++i)
+                {
+                    // Make sure this isnt null
+                    if (Globals.m_KernelReadyQueue.peek(i))
+                    {
+                        var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
+                        if (pcb.m_PID == parseInt(args[0])) // Found the target PID
+                        {
+                            if (pcb.m_State == ProcessControlBlock.STATE_READY)
+                            {
+                                // If process is just in the ready queue, kick it and terminate it.
+                                Globals.m_KernelReadyQueue.remove(i);
+                                pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+                            }
+                            else if (pcb.m_State == ProcessControlBlock.STATE_RUNNING)
+                            {
+                                // If process is running, stop it and context switch
+                                Globals.m_CPUScheduler.ForceKillRunningProcess();
+                            }
+                            Globals.m_StdOut.PutText("Killed PID[" + pcb.m_PID.toString() + "]");
+                            return;
+                        }
+                    }
+                }
+                Globals.m_StdOut.PutText("PID not found in ReadyQueue");
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: kill <pid> - PID of active process.");
+            }
+        }
+
         // Displays all running or ready processes
         public shellPs(): void
         {

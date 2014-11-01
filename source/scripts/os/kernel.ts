@@ -95,6 +95,7 @@ module CTOS
             }
             else if (Globals.m_CPU.m_IsExecuting) 
             { 
+                Globals.m_CPUScheduler.Cycle();
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
                 Globals.m_CPU.Cycle();
             }

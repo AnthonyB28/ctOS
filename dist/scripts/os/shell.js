@@ -373,6 +373,32 @@ var CTOS;
             }
         };
 
+        Shell.prototype.shellKill = function (args) {
+            if (args.length > 0) {
+                for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
+                    // Make sure this isnt null
+                    if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
+                        var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
+                        if (pcb.m_PID == parseInt(args[0])) {
+                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
+                                // If process is just in the ready queue, kick it and terminate it.
+                                CTOS.Globals.m_KernelReadyQueue.remove(i);
+                                pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
+                            } else if (pcb.m_State == CTOS.ProcessControlBlock.STATE_RUNNING) {
+                                // If process is running, stop it and context switch
+                                CTOS.Globals.m_CPUScheduler.ForceKillRunningProcess();
+                            }
+                            CTOS.Globals.m_StdOut.PutText("Killed PID[" + pcb.m_PID.toString() + "]");
+                            return;
+                        }
+                    }
+                }
+                CTOS.Globals.m_StdOut.PutText("PID not found in ReadyQueue");
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: kill <pid> - PID of active process.");
+            }
+        };
+
         // Displays all running or ready processes
         Shell.prototype.shellPs = function () {
             for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {

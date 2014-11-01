@@ -25,7 +25,6 @@ module CTOS {
                     public m_Y: number = 0,
                     public m_Z: number = 0,
                     public m_IsExecuting: boolean = false) {
-
         }
 
         public Init(): void {
@@ -38,18 +37,46 @@ module CTOS {
             Control.CPUTableUpdate(this);
         }
 
+        public ContextSwitch(terminate:boolean): void
+        {
+            if (this.m_IsExecuting)
+            {
+                if (terminate)
+                {
+                    this.EndProgram();
+                }
+                else
+                {
+                    var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+                    pcb.m_Accumulator = this.m_Accumulator;
+                    pcb.m_Counter = this.m_ProgramCounter;
+                    pcb.m_X = this.m_X;
+                    pcb.m_Y = this.m_Y;
+                    pcb.m_Z = this.m_Z;
+                    Globals.m_KernelReadyQueue.enqueue(pcb);
+                }
+            }
+            this.RunProgram();
+        }
+
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         public RunProgram(): void
         {
             this.Init();
             Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+            this.m_Accumulator = pcb.m_Accumulator;
+            this.m_ProgramCounter = pcb.m_Counter;
+            this.m_X = pcb.m_X;
+            this.m_Y = pcb.m_Y;
+            this.m_Z = pcb.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_RUNNING;
             Globals.m_CurrentPCBExe = pcb;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+            Control.CPUTableUpdate(this);
         }
 
-        // Stops executing program and saves to PCB
+        // Stops executing program and saves state to PCB
         public EndProgram(): void
         {
             this.m_IsExecuting = false;

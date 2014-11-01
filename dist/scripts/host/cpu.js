@@ -37,17 +37,40 @@ var CTOS;
             CTOS.Control.CPUTableUpdate(this);
         };
 
+        Cpu.prototype.ContextSwitch = function (terminate) {
+            if (this.m_IsExecuting) {
+                if (terminate) {
+                    this.EndProgram();
+                } else {
+                    var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+                    pcb.m_Accumulator = this.m_Accumulator;
+                    pcb.m_Counter = this.m_ProgramCounter;
+                    pcb.m_X = this.m_X;
+                    pcb.m_Y = this.m_Y;
+                    pcb.m_Z = this.m_Z;
+                    CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                }
+            }
+            this.RunProgram();
+        };
+
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         Cpu.prototype.RunProgram = function () {
             this.Init();
             CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
+            this.m_Accumulator = pcb.m_Accumulator;
+            this.m_ProgramCounter = pcb.m_Counter;
+            this.m_X = pcb.m_X;
+            this.m_Y = pcb.m_Y;
+            this.m_Z = pcb.m_Z;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_RUNNING;
             CTOS.Globals.m_CurrentPCBExe = pcb;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+            CTOS.Control.CPUTableUpdate(this);
         };
 
-        // Stops executing program and saves to PCB
+        // Stops executing program and saves state to PCB
         Cpu.prototype.EndProgram = function () {
             this.m_IsExecuting = false;
             var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();

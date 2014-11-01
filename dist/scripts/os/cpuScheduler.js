@@ -19,9 +19,30 @@
             this.m_Quantum = quantum;
         };
 
+        CPUScheduler.prototype.Cycle = function () {
+        };
+
+        // Scheduling needs to force the CPU to stop running program
+        // and switch to next program if available
+        CPUScheduler.prototype.ContextSwitch = function () {
+            if (this.m_WaitingExe && CTOS.Globals.m_CPU.m_IsExecuting) {
+                CTOS.Globals.m_CPU.ContextSwitch(false); // Don't terminate the running process, just switch
+            }
+        };
+
+        // Forcibly stops the currently running process on the CPU.
+        // Executes context switch without any check
+        CPUScheduler.prototype.ForceKillRunningProcess = function () {
+            CTOS.Globals.m_CPU.ContextSwitch(true);
+        };
+
         CPUScheduler.prototype.DoneExecuting = function () {
             if (this.m_WaitingExe) {
-                if (CTOS.Globals.m_KernelReadyQueue.getSize() > 0) {
+                var sizeOfReadyQueue = CTOS.Globals.m_KernelReadyQueue.getSize();
+                if (sizeOfReadyQueue > 0) {
+                    if (sizeOfReadyQueue == 1) {
+                        this.m_WaitingExe = false;
+                    }
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     this.m_WaitingExe = false;
