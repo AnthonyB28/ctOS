@@ -37,6 +37,7 @@ module CTOS {
             Control.CPUTableUpdate(this);
         }
 
+        // Kick process off the CPU, true if forever end the process instead of putting back on ready queue
         public ContextSwitch(terminate:boolean): void
         {
             if (this.m_IsExecuting)
@@ -97,9 +98,8 @@ module CTOS {
         {
             if (!Globals.m_StepMode) // Not stepping, just perform normal
             {
+                Globals.m_CPUScheduler.OnCPUCycle();
                 Globals.m_Kernel.Trace('CPU cycle');
-                // TODO: Accumulate CPU usage and profiling statistics here.
-                // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 Control.CPUTableUpdate(this);
                 Control.MemoryTableColorOpCode(this.m_ProgramCounter);
@@ -108,6 +108,7 @@ module CTOS {
             {
                 if (Globals.m_StepNext)
                 {
+                    Globals.m_CPUScheduler.OnCPUCycle();
                     Globals.m_Kernel.Trace('CPU cycle');
                     this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     Control.CPUTableUpdate(this);

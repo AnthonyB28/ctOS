@@ -37,6 +37,7 @@ var CTOS;
             CTOS.Control.CPUTableUpdate(this);
         };
 
+        // Kick process off the CPU, true if forever end the process instead of putting back on ready queue
         Cpu.prototype.ContextSwitch = function (terminate) {
             if (this.m_IsExecuting) {
                 if (terminate) {
@@ -88,15 +89,14 @@ var CTOS;
 
         Cpu.prototype.Cycle = function () {
             if (!CTOS.Globals.m_StepMode) {
+                CTOS.Globals.m_CPUScheduler.OnCPUCycle();
                 CTOS.Globals.m_Kernel.Trace('CPU cycle');
-
-                // TODO: Accumulate CPU usage and profiling statistics here.
-                // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 CTOS.Control.CPUTableUpdate(this);
                 CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             } else {
                 if (CTOS.Globals.m_StepNext) {
+                    CTOS.Globals.m_CPUScheduler.OnCPUCycle();
                     CTOS.Globals.m_Kernel.Trace('CPU cycle');
                     this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     CTOS.Control.CPUTableUpdate(this);
