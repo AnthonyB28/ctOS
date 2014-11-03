@@ -44,9 +44,9 @@ module CTOS {
             {
                 if (terminate)
                 {
-                    this.EndProgram();
+                    this.EndProgram(); // Don't put program back on the ready queue
                 }
-                else
+                else // Cycle the current process from the front to the back
                 {
                     var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
                     pcb.m_Accumulator = this.m_Accumulator;
@@ -77,7 +77,7 @@ module CTOS {
             Control.CPUTableUpdate(this);
         }
 
-        // Stops executing program and saves state to PCB
+        // Stops executing program, does NOT put it back on the ready queue
         public EndProgram(): void
         {
             this.m_IsExecuting = false;
@@ -90,8 +90,6 @@ module CTOS {
             pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
             Globals.m_AchievementSystem.Unlock(16);
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_BRK, null));
-            // Globals.m_KernelResidentQueue.enqueue(pcb); 
-            // Not sure what to do now? P3?
         }
 
         public Cycle(): void 

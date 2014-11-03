@@ -28,6 +28,7 @@ var CTOS;
         Globals.m_OSClock = 0;
         Globals.m_StepMode = false;
         Globals.m_StepNext = false;
+        Globals.m_MemTableAutoScroll = true;
 
         Globals.m_Mode = 0;
 

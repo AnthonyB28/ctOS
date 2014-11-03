@@ -41,7 +41,7 @@ var CTOS;
         Cpu.prototype.ContextSwitch = function (terminate) {
             if (this.m_IsExecuting) {
                 if (terminate) {
-                    this.EndProgram();
+                    this.EndProgram(); // Don't put program back on the ready queue
                 } else {
                     var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
                     pcb.m_Accumulator = this.m_Accumulator;
@@ -71,7 +71,7 @@ var CTOS;
             CTOS.Control.CPUTableUpdate(this);
         };
 
-        // Stops executing program and saves state to PCB
+        // Stops executing program, does NOT put it back on the ready queue
         Cpu.prototype.EndProgram = function () {
             this.m_IsExecuting = false;
             var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
@@ -83,8 +83,6 @@ var CTOS;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
             CTOS.Globals.m_AchievementSystem.Unlock(16);
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_BRK, null));
-            // Globals.m_KernelResidentQueue.enqueue(pcb);
-            // Not sure what to do now? P3?
         };
 
         Cpu.prototype.Cycle = function () {

@@ -7,8 +7,11 @@
             private m_CPUCyles: number = 0)
         { }
 
+        // Sets waiting to true and mode bit to user mode.
+        // Will signal to the CPUScheduler that it can context switch
         public SetWaiting(): void
         {
+            Globals.m_Mode = 1; // User mode
             this.m_WaitingExe = true;
         }
 
@@ -57,12 +60,14 @@
             Globals.m_CPU.ContextSwitch(true);
         }
 
-        public DoneExecuting(): void
+        // When a process is done executing, this is the callback from the CPU
+        public OnCPUDoneExecuting(): void
         {
+            // If there is more in the ready queue that have been loaded
             if (this.m_WaitingExe)
             {
                 var sizeOfReadyQueue: number = Globals.m_KernelReadyQueue.getSize();
-                if (sizeOfReadyQueue > 0)
+                if (sizeOfReadyQueue > 0) // We have more, continue to execute
                 {
                     if (sizeOfReadyQueue == 1) // Last process in the queue at the moment
                     {
@@ -70,10 +75,15 @@
                     }
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
-                else
+                else // There's no more in the ready queue, set back to kernel mode.
                 {
                     this.m_WaitingExe = false;
+                    Globals.m_Mode = 0; // Kernel Mode
                 }
+            }
+            else // Just in case, we need to make sure we're in kernel mode still
+            {
+                Globals.m_Mode = 0; // Kernel Mode
             }
         }
     }

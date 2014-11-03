@@ -151,7 +151,7 @@ var CTOS;
                         }
                         CTOS.Globals.m_CurrentPCBExe = null;
                     }
-                    CTOS.Globals.m_CPUScheduler.DoneExecuting();
+                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

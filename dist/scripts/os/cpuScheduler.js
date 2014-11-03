@@ -9,7 +9,10 @@
             this.m_Quantum = m_Quantum;
             this.m_CPUCyles = m_CPUCyles;
         }
+        // Sets waiting to true and mode bit to user mode.
+        // Will signal to the CPUScheduler that it can context switch
         CPUScheduler.prototype.SetWaiting = function () {
+            CTOS.Globals.m_Mode = 1; // User mode
             this.m_WaitingExe = true;
         };
 
@@ -50,7 +53,9 @@
             CTOS.Globals.m_CPU.ContextSwitch(true);
         };
 
-        CPUScheduler.prototype.DoneExecuting = function () {
+        // When a process is done executing, this is the callback from the CPU
+        CPUScheduler.prototype.OnCPUDoneExecuting = function () {
+            // If there is more in the ready queue that have been loaded
             if (this.m_WaitingExe) {
                 var sizeOfReadyQueue = CTOS.Globals.m_KernelReadyQueue.getSize();
                 if (sizeOfReadyQueue > 0) {
@@ -60,7 +65,10 @@
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     this.m_WaitingExe = false;
+                    CTOS.Globals.m_Mode = 0; // Kernel Mode
                 }
+            } else {
+                CTOS.Globals.m_Mode = 0; // Kernel Mode
             }
         };
         return CPUScheduler;

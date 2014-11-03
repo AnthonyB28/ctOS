@@ -126,8 +126,7 @@ module CTOS
         private OutOfBoundsRequest(address: number): void
         {
             var params: Array<number> = new Array<number>();
-            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
-            params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+            params[0] = Globals.m_CurrentPCBExe.m_PID; 
             params[1] = address;
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
         }

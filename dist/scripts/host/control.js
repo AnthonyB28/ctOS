@@ -379,6 +379,9 @@ var CTOS;
                 hexValue = "00";
             }
             CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
+            if (CTOS.Globals.m_MemTableAutoScroll) {
+                CTOS.Globals.m_MemTable.parentNode.scrollTop = CTOS.Globals.m_MemTable.rows[columnRow[1]].offsetTop - CTOS.Globals.m_MemTable.rows[0].offsetHeight;
+            }
         };
 
         // Resets the a whole block of memory specificed to 0 in the display

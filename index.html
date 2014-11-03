@@ -143,19 +143,19 @@
     <div class="container">
       <!-- Example row of columns -->
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-5">
                 <label> CLI </label>
                 <br>
-                <div id="divConsole" style="width:524px; height:510px;">
+                <div id="divConsole" style="width:500px; height:510px;">
                     <canvas id="display"
                             width="500"
                             height="500"
                             tabindex="3"></canvas>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-5">
                 <br />
-                <div id="divCPUTable" style="width:150px; float: left;">
+                <div id="divCPUTable" style="width:150px; margin-left:20px; float:left;">
                     <label>CPU</label>
                     <br/>
                     <button type="button"
@@ -202,8 +202,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="divMemTable" style="width:155px; float:right;" >
-                    <label>Memory</label>
+                <div id="divMemTable" style="width:160px; margin-right:75px; float:right;" >
+                    <label>Memory 
+                    <input type="checkbox" id="MemTableAutoScrollBox" checked="checked" onclick="CTOS.Globals.m_MemTableAutoScroll=MemTableAutoScrollBox.checked"> AutoScroll
+                    </label>
                     <br />
                     <div id="MemTableDiv">
                         <table id="MemTable" class="table table-condensed table-bordered"></table>

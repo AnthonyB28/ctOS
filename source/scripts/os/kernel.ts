@@ -178,7 +178,7 @@ module CTOS
                         }
                         Globals.m_CurrentPCBExe = null;
                     }
-                    Globals.m_CPUScheduler.DoneExecuting();
+                    Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

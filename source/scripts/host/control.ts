@@ -424,6 +424,10 @@ module CTOS {
                 hexValue = "00";
             }
             Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
+            if (Globals.m_MemTableAutoScroll)
+            {
+                Globals.m_MemTable.parentNode.scrollTop = Globals.m_MemTable.rows[columnRow[1]].offsetTop - Globals.m_MemTable.rows[0].offsetHeight;
+            }
         }
 
         // Resets the a whole block of memory specificed to 0 in the display
