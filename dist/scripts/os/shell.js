@@ -43,12 +43,16 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellRunAll, "runall", "- Runs all the programs in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // runall
+            // quantum
             sc = new CTOS.ShellCommand(this.shellQuantum, "quantum", "<number> - Sets the round robin quantum measured in clock ticks.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // runall
+            // shellPs
             sc = new CTOS.ShellCommand(this.shellPs, "ps", "- Displays all the active processes.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellKill
+            sc = new CTOS.ShellCommand(this.shellKill, "kill", "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -95,8 +99,6 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellExplode, "explode!", "- BSOD & Shutdown");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // processes - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
             /* ---
             Silly stuff cause I can do this all day.
             --- */
@@ -343,7 +345,7 @@ var CTOS;
                     for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
                         var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
                         if (pcbInQueue.m_PID == args[0]) {
-                            pcb = CTOS.Globals.m_KernelResidentQueue.remove(i);
+                            pcb = CTOS.Globals.m_KernelResidentQueue.remove(i)[0];
                             break;
                         }
                     }
@@ -355,6 +357,9 @@ var CTOS;
                 if (pcb) {
                     pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                    for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize() - 1; ++i) {
+                        CTOS.Globals.m_KernelReadyQueue.enqueue(CTOS.Globals.m_KernelReadyQueue.dequeue());
+                    }
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
@@ -380,7 +385,7 @@ var CTOS;
                     if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
                         var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) {
-                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
+                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY || pcb.m_State == CTOS.ProcessControlBlock.STATE_WAITING) {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 CTOS.Globals.m_KernelReadyQueue.remove(i);
                                 pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
@@ -406,12 +411,16 @@ var CTOS;
                 if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
                     switch (CTOS.Globals.m_KernelReadyQueue.peek(i).m_State) {
                         case CTOS.ProcessControlBlock.STATE_RUNNING:
-                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running.");
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running on the ready queue.");
                             break;
                         case CTOS.ProcessControlBlock.STATE_READY:
-                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready.");
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready on the ready queue.");
+                            break;
+                        case CTOS.ProcessControlBlock.STATE_WAITING:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is waiting on the ready queue.");
                             break;
                     }
+                    CTOS.Globals.m_StdOut.AdvanceLine();
                 }
             }
         };

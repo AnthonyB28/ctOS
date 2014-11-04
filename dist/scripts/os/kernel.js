@@ -76,6 +76,8 @@ var CTOS;
             This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel
             that it has to look for interrupts and process them if it finds any.
             */
+            CTOS.Control.ReadyQTableUpdate(CTOS.Globals.m_KernelReadyQueue);
+
             // Check for an interrupt, are any. Page 560
             if (CTOS.Globals.m_KernelInterruptQueue.getSize() > 0) {
                 // Process the first interrupt on the interrupt queue.

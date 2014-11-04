@@ -61,16 +61,22 @@ module CTOS
                 "- Runs all the programs in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // runall
+            // quantum
             sc = new ShellCommand(this.shellQuantum,
                 "quantum",
                 "<number> - Sets the round robin quantum measured in clock ticks.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // runall
+            // shellPs
             sc = new ShellCommand(this.shellPs,
                 "ps",
                 "- Displays all the active processes.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellKill
+            sc = new ShellCommand(this.shellKill,
+                "kill",
+                "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -138,9 +144,6 @@ module CTOS
                 "explode!",
                 "- BSOD & Shutdown");
             this.m_CommandList[this.m_CommandList.length] = sc;
-
-            // processes - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
 
             /* ---
                 Silly stuff cause I can do this all day.
@@ -441,7 +444,7 @@ module CTOS
                         var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
                         if (pcbInQueue.m_PID == args[0])
                         {
-                            pcb = Globals.m_KernelResidentQueue.remove(i);
+                            pcb = Globals.m_KernelResidentQueue.remove(i)[0];
                             break;
                         }
                     }
@@ -456,6 +459,10 @@ module CTOS
                 {
                     pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
+                    for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize() - 1; ++i)
+                    {
+                        Globals.m_KernelReadyQueue.enqueue(Globals.m_KernelReadyQueue.dequeue());
+                    }
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
                 else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
@@ -493,7 +500,7 @@ module CTOS
                         var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) // Found the target PID
                         {
-                            if (pcb.m_State == ProcessControlBlock.STATE_READY)
+                            if (pcb.m_State == ProcessControlBlock.STATE_READY || pcb.m_State == ProcessControlBlock.STATE_WAITING)
                             {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 Globals.m_KernelReadyQueue.remove(i);
@@ -528,12 +535,16 @@ module CTOS
                     switch (Globals.m_KernelReadyQueue.peek(i).m_State) // Processes only running or waiting.
                     {
                         case ProcessControlBlock.STATE_RUNNING:
-                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running.");
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running on the ready queue.");
                             break;
                         case ProcessControlBlock.STATE_READY:
-                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready.");
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready on the ready queue.");
+                            break;
+                        case ProcessControlBlock.STATE_WAITING:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is waiting on the ready queue.");
                             break;
                     }
+                    Globals.m_StdOut.AdvanceLine();
                 }
             }
         }

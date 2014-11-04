@@ -54,6 +54,9 @@ module CTOS {
             Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
+            // Get the Ready Q table
+            Globals.m_ReadyQTable = document.getElementById("ReadyQTable");
+
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CanvasTextFunctions.Enable(Globals.m_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
@@ -443,6 +446,54 @@ module CTOS {
                 }
             }
             this.MemoryTableColorMemoryAddress(null, null);
+        }
+
+        public static ReadyQTableUpdate(q: Queue)
+        {
+            while (Globals.m_ReadyQTable.rows.length != 1)
+            {
+                Globals.m_ReadyQTable.deleteRow(1);
+            }
+            for (var i: number = 1; i <= q.getSize(); ++i)
+            {
+                var pcb: ProcessControlBlock = q.peek(i-1);
+                var row = Globals.m_ReadyQTable.insertRow(i);
+                var cell = row.insertCell(0);
+                cell.innerText = pcb.m_PID;
+                cell = row.insertCell(1);
+                switch (pcb.m_State)
+                {
+                    case ProcessControlBlock.STATE_RUNNING:
+                        cell.innerText = "RUNNING";
+                        break;
+                    case ProcessControlBlock.STATE_READY:
+                        cell.innerText = "READY";
+                        break;
+                    case ProcessControlBlock.STATE_WAITING:
+                        cell.innerText = "WAITING";
+                        break;
+                    case ProcessControlBlock.STATE_NEW:
+                        cell.innerText = "NEW";
+                        break;
+                    case ProcessControlBlock.STATE_TERMINATED:
+                        cell.innerText = "TERMINATED";
+                        break;
+                }
+                cell = row.insertCell(2);
+                cell.innerText = pcb.m_Counter;
+                cell = row.insertCell(3);
+                cell.innerText = pcb.m_Accumulator;
+                cell = row.insertCell(4);
+                cell.innerText = pcb.m_X;
+                cell = row.insertCell(5);
+                cell.innerText = pcb.m_Y;
+                cell = row.insertCell(6);
+                cell.innerText = pcb.m_Z;
+                cell = row.insertCell(7);
+                cell.innerText = pcb.m_MemBase;
+                cell = row.insertCell(8);
+                cell.innerText = pcb.m_MemLimit;
+            }
         }
     }
 }

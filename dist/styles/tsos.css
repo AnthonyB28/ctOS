@@ -89,6 +89,17 @@ label {
     color:white;
 }
 
+#ReadyQTable th
+{
+    color:white;
+    text-align:center;
+}
+
+#ReadyQTable td
+{
+    color:white;
+}
+
 /* General styles for all menus */
  
 .cbp-spmenu {

@@ -85,6 +85,7 @@ module CTOS
                that it has to look for interrupts and process them if it finds any.                          
              */
 
+            Control.ReadyQTableUpdate(Globals.m_KernelReadyQueue);
             // Check for an interrupt, are any. Page 560
             if (Globals.m_KernelInterruptQueue.getSize() > 0) 
             {
