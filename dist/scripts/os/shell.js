@@ -55,6 +55,38 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellKill, "kill", "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // shellCreateFile
+            sc = new CTOS.ShellCommand(this.shellCreateFile, "create", "<filename> - Creates a file.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellReadFile
+            sc = new CTOS.ShellCommand(this.shellReadFile, "read", "<filename> - Reads and displays file content.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellWriteFile
+            sc = new CTOS.ShellCommand(this.shellWriteFile, "write", "<filename> \"data\" - Write data in quotes to filename.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellDeleteFile
+            sc = new CTOS.ShellCommand(this.shellDeleteFile, "delete", "<filename> - Remove filename from storage.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellFormat
+            sc = new CTOS.ShellCommand(this.shellFormat, "format", "- All of the disk is initialized.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellLs
+            sc = new CTOS.ShellCommand(this.shellLs, "ls", "- List all files currently stored on the disk.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellSetSchedules
+            sc = new CTOS.ShellCommand(this.shellSetSchedule, "setschedule", "<type> - Set scheduler method rr, fcfs, or priority.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellGetSchedule
+            sc = new CTOS.ShellCommand(this.shellGetSchedule, "getschedule", "- Returns type of scheduler method.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.m_CommandList[this.m_CommandList.length] = sc;
@@ -430,6 +462,66 @@ var CTOS;
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
+        };
+
+        // Creates a file using args for filename
+        Shell.prototype.shellCreateFile = function (args) {
+            if (args && args.size > 0) {
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Display contents of a file using args for filename
+        Shell.prototype.shellReadFile = function (args) {
+            if (args && args.size > 0) {
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Writes to a file using args for filename AND data
+        Shell.prototype.shellWriteFile = function (args) {
+            if (args && args.size == 2) {
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");
+            }
+        };
+
+        // Erase a file using args for filename
+        Shell.prototype.shellDeleteFile = function (args) {
+            if (args && args.size > 0) {
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Initialize disk
+        Shell.prototype.shellFormat = function (args) {
+        };
+
+        // List all files on the disk
+        Shell.prototype.shellLs = function (args) {
+            //TODO
+        };
+
+        // Sets scheduler to rr, fcfs, or priority from args
+        Shell.prototype.shellSetSchedule = function (args) {
+            if (args && args.size > 0) {
+                if (args[0] == "rr") {
+                } else if (args[0] == "fcfs") {
+                } else if (args[0] == "priority") {
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+                }
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+            }
+        };
+
+        // Display current scheduling algorithm
+        Shell.prototype.shellGetSchedule = function (args) {
+            //TODO
         };
 
         Shell.prototype.shellHelp = function (args) {

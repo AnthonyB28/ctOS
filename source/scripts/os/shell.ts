@@ -51,8 +51,8 @@ module CTOS
 
             // run
             sc = new ShellCommand(this.shellRun,
-                                    "run",
-                                    "<PID> - Runs the program by ID that is in memory.");
+            "run",
+            "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // runall
@@ -77,6 +77,54 @@ module CTOS
             sc = new ShellCommand(this.shellKill,
                 "kill",
                 "<pid> - Kills the specified PID");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellCreateFile
+            sc = new ShellCommand(this.shellCreateFile,
+                "create",
+                "<filename> - Creates a file.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellReadFile
+            sc = new ShellCommand(this.shellReadFile,
+                "read",
+                "<filename> - Reads and displays file content.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellWriteFile
+            sc = new ShellCommand(this.shellWriteFile,
+                "write",
+                "<filename> \"data\" - Write data in quotes to filename.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellDeleteFile
+            sc = new ShellCommand(this.shellDeleteFile,
+                "delete",
+                "<filename> - Remove filename from storage.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellFormat
+            sc = new ShellCommand(this.shellFormat,
+                "format",
+                "- All of the disk is initialized.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellLs
+            sc = new ShellCommand(this.shellLs,
+                "ls",
+                "- List all files currently stored on the disk.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellSetSchedules
+            sc = new ShellCommand(this.shellSetSchedule,
+                "setschedule",
+                "<type> - Set scheduler method rr, fcfs, or priority.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellGetSchedule
+            sc = new ShellCommand(this.shellGetSchedule,
+                "getschedule",
+                "- Returns type of scheduler method.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -558,6 +606,102 @@ module CTOS
                 Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         }
+
+        // Creates a file using args for filename
+        public shellCreateFile(args): void
+        {
+            if (args && args.size > 0)
+            {
+
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Display contents of a file using args for filename
+        public shellReadFile(args): void
+        {
+            if (args && args.size > 0)
+            {
+
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Writes to a file using args for filename AND data
+        public shellWriteFile(args): void
+        {
+            if (args && args.size == 2)
+            {
+                
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");
+            }
+        }
+
+        // Erase a file using args for filename
+        public shellDeleteFile(args): void
+        {
+            if (args && args.size > 0)
+            {
+
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Initialize disk
+        public shellFormat(args): void
+        {
+          
+        }
+
+        // List all files on the disk
+        public shellLs(args): void
+        {
+            //TODO
+        }
+
+        // Sets scheduler to rr, fcfs, or priority from args
+        public shellSetSchedule(args): void
+        {
+            if (args && args.size > 0)
+            {
+                if (args[0] == "rr")
+                {
+                }
+                else if (args[0] == "fcfs")
+                {
+                }
+                else if (args[0] == "priority")
+                {
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+                }
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+            }
+        }
+
+        // Display current scheduling algorithm
+        public shellGetSchedule(args): void
+        {
+            //TODO
+        }
+
 
         public shellHelp(args): void
         {
