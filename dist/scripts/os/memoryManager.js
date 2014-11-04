@@ -14,6 +14,11 @@ var CTOS;
                 this.m_MemInUse[i] = false;
             }
         }
+        MemoryManager.prototype.UnlockMemory = function (memBase) {
+            var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_MemInUse[memBlock] = false;
+        };
+
         // Gets the first available memory block not in use, not needed for P2
         MemoryManager.prototype.GetAvailableMemoryLocation = function () {
             var availableMemory = 0;

@@ -25,6 +25,12 @@ module CTOS
             }
         }
 
+        public UnlockMemory(memBase: number)
+        {
+            var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_MemInUse[memBlock] = false;
+        }
+
         // Gets the first available memory block not in use, not needed for P2
         private GetAvailableMemoryLocation(): number
         {

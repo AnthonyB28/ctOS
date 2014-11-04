@@ -89,6 +89,7 @@ module CTOS {
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+            Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
             Globals.m_AchievementSystem.Unlock(16);
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_BRK, null));
         }
