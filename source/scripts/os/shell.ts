@@ -501,6 +501,7 @@ module CTOS
                                 // If process is just in the ready queue, kick it and terminate it.
                                 Globals.m_KernelReadyQueue.remove(i);
                                 pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+                                Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
                             }
                             else if (pcb.m_State == ProcessControlBlock.STATE_RUNNING)
                             {

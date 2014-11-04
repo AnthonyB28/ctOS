@@ -386,6 +386,7 @@ var CTOS;
                                 // If process is just in the ready queue, kick it and terminate it.
                                 CTOS.Globals.m_KernelReadyQueue.remove(i);
                                 pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
+                                CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
                             } else if (pcb.m_State == CTOS.ProcessControlBlock.STATE_RUNNING) {
                                 // If process is running, stop it and context switch
                                 CTOS.Globals.m_CPUScheduler.ForceKillRunningProcess();
