@@ -27,6 +27,7 @@ module CTOS
         static INTERRUPT_MEMORY_OUT_OF_BOUNDS: number = 4; // Program runs over block of memory.
         static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
         static INTERRUPT_CPU_BRK: number = 6; // Program had an invalid op.
+        static INTERRUPT_CPU_CNTXSWTCH: number = 7;
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //

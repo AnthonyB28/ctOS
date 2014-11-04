@@ -459,10 +459,6 @@ module CTOS
                 {
                     pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
-                    for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize() - 1; ++i)
-                    {
-                        Globals.m_KernelReadyQueue.enqueue(Globals.m_KernelReadyQueue.dequeue());
-                    }
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
                 else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
@@ -500,7 +496,7 @@ module CTOS
                         var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) // Found the target PID
                         {
-                            if (pcb.m_State == ProcessControlBlock.STATE_READY || pcb.m_State == ProcessControlBlock.STATE_WAITING)
+                            if (pcb.m_State == ProcessControlBlock.STATE_READY)
                             {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 Globals.m_KernelReadyQueue.remove(i);

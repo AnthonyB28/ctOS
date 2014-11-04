@@ -49,7 +49,7 @@ var CTOS;
                     pcb.m_X = this.m_X;
                     pcb.m_Y = this.m_Y;
                     pcb.m_Z = this.m_Z;
-                    pcb.m_State = CTOS.ProcessControlBlock.STATE_WAITING;
+                    pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
                     this.RunProgram();
                 }

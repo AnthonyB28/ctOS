@@ -54,7 +54,7 @@ module CTOS {
                     pcb.m_X = this.m_X;
                     pcb.m_Y = this.m_Y;
                     pcb.m_Z = this.m_Z;
-                    pcb.m_State = ProcessControlBlock.STATE_WAITING;
+                    pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
                     this.RunProgram();
                 }

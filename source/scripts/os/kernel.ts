@@ -181,6 +181,18 @@ module CTOS
                     }
                     Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
+                case Globals.INTERRUPT_CPU_CNTXSWTCH:
+                    Globals.m_CPU.ContextSwitch(params);
+                    Globals.m_CPUScheduler.OnContextSwitchInterrupt();
+                    if (params) // params is true if shellKill
+                    {
+                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                    }
+                    else
+                    {
+                        this.Trace("Context switch occured. Round Robin.");
+                    }
+                    break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }

@@ -155,6 +155,15 @@ var CTOS;
                     }
                     CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
+                case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
+                    CTOS.Globals.m_CPU.ContextSwitch(params);
+                    CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
+                    if (params) {
+                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                    } else {
+                        this.Trace("Context switch occured. Round Robin.");
+                    }
+                    break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }

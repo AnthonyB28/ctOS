@@ -357,9 +357,6 @@ var CTOS;
                 if (pcb) {
                     pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
-                    for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize() - 1; ++i) {
-                        CTOS.Globals.m_KernelReadyQueue.enqueue(CTOS.Globals.m_KernelReadyQueue.dequeue());
-                    }
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
@@ -385,7 +382,7 @@ var CTOS;
                     if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
                         var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) {
-                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY || pcb.m_State == CTOS.ProcessControlBlock.STATE_WAITING) {
+                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 CTOS.Globals.m_KernelReadyQueue.remove(i);
                                 pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;

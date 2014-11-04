@@ -25,6 +25,7 @@
             this.m_Quantum = quantum;
         }
 
+        // Call back from the CPU when it cycles
         public OnCPUCycle()
         {
             ++this.m_CPUCyles;
@@ -34,7 +35,9 @@
         public Cycle(): void
         {
             // Round Robin = if the cycles go over our Quantum, kick process off the swings
-            if (this.m_CPUCyles >= this.m_Quantum)
+            // Quantum -1 because CPU cycle is garunteed to occur when the scheduler is done. If a switch is needed,
+            // it is queued as an interupt. That would mean that the switch would occur at cycle 7, instead of 6, if q = 6
+            if (this.m_CPUCyles >= this.m_Quantum-1)
             {
                 this.ContextSwitch();
             }
@@ -42,22 +45,31 @@
 
         // Scheduling needs to force the CPU to stop running program
         // and switch to next program if available
-        public ContextSwitch(): void
+        private ContextSwitch(): void
         {
             // Only switch if the CPU is executing and there are processes waiting in the ReadyQueue
             if (this.m_WaitingExe && Globals.m_CPU.m_IsExecuting)
             {
-                Globals.m_CPU.ContextSwitch(false); // Don't terminate the running process, just switch
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, false));
             }
+            else
+            {
+                this.m_CPUCyles = 0;
+            }
+        }
 
+        // Callback from the Kernel if a context switch was necessary
+        // Resets CPU cycles to 0.
+        public OnContextSwitchInterrupt()
+        {
             this.m_CPUCyles = 0;
         }
 
-        // Forcibly stops the currently running process on the CPU. 
+        // Forcibly stops the currently running process on the CPU. Called from shellKill cmd
         // Executes context switch without any check
         public ForceKillRunningProcess(): void
         {
-            Globals.m_CPU.ContextSwitch(true);
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, true));
         }
 
         // When a process is done executing, this is the callback from the CPU

@@ -23,6 +23,7 @@ var CTOS;
         Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS = 4;
         Globals.INTERRUPT_INVALID_OP = 5;
         Globals.INTERRUPT_CPU_BRK = 6;
+        Globals.INTERRUPT_CPU_CNTXSWTCH = 7;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_OSClock = 0;

@@ -24,6 +24,7 @@
             this.m_Quantum = quantum;
         };
 
+        // Call back from the CPU when it cycles
         CPUScheduler.prototype.OnCPUCycle = function () {
             ++this.m_CPUCyles;
         };
@@ -31,7 +32,9 @@
         // Checks if the CPUScheduler needs to context switch
         CPUScheduler.prototype.Cycle = function () {
             // Round Robin = if the cycles go over our Quantum, kick process off the swings
-            if (this.m_CPUCyles >= this.m_Quantum) {
+            // Quantum -1 because CPU cycle is garunteed to occur when the scheduler is done. If a switch is needed,
+            // it is queued as an interupt. That would mean that the switch would occur at cycle 7, instead of 6, if q = 6
+            if (this.m_CPUCyles >= this.m_Quantum - 1) {
                 this.ContextSwitch();
             }
         };
@@ -41,16 +44,22 @@
         CPUScheduler.prototype.ContextSwitch = function () {
             // Only switch if the CPU is executing and there are processes waiting in the ReadyQueue
             if (this.m_WaitingExe && CTOS.Globals.m_CPU.m_IsExecuting) {
-                CTOS.Globals.m_CPU.ContextSwitch(false); // Don't terminate the running process, just switch
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH, false));
+            } else {
+                this.m_CPUCyles = 0;
             }
+        };
 
+        // Callback from the Kernel if a context switch was necessary
+        // Resets CPU cycles to 0.
+        CPUScheduler.prototype.OnContextSwitchInterrupt = function () {
             this.m_CPUCyles = 0;
         };
 
-        // Forcibly stops the currently running process on the CPU.
+        // Forcibly stops the currently running process on the CPU. Called from shellKill cmd
         // Executes context switch without any check
         CPUScheduler.prototype.ForceKillRunningProcess = function () {
-            CTOS.Globals.m_CPU.ContextSwitch(true);
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH, true));
         };
 
         // When a process is done executing, this is the callback from the CPU
