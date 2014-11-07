@@ -43,6 +43,9 @@ var CTOS;
             CTOS.Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
+            // Get the Ready Q table
+            CTOS.Globals.m_ReadyQTable = document.getElementById("ReadyQTable");
+
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
             CTOS.CanvasTextFunctions.Enable(CTOS.Globals.m_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun.
 
@@ -109,6 +112,7 @@ var CTOS;
             // ... Create and initialize the CPU & memory (because it's part of the hardware)  ...
             CTOS.Globals.m_CPU = new CTOS.Cpu();
             CTOS.Globals.m_MemoryManager = new CTOS.MemoryManager();
+            CTOS.Globals.m_CPUScheduler = new CTOS.CPUScheduler();
             CTOS.Globals.m_CPU.Init();
 
             // ... then set the host clock pulse ...
@@ -243,7 +247,7 @@ var CTOS;
         // Creates the initial memory table display
         // Currently only ONE block of memory for P2, will have to do for P3
         Control.MemoryTableCreate = function () {
-            for (var i = 0; i < 256 / 8; ++i) {
+            for (var i = 0; i < CTOS.MemoryManager.MAX_MEMORY * CTOS.MemoryManager.MAX_MEMORY_BLOCKS / 8; ++i) {
                 var row = CTOS.Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x) {
                     var cell = row.insertCell(x);
@@ -303,6 +307,9 @@ var CTOS;
 
         // Colors op code at adress and reset. Provide null to just clear
         Control.MemoryTableColorOpCode = function (address) {
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                address += CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
             if (this.m_LastExecutedOpPos.length > 0) {
                 // Reset last op color
                 var cell = CTOS.Globals.m_MemTable.rows[this.m_LastExecutedOpPos[1]].cells[this.m_LastExecutedOpPos[0]];
@@ -375,18 +382,65 @@ var CTOS;
                 hexValue = "00";
             }
             CTOS.Globals.m_MemTable.rows[columnRow[1]].cells[columnRow[0]].innerHTML = hexValue.toLocaleUpperCase();
+            if (CTOS.Globals.m_MemTableAutoScroll) {
+                CTOS.Globals.m_MemTable.parentNode.scrollTop = CTOS.Globals.m_MemTable.rows[columnRow[1]].offsetTop - CTOS.Globals.m_MemTable.rows[0].offsetHeight;
+            }
         };
 
         // Resets the a whole block of memory specificed to 0 in the display
         Control.MemoryTableResetBlock = function (block) {
-            var base = block * 256 / 8;
-            var limit = base + 255 / 8;
+            var base = block * CTOS.MemoryManager.MAX_MEMORY / 8;
+            var limit = base + CTOS.MemoryManager.MAX_MEMORY / 8;
             for (var i = base; i < limit; ++i) {
                 for (var x = 1; x < 9; ++x) {
                     CTOS.Globals.m_MemTable.rows[i].cells[x].innerHTML = "00";
                 }
             }
             this.MemoryTableColorMemoryAddress(null, null);
+        };
+
+        Control.ReadyQTableUpdate = function (q) {
+            while (CTOS.Globals.m_ReadyQTable.rows.length != 1) {
+                CTOS.Globals.m_ReadyQTable.deleteRow(1);
+            }
+            for (var i = 1; i <= q.getSize(); ++i) {
+                var pcb = q.peek(i - 1);
+                var row = CTOS.Globals.m_ReadyQTable.insertRow(i);
+                var cell = row.insertCell(0);
+                cell.innerText = pcb.m_PID;
+                cell = row.insertCell(1);
+                switch (pcb.m_State) {
+                    case CTOS.ProcessControlBlock.STATE_RUNNING:
+                        cell.innerText = "RUNNING";
+                        break;
+                    case CTOS.ProcessControlBlock.STATE_READY:
+                        cell.innerText = "READY";
+                        break;
+                    case CTOS.ProcessControlBlock.STATE_WAITING:
+                        cell.innerText = "WAITING";
+                        break;
+                    case CTOS.ProcessControlBlock.STATE_NEW:
+                        cell.innerText = "NEW";
+                        break;
+                    case CTOS.ProcessControlBlock.STATE_TERMINATED:
+                        cell.innerText = "TERMINATED";
+                        break;
+                }
+                cell = row.insertCell(2);
+                cell.innerText = pcb.m_Counter;
+                cell = row.insertCell(3);
+                cell.innerText = pcb.m_Accumulator;
+                cell = row.insertCell(4);
+                cell.innerText = pcb.m_X;
+                cell = row.insertCell(5);
+                cell.innerText = pcb.m_Y;
+                cell = row.insertCell(6);
+                cell.innerText = pcb.m_Z;
+                cell = row.insertCell(7);
+                cell.innerText = pcb.m_MemBase;
+                cell = row.insertCell(8);
+                cell.innerText = pcb.m_MemLimit;
+            }
         };
         Control.m_LastExecutedOpPos = new Array();
         Control.m_LastMemoryAddress1Pos = new Array();

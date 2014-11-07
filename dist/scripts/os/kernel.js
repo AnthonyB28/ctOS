@@ -76,6 +76,8 @@ var CTOS;
             This, on the other hand, is the clock pulse from the hardware (or host) that tells the kernel
             that it has to look for interrupts and process them if it finds any.
             */
+            CTOS.Control.ReadyQTableUpdate(CTOS.Globals.m_KernelReadyQueue);
+
             // Check for an interrupt, are any. Page 560
             if (CTOS.Globals.m_KernelInterruptQueue.getSize() > 0) {
                 // Process the first interrupt on the interrupt queue.
@@ -83,6 +85,8 @@ var CTOS;
                 var interrupt = CTOS.Globals.m_KernelInterruptQueue.dequeue();
                 this.InterruptHandler(interrupt.irq, interrupt.params);
             } else if (CTOS.Globals.m_CPU.m_IsExecuting) {
+                CTOS.Globals.m_CPUScheduler.Cycle();
+
                 // If there are no interrupts then run one CPU cycle if there is anything being processed. {
                 CTOS.Globals.m_CPU.Cycle();
             } else {
@@ -120,7 +124,11 @@ var CTOS;
                     CTOS.Globals.m_StdIn.HandleInput();
                     break;
                 case CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM:
-                    CTOS.Globals.m_CPU.RunProgram();
+                    if (!CTOS.Globals.m_CPU.m_IsExecuting) {
+                        CTOS.Globals.m_CPU.RunProgram();
+                    } else {
+                        CTOS.Globals.m_CPUScheduler.SetWaiting();
+                    }
                     break;
                 case CTOS.Globals.INTERRUPT_REQUEST_SYS_CALL:
                     CTOS.Globals.m_StdOut.SysCall(params[0]);
@@ -134,6 +142,27 @@ var CTOS;
                     CTOS.Globals.m_AchievementSystem.Unlock(15);
                     CTOS.Globals.m_CPU.EndProgram();
                     this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
+                    break;
+                case CTOS.Globals.INTERRUPT_CPU_BRK:
+                    // PCB is done executing or we've done some kind of context switch for P3
+                    if (CTOS.Globals.m_CurrentPCBExe) {
+                        if (CTOS.Globals.m_CurrentPCBExe.m_State == CTOS.ProcessControlBlock.STATE_TERMINATED) {
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_CurrentPCBExe.m_PID.toString() + "] is done executing.");
+                            CTOS.Globals.m_StdOut.AdvanceLine(); // Hoping we don't interupt our output if any, get it? Interupt? hehe
+                            CTOS.Globals.m_OsShell.PutPrompt();
+                        }
+                        CTOS.Globals.m_CurrentPCBExe = null;
+                    }
+                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
+                    break;
+                case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
+                    CTOS.Globals.m_CPU.ContextSwitch(params);
+                    CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
+                    if (params) {
+                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                    } else {
+                        this.Trace("Context switch occured. Round Robin.");
+                    }
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

@@ -37,16 +37,42 @@ var CTOS;
             CTOS.Control.CPUTableUpdate(this);
         };
 
+        // Kick process off the CPU, true if forever end the process instead of putting back on ready queue
+        Cpu.prototype.ContextSwitch = function (terminate) {
+            if (this.m_IsExecuting) {
+                if (terminate) {
+                    this.EndProgram(); // Don't put program back on the ready queue
+                } else {
+                    var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+                    pcb.m_Accumulator = this.m_Accumulator;
+                    pcb.m_Counter = this.m_ProgramCounter;
+                    pcb.m_X = this.m_X;
+                    pcb.m_Y = this.m_Y;
+                    pcb.m_Z = this.m_Z;
+                    pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
+                    CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                    this.RunProgram();
+                }
+            }
+        };
+
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         Cpu.prototype.RunProgram = function () {
             this.Init();
             CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
+            this.m_Accumulator = pcb.m_Accumulator;
+            this.m_ProgramCounter = pcb.m_Counter;
+            this.m_X = pcb.m_X;
+            this.m_Y = pcb.m_Y;
+            this.m_Z = pcb.m_Z;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_RUNNING;
+            CTOS.Globals.m_CurrentPCBExe = pcb;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+            CTOS.Control.CPUTableUpdate(this);
         };
 
-        // Stops executing program and saves to PCB
+        // Stops executing program, does NOT put it back on the ready queue
         Cpu.prototype.EndProgram = function () {
             this.m_IsExecuting = false;
             var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
@@ -56,22 +82,21 @@ var CTOS;
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
+            CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
             CTOS.Globals.m_AchievementSystem.Unlock(16);
-            // Globals.m_KernelResidentQueue.enqueue(pcb);
-            // Not sure what to do now? P3?
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_BRK, null));
         };
 
         Cpu.prototype.Cycle = function () {
             if (!CTOS.Globals.m_StepMode) {
+                CTOS.Globals.m_CPUScheduler.OnCPUCycle();
                 CTOS.Globals.m_Kernel.Trace('CPU cycle');
-
-                // TODO: Accumulate CPU usage and profiling statistics here.
-                // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 CTOS.Control.CPUTableUpdate(this);
                 CTOS.Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             } else {
                 if (CTOS.Globals.m_StepNext) {
+                    CTOS.Globals.m_CPUScheduler.OnCPUCycle();
                     CTOS.Globals.m_Kernel.Trace('CPU cycle');
                     this.Execute(CTOS.Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     CTOS.Control.CPUTableUpdate(this);

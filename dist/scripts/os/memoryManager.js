@@ -7,16 +7,28 @@ var CTOS;
 (function (CTOS) {
     var MemoryManager = (function () {
         function MemoryManager() {
-            this.m_Memory = new Array();
-            this.m_Memory[0] = new CTOS.Memory(); // for now we shall only have 1 set of 256 bytes of memory
             this.m_MemInUse = new Array();
+            this.m_Memory = new Array();
+            for (var i = 0; i < MemoryManager.MAX_MEMORY_BLOCKS; ++i) {
+                this.m_Memory[i] = new CTOS.Memory();
+                this.m_MemInUse[i] = false;
+            }
         }
+        MemoryManager.prototype.UnlockMemory = function (memBase) {
+            var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_MemInUse[memBlock] = false;
+        };
+
         // Gets the first available memory block not in use, not needed for P2
         MemoryManager.prototype.GetAvailableMemoryLocation = function () {
             var availableMemory = 0;
             for (var i = 0; i < this.m_MemInUse.length; ++i) {
                 if (!this.m_MemInUse[i]) {
                     availableMemory = i;
+                    break;
+                }
+                if (i == this.m_MemInUse.length - 1) {
+                    availableMemory = -1;
                 }
             }
 
@@ -28,54 +40,83 @@ var CTOS;
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb = new CTOS.ProcessControlBlock();
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
-            pcb.m_MemBase = memoryBlockLocation * 256;
-            pcb.m_MemLimit = memoryBlockLocation * 255 + 255; // TODO: concern for P3
+            if (memoryBlockLocation == -1) {
+                // OUT OF MEMORY!
+                return -1;
+            }
+
+            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+
+            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
 
             // Reset memory block & update display
             this.m_Memory[memoryBlockLocation].Reset();
             CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
 
-            for (var i = pcb.m_MemBase; i < pcb.m_MemBase + program.length; ++i) {
-                var address = i % 256;
+            for (var i = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i) {
+                var address = i % MemoryManager.MAX_MEMORY;
                 this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                CTOS.Control.MemoryTableUpdateByte(address, program[address]);
+                CTOS.Control.MemoryTableUpdateByte(i, program[address]);
             }
 
-            this.m_MemInUse[memoryBlockLocation] = true;
+            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         };
 
         // Gets the byte from memory using address
-        // TODO assumes P2 where we only do 256 bytes and only sector 0 in memory
         MemoryManager.prototype.GetByte = function (address) {
-            if (address >= 256) {
+            var memBase = 0;
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
+            var physicalAddress = address + memBase;
+            var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
+            var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
+            if (address >= MemoryManager.MAX_MEMORY) {
                 this.OutOfBoundsRequest(address);
             } else {
-                return this.m_Memory[0].Get(address);
+                return this.m_Memory[translatedBlock].Get(address);
             }
         };
 
         // Set the byte @ address in memory with value in hex
-        // TODO assumes P2 where we only do 256 bytes and only block 0 in memory
         MemoryManager.prototype.SetByte = function (address, hexValue) {
-            if (address >= 256) {
+            var memBase = 0;
+            if (CTOS.Globals.m_CurrentPCBExe) {
+                memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
+            var physicalAddress = address + memBase;
+            var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
+            var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
+            if (address >= MemoryManager.MAX_MEMORY) {
                 this.OutOfBoundsRequest(address);
             } else {
-                this.m_Memory[0].Set(address, hexValue);
-                CTOS.Control.MemoryTableUpdateByte(address, hexValue);
+                this.m_Memory[translatedBlock].Set(address, hexValue);
+                CTOS.Control.MemoryTableUpdateByte(physicalAddress, hexValue);
             }
         };
 
         // Memory was attempted to be accessed out of bounds
         MemoryManager.prototype.OutOfBoundsRequest = function (address) {
             var params = new Array();
-            var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
-            params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+            params[0] = CTOS.Globals.m_CurrentPCBExe.m_PID;
             params[1] = address;
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_MEMORY_OUT_OF_BOUNDS, params));
         };
+
+        MemoryManager.prototype.ClearMemory = function () {
+            for (var i = 0; i < MemoryManager.MAX_MEMORY_BLOCKS; ++i) {
+                this.m_Memory[i].Reset();
+                CTOS.Control.MemoryTableResetBlock(i);
+                this.m_MemInUse[i] = false;
+            }
+        };
+        MemoryManager.MAX_MEMORY = 256;
+        MemoryManager.MAX_MEMORY_BLOCKS = 3;
         return MemoryManager;
     })();
     CTOS.MemoryManager = MemoryManager;

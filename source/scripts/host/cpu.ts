@@ -25,7 +25,6 @@ module CTOS {
                     public m_Y: number = 0,
                     public m_Z: number = 0,
                     public m_IsExecuting: boolean = false) {
-
         }
 
         public Init(): void {
@@ -38,17 +37,48 @@ module CTOS {
             Control.CPUTableUpdate(this);
         }
 
+        // Kick process off the CPU, true if forever end the process instead of putting back on ready queue
+        public ContextSwitch(terminate:boolean): void
+        {
+            if (this.m_IsExecuting)
+            {
+                if (terminate)
+                {
+                    this.EndProgram(); // Don't put program back on the ready queue
+                }
+                else // Cycle the current process from the front to the back
+                {
+                    var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+                    pcb.m_Accumulator = this.m_Accumulator;
+                    pcb.m_Counter = this.m_ProgramCounter;
+                    pcb.m_X = this.m_X;
+                    pcb.m_Y = this.m_Y;
+                    pcb.m_Z = this.m_Z;
+                    pcb.m_State = ProcessControlBlock.STATE_READY;
+                    Globals.m_KernelReadyQueue.enqueue(pcb);
+                    this.RunProgram();
+                }
+            }
+        }
+
         // Resets the CPU and sets IsExecuting, triggered by Interupt
         public RunProgram(): void
         {
             this.Init();
             Control.MemoryTableColorOpCode(this.m_ProgramCounter);
             var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+            this.m_Accumulator = pcb.m_Accumulator;
+            this.m_ProgramCounter = pcb.m_Counter;
+            this.m_X = pcb.m_X;
+            this.m_Y = pcb.m_Y;
+            this.m_Z = pcb.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_RUNNING;
+            Globals.m_CurrentPCBExe = pcb;
             this.m_IsExecuting = true; // Next cycle, the program will begin to run.
+            Control.CPUTableUpdate(this);
         }
 
-        // Stops executing program and saves to PCB
+        // Stops executing program, does NOT put it back on the ready queue
         public EndProgram(): void
         {
             this.m_IsExecuting = false;
@@ -59,18 +89,17 @@ module CTOS {
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+            Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
             Globals.m_AchievementSystem.Unlock(16);
-            // Globals.m_KernelResidentQueue.enqueue(pcb); 
-            // Not sure what to do now? P3?
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_BRK, null));
         }
 
         public Cycle(): void 
         {
             if (!Globals.m_StepMode) // Not stepping, just perform normal
             {
+                Globals.m_CPUScheduler.OnCPUCycle();
                 Globals.m_Kernel.Trace('CPU cycle');
-                // TODO: Accumulate CPU usage and profiling statistics here.
-                // Do the real work here. Be sure to set this.isExecuting appropriately.
                 this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                 Control.CPUTableUpdate(this);
                 Control.MemoryTableColorOpCode(this.m_ProgramCounter);
@@ -79,6 +108,7 @@ module CTOS {
             {
                 if (Globals.m_StepNext)
                 {
+                    Globals.m_CPUScheduler.OnCPUCycle();
                     Globals.m_Kernel.Trace('CPU cycle');
                     this.Execute(Globals.m_MemoryManager.GetByte(this.m_ProgramCounter));
                     Control.CPUTableUpdate(this);

@@ -31,8 +31,28 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellLoad, "load", "- Loads the program from Program Input box.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // clearmem
+            sc = new CTOS.ShellCommand(this.shellClearMem, "clearmem", "- Resets all memory blocks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // run
             sc = new CTOS.ShellCommand(this.shellRun, "run", "<PID> - Runs the program by ID that is in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new CTOS.ShellCommand(this.shellRunAll, "runall", "- Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // quantum
+            sc = new CTOS.ShellCommand(this.shellQuantum, "quantum", "<number> - Sets the round robin quantum measured in clock ticks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellPs
+            sc = new CTOS.ShellCommand(this.shellPs, "ps", "- Displays all the active processes.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellKill
+            sc = new CTOS.ShellCommand(this.shellKill, "kill", "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -79,8 +99,6 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellExplode, "explode!", "- BSOD & Shutdown");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
-            // processes - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
             /* ---
             Silly stuff cause I can do this all day.
             --- */
@@ -299,7 +317,12 @@ var CTOS;
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
 
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
+                if (resultPID != -1) {
+                    CTOS.Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("Memory is full!");
+                }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Invalid program input! No cake for you!");
                 CTOS.Globals.m_StdOut.AdvanceLine();
@@ -307,17 +330,28 @@ var CTOS;
             }
         };
 
-        // Run a program using a PID in args
+        Shell.prototype.shellClearMem = function () {
+            CTOS.Globals.m_MemoryManager.ClearMemory();
+            CTOS.Globals.m_StdOut.PutText("Memory cleared.");
+        };
+
+        // Run a program using a PID in args, or take in an array with a PCB & its position in the residentQ
         Shell.prototype.shellRun = function (args) {
-            if (args.length == 1) {
+            var runAll = args.length > 1;
+            if (args.length == 1 || runAll) {
                 var pcb = null;
 
-                for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
-                    var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
-                    if (pcbInQueue.m_PID == args[0]) {
-                        pcb = CTOS.Globals.m_KernelResidentQueue.remove(i);
-                        break;
+                if (!runAll) {
+                    for (var i = 0; i < CTOS.Globals.m_KernelResidentQueue.getSize(); ++i) {
+                        var pcbInQueue = CTOS.Globals.m_KernelResidentQueue.peek(i);
+                        if (pcbInQueue.m_PID == args[0]) {
+                            pcb = CTOS.Globals.m_KernelResidentQueue.remove(i)[0];
+                            break;
+                        }
                     }
+                } else {
+                    pcb = args[0];
+                    CTOS.Globals.m_StdOut.PutText("Putting PID[" + args[1].toString() + "] on the Ready Queue.");
                 }
 
                 if (pcb) {
@@ -329,6 +363,72 @@ var CTOS;
                 }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
+            }
+        };
+
+        Shell.prototype.shellRunAll = function (args) {
+            while (!CTOS.Globals.m_KernelResidentQueue.isEmpty()) {
+                var params = new Array();
+                params[0] = CTOS.Globals.m_KernelResidentQueue.dequeue();
+                params[1] = params[0].m_PID;
+                CTOS.Globals.m_OsShell.shellRun(params);
+            }
+        };
+
+        Shell.prototype.shellKill = function (args) {
+            if (args.length > 0) {
+                for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
+                    // Make sure this isnt null
+                    if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
+                        var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
+                        if (pcb.m_PID == parseInt(args[0])) {
+                            if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
+                                // If process is just in the ready queue, kick it and terminate it.
+                                CTOS.Globals.m_KernelReadyQueue.remove(i);
+                                pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
+                                CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+                            } else if (pcb.m_State == CTOS.ProcessControlBlock.STATE_RUNNING) {
+                                // If process is running, stop it and context switch
+                                CTOS.Globals.m_CPUScheduler.ForceKillRunningProcess();
+                            }
+                            CTOS.Globals.m_StdOut.PutText("Killed PID[" + pcb.m_PID.toString() + "]");
+                            return;
+                        }
+                    }
+                }
+                CTOS.Globals.m_StdOut.PutText("PID not found in ReadyQueue");
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: kill <pid> - PID of active process.");
+            }
+        };
+
+        // Displays all running or ready processes
+        Shell.prototype.shellPs = function () {
+            for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
+                // Make sure this isnt null
+                if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
+                    switch (CTOS.Globals.m_KernelReadyQueue.peek(i).m_State) {
+                        case CTOS.ProcessControlBlock.STATE_RUNNING:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running on the ready queue.");
+                            break;
+                        case CTOS.ProcessControlBlock.STATE_READY:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready on the ready queue.");
+                            break;
+                        case CTOS.ProcessControlBlock.STATE_WAITING:
+                            CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is waiting on the ready queue.");
+                            break;
+                    }
+                    CTOS.Globals.m_StdOut.AdvanceLine();
+                }
+            }
+        };
+
+        Shell.prototype.shellQuantum = function (args) {
+            if (args.length > 0) {
+                CTOS.Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));
+                CTOS.Globals.m_StdOut.PutText("Quantum set to: " + args[0]);
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         };
 

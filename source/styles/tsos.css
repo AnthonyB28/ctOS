@@ -62,7 +62,7 @@ label {
     overflow-y:auto; 
     overflow-x:hidden;
     height:150px; 
-    width:300px;
+    width:400px;
     border:solid;
     border-color:white;
 }
@@ -85,6 +85,17 @@ label {
 }
 
 #MemTable td
+{
+    color:white;
+}
+
+#ReadyQTable th
+{
+    color:white;
+    text-align:center;
+}
+
+#ReadyQTable td
 {
     color:white;
 }

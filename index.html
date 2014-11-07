@@ -35,6 +35,7 @@
 		<script type="text/javascript" src="dist/scripts/os/shell.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/userCommand.js"></script>
+        <script type="text/javascript" src="dist/scripts/os/cpuScheduler.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/kernel.js"></script>
 
 
@@ -142,19 +143,19 @@
     <div class="container">
       <!-- Example row of columns -->
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-5">
                 <label> CLI </label>
                 <br>
-                <div id="divConsole" style="width:524px; height:510px;">
+                <div id="divConsole" style="width:500px; height:510px;">
                     <canvas id="display"
                             width="500"
                             height="500"
                             tabindex="3"></canvas>
                 </div>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-5">
                 <br />
-                <div id="divCPUTable" style="width:150px; float: left;">
+                <div id="divCPUTable" style="width:150px; margin-left:20px; float:left;">
                     <label>CPU</label>
                     <br/>
                     <button type="button"
@@ -201,14 +202,39 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="divMemTable" style="width:155px; float:right;" >
-                    <label>Memory</label>
+                <div id="divMemTable" style="width:160px; margin-right:75px; float:right;" >
+                    <label>Memory 
+                    <input type="checkbox" id="MemTableAutoScrollBox" checked="checked" onclick="CTOS.Globals.m_MemTableAutoScroll=MemTableAutoScrollBox.checked"> AutoScroll
+                    </label>
                     <br />
                     <div id="MemTableDiv">
                         <table id="MemTable" class="table table-condensed table-bordered"></table>
                     </div>
                 </div>
                 <div style="clear:both"></div>
+                <div id="divReadyQ" style="margin-left:25px">
+                    <label>Ready Queue</label><br />
+                    <div id="ReadyQTableDiv">
+                        <table id="ReadyQTable" class="table table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>PID</th>
+                                    <th>State</th>
+                                    <th>PC</th>
+                                    <th>ACC</th>
+                                    <th>X</th>
+                                    <th>Y</th>
+                                    <th>Z</th>
+                                    <th>Mem Base</th>
+                                    <th>Mem Limit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <div id="divLog">
                     <label>Log</label>
                     <br>

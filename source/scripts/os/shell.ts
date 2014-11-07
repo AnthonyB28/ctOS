@@ -43,10 +43,40 @@ module CTOS
                                   "- Loads the program from Program Input box.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // clearmem
+            sc = new ShellCommand(this.shellClearMem,
+                "clearmem",
+                "- Resets all memory blocks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // run
             sc = new ShellCommand(this.shellRun,
                                     "run",
                                     "<PID> - Runs the program by ID that is in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // runall
+            sc = new ShellCommand(this.shellRunAll,
+                "runall",
+                "- Runs all the programs in memory.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // quantum
+            sc = new ShellCommand(this.shellQuantum,
+                "quantum",
+                "<number> - Sets the round robin quantum measured in clock ticks.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellPs
+            sc = new ShellCommand(this.shellPs,
+                "ps",
+                "- Displays all the active processes.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellKill
+            sc = new ShellCommand(this.shellKill,
+                "kill",
+                "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -114,9 +144,6 @@ module CTOS
                 "explode!",
                 "- BSOD & Shutdown");
             this.m_CommandList[this.m_CommandList.length] = sc;
-
-            // processes - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
 
             /* ---
                 Silly stuff cause I can do this all day.
@@ -377,7 +404,15 @@ module CTOS
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                Globals.m_StdOut.PutText("PID[" + Globals.m_MemoryManager.LoadProgram(programInput).toString() + "] has been loaded!");
+                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput);
+                if (resultPID != -1)
+                {
+                    Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("Memory is full!");
+                }
             }
             else
             {
@@ -387,22 +422,37 @@ module CTOS
             }
         }
 
-        // Run a program using a PID in args
+        public shellClearMem(): void
+        {
+            Globals.m_MemoryManager.ClearMemory();
+            Globals.m_StdOut.PutText("Memory cleared.");
+        }
+
+        // Run a program using a PID in args, or take in an array with a PCB & its position in the residentQ
         public shellRun(args): void
         {
-            if (args.length == 1) // Must have a PID provided
+            var runAll: boolean = args.length > 1;
+            if (args.length == 1 || runAll) // Must have a PID provided
             {
                 var pcb: ProcessControlBlock = null;
 
-                // Need to check to see if a PCB is in the Resident Queue
-                for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
+                if (!runAll)
                 {
-                    var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
-                    if (pcbInQueue.m_PID == args[0])
+                    // Need to check to see if a PCB is in the Resident Queue
+                    for (var i = 0; i < Globals.m_KernelResidentQueue.getSize(); ++i)
                     {
-                        pcb = Globals.m_KernelResidentQueue.remove(i);
-                        break;
+                        var pcbInQueue: ProcessControlBlock = Globals.m_KernelResidentQueue.peek(i);
+                        if (pcbInQueue.m_PID == args[0])
+                        {
+                            pcb = Globals.m_KernelResidentQueue.remove(i)[0];
+                            break;
+                        }
                     }
+                }
+                else // We did run all, just take the param
+                {
+                    pcb = args[0];
+                    Globals.m_StdOut.PutText("Putting PID[" + args[1].toString() + "] on the Ready Queue.");
                 }
 
                 if (pcb) // Get ready to run PCB & put it in the ready queue
@@ -419,6 +469,93 @@ module CTOS
             else
             {
                 Globals.m_StdOut.PutText("Usage: run <PID>  Please supply a single PID.");
+            }
+        }
+
+        public shellRunAll(args): void
+        {
+            // Need to check to see if a PCB is in the Resident Queue
+            while(!Globals.m_KernelResidentQueue.isEmpty())
+            {
+                var params: Array<any> = new Array<any>();
+                params[0] = Globals.m_KernelResidentQueue.dequeue();
+                params[1] = params[0].m_PID;
+                Globals.m_OsShell.shellRun(params);
+            }
+        }
+
+        public shellKill(args): void
+        {
+            if (args.length > 0)
+            {
+                for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize(); ++i)
+                {
+                    // Make sure this isnt null
+                    if (Globals.m_KernelReadyQueue.peek(i))
+                    {
+                        var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
+                        if (pcb.m_PID == parseInt(args[0])) // Found the target PID
+                        {
+                            if (pcb.m_State == ProcessControlBlock.STATE_READY)
+                            {
+                                // If process is just in the ready queue, kick it and terminate it.
+                                Globals.m_KernelReadyQueue.remove(i);
+                                pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
+                                Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+                            }
+                            else if (pcb.m_State == ProcessControlBlock.STATE_RUNNING)
+                            {
+                                // If process is running, stop it and context switch
+                                Globals.m_CPUScheduler.ForceKillRunningProcess();
+                            }
+                            Globals.m_StdOut.PutText("Killed PID[" + pcb.m_PID.toString() + "]");
+                            return;
+                        }
+                    }
+                }
+                Globals.m_StdOut.PutText("PID not found in ReadyQueue");
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: kill <pid> - PID of active process.");
+            }
+        }
+
+        // Displays all running or ready processes
+        public shellPs(): void
+        {
+            for (var i: number = 0; i < Globals.m_KernelReadyQueue.getSize(); ++i)
+            {
+                // Make sure this isnt null
+                if (Globals.m_KernelReadyQueue.peek(i))
+                {
+                    switch (Globals.m_KernelReadyQueue.peek(i).m_State) // Processes only running or waiting.
+                    {
+                        case ProcessControlBlock.STATE_RUNNING:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is running on the ready queue.");
+                            break;
+                        case ProcessControlBlock.STATE_READY:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is ready on the ready queue.");
+                            break;
+                        case ProcessControlBlock.STATE_WAITING:
+                            Globals.m_StdOut.PutText("PID[" + Globals.m_KernelReadyQueue.peek(i).m_PID.toString() + "] is waiting on the ready queue.");
+                            break;
+                    }
+                    Globals.m_StdOut.AdvanceLine();
+                }
+            }
+        }
+
+        public shellQuantum(args): void
+        {
+            if (args.length > 0)
+            {
+                Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));
+                Globals.m_StdOut.PutText("Quantum set to: " + args[0]);
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         }
 
