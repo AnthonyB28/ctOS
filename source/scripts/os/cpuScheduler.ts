@@ -4,7 +4,8 @@
     {
         constructor(private m_WaitingExe: boolean = false,
             private m_Quantum: number = 6,
-            private m_CPUCyles: number = 0)
+            private m_CPUCyles: number = 0,
+			private m_SchedulerType: number = 0)
         { }
 
         // Sets waiting to true and mode bit to user mode.
@@ -14,6 +15,20 @@
             Globals.m_Mode = 1; // User mode
             this.m_WaitingExe = true;
         }
+		
+		// Sets the scheduling algo we use
+		// 0 for Round Robin
+		// 1 for FirstComeFirstServe
+		// 2 for Priority
+		public SetType(t: number):void
+		{
+			this.m_SchedulerType = t;
+		}
+		
+		public GetType():number
+		{
+			return this.m_SchedulerType;
+		}
 
         public IsWaiting(): boolean
         {
@@ -34,13 +49,29 @@
         // Checks if the CPUScheduler needs to context switch
         public Cycle(): void
         {
-            // Round Robin = if the cycles go over our Quantum, kick process off the swings
-            // Quantum -1 because CPU cycle is garunteed to occur when the scheduler is done. If a switch is needed,
-            // it is queued as an interupt. That would mean that the switch would occur at cycle 7, instead of 6, if q = 6
-            if (this.m_CPUCyles >= this.m_Quantum-1)
-            {
-                this.ContextSwitch();
-            }
+			if(this.m_SchedulerType == 0)
+			{
+				// Round Robin = if the cycles go over our Quantum, kick process off the swings
+				// Quantum -1 because CPU cycle is garunteed to occur when the scheduler is done. If a switch is needed,
+				// it is queued as an interupt. That would mean that the switch would occur at cycle 7, instead of 6, if q = 6
+				if (this.m_CPUCyles >= this.m_Quantum-1)
+				{
+					this.ContextSwitch();
+				}
+			}
+			else if(this.m_SchedulerType == 1)
+			{
+				// First Come First Serve
+				// Does anything even need to be done here?
+			}
+			else
+			{
+				// NonPreemptive Priority - smallest integer = greatest p
+				// Let the executing process finish before doing a context switch
+				// May want to implement something to help starvation (age the low priority processes)
+				
+				// Wait... do we need anything here either? LOL
+			}
         }
 
         // Scheduling needs to force the CPU to stop running program
@@ -98,5 +129,21 @@
                 Globals.m_Mode = 0; // Kernel Mode
             }
         }
+		
+		public static PrioritySort(a,b)
+		{
+			if(a.m_Priority < b.m_Priority)
+			{
+				return -1;
+			}
+			else if(a.m_Priority > b.m_Priority)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
     }
 } 

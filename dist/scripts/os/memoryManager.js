@@ -36,9 +36,10 @@ var CTOS;
         };
 
         // Loads the program into memory & returns PID
-        MemoryManager.prototype.LoadProgram = function (program) {
+        MemoryManager.prototype.LoadProgram = function (program, priority) {
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb = new CTOS.ProcessControlBlock();
+            pcb.m_Priority = priority;
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1) {
                 // OUT OF MEMORY!

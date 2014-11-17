@@ -493,6 +493,8 @@ module CTOS {
                 cell.innerText = pcb.m_MemBase;
                 cell = row.insertCell(8);
                 cell.innerText = pcb.m_MemLimit;
+                cell = row.insertCell(9);
+                cell.innerText = pcb.m_Priority;
             }
         }
     }

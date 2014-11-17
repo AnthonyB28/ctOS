@@ -75,7 +75,17 @@ var CTOS;
         // Stops executing program, does NOT put it back on the ready queue
         Cpu.prototype.EndProgram = function () {
             this.m_IsExecuting = false;
-            var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+            var indexToRemove = 0;
+
+            // Dequeue the process that is currently RUNNING, don't just dequeue from the start.
+            // Necessary for priority scheduling which is sorted, new pid could be at the front. Nonpreemptive
+            var qSize = CTOS.Globals.m_KernelReadyQueue.getSize();
+            for (var i = 0; i < qSize; ++i) {
+                if (CTOS.Globals.m_CurrentPCBExe.m_PID == CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID) {
+                    indexToRemove = i;
+                }
+            }
+            var pcb = CTOS.Globals.m_KernelReadyQueue.q.splice(indexToRemove, 1)[0];
             pcb.m_Accumulator = this.m_Accumulator;
             pcb.m_Counter = this.m_ProgramCounter;
             pcb.m_X = this.m_X;

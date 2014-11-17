@@ -82,7 +82,18 @@ module CTOS {
         public EndProgram(): void
         {
             this.m_IsExecuting = false;
-            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.dequeue();
+            var indexToRemove: number = 0;
+            // Dequeue the process that is currently RUNNING, don't just dequeue from the start.
+            // Necessary for priority scheduling which is sorted, new pid could be at the front. Nonpreemptive
+            var qSize: number = Globals.m_KernelReadyQueue.getSize();
+            for (var i: number = 0; i < qSize; ++i)
+            {
+                if (Globals.m_CurrentPCBExe.m_PID == Globals.m_KernelReadyQueue.peek(i).m_PID)
+                {
+                    indexToRemove = i;
+                }
+            }
+            var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.q.splice(indexToRemove,1)[0];
             pcb.m_Accumulator = this.m_Accumulator;
             pcb.m_Counter = this.m_ProgramCounter;
             pcb.m_X = this.m_X;

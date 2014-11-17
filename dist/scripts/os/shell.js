@@ -324,7 +324,12 @@ var CTOS;
             CTOS.Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         };
 
-        Shell.prototype.shellLoad = function () {
+        Shell.prototype.shellLoad = function (args) {
+            var priority = 0;
+            if (args.length == 1) {
+                priority = args[0];
+            }
+
             var programToParse = CTOS.Globals.m_ProgramInput.value;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
@@ -349,7 +354,7 @@ var CTOS;
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
 
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
+                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput, priority);
                 if (resultPID != -1) {
                     CTOS.Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
                 } else {
@@ -389,6 +394,10 @@ var CTOS;
                 if (pcb) {
                     pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                    if (CTOS.Globals.m_CPUScheduler.GetType() == 2) {
+                        CTOS.Globals.m_KernelReadyQueue.q.sort(CTOS.CPUScheduler.PrioritySort);
+                    }
+
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
@@ -507,10 +516,13 @@ var CTOS;
 
         // Sets scheduler to rr, fcfs, or priority from args
         Shell.prototype.shellSetSchedule = function (args) {
-            if (args && args.size > 0) {
+            if (args && args.length > 0) {
                 if (args[0] == "rr") {
+                    CTOS.Globals.m_CPUScheduler.SetType(0);
                 } else if (args[0] == "fcfs") {
+                    CTOS.Globals.m_CPUScheduler.SetType(1);
                 } else if (args[0] == "priority") {
+                    CTOS.Globals.m_CPUScheduler.SetType(2);
                 } else {
                     CTOS.Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
                 }
@@ -521,7 +533,17 @@ var CTOS;
 
         // Display current scheduling algorithm
         Shell.prototype.shellGetSchedule = function (args) {
-            //TODO
+            switch (CTOS.Globals.m_CPUScheduler.GetType()) {
+                case 0:
+                    CTOS.Globals.m_StdOut.PutText("Round Robin Scheduling");
+                    break;
+                case 1:
+                    CTOS.Globals.m_StdOut.PutText("FirstComeFirstServer Scheduling");
+                    break;
+                case 2:
+                    CTOS.Globals.m_StdOut.PutText("NonPreemptive Priority Scheduling");
+                    break;
+            }
         };
 
         Shell.prototype.shellHelp = function (args) {

@@ -22,6 +22,7 @@ module CTOS
         public m_State: number = 0; // May not be needed until P3?
 
         public m_PID: number = ++ProcessControlBlock.m_GPID; // Increment for every instance
+		public m_Priority: number = 0;
         public m_Counter: number = 0;
         public m_Accumulator: number = 0;
         public m_X: number = 0;

@@ -419,8 +419,14 @@ module CTOS
             Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         }
 
-        public shellLoad(): void
+        public shellLoad(args): void
         {
+			var priority: number = 0;
+			if(args.length == 1)
+			{
+				priority = args[0];
+			}
+			
             var programToParse: string = Globals.m_ProgramInput.value;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput: Array<string> = programToParse.split(" "); // Split to each code
@@ -452,7 +458,7 @@ module CTOS
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput);
+                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput, priority);
                 if (resultPID != -1)
                 {
                     Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
@@ -507,6 +513,11 @@ module CTOS
                 {
                     pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
+					if(Globals.m_CPUScheduler.GetType() == 2)
+					{
+						Globals.m_KernelReadyQueue.q.sort(CPUScheduler.PrioritySort);
+					}
+						
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
                 else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
@@ -674,16 +685,19 @@ module CTOS
         // Sets scheduler to rr, fcfs, or priority from args
         public shellSetSchedule(args): void
         {
-            if (args && args.size > 0)
+            if (args && args.length > 0)
             {
                 if (args[0] == "rr")
                 {
+					Globals.m_CPUScheduler.SetType(0);
                 }
                 else if (args[0] == "fcfs")
                 {
+					Globals.m_CPUScheduler.SetType(1);
                 }
                 else if (args[0] == "priority")
                 {
+					Globals.m_CPUScheduler.SetType(2);
                 }
                 else
                 {
@@ -699,7 +713,15 @@ module CTOS
         // Display current scheduling algorithm
         public shellGetSchedule(args): void
         {
-            //TODO
+            switch(Globals.m_CPUScheduler.GetType())
+			{
+				case 0:
+					Globals.m_StdOut.PutText("Round Robin Scheduling"); break;
+				case 1:
+					Globals.m_StdOut.PutText("FirstComeFirstServer Scheduling"); break;
+				case 2:
+					Globals.m_StdOut.PutText("NonPreemptive Priority Scheduling"); break;
+			}
         }
 
 

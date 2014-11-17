@@ -52,10 +52,11 @@ module CTOS
         }
 
         // Loads the program into memory & returns PID
-        public LoadProgram(program: Array<string>): number
+        public LoadProgram(program: Array<string>, priority: number): number
         {
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb: ProcessControlBlock = new ProcessControlBlock();
+			pcb.m_Priority = priority;
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1)
             {
