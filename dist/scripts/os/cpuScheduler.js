@@ -24,6 +24,7 @@
         // 2 for Priority
         CPUScheduler.prototype.SetType = function (t) {
             this.m_SchedulerType = t;
+            CTOS.Control.SetSchedule(t);
         };
 
         CPUScheduler.prototype.GetType = function () {

@@ -444,6 +444,21 @@ var CTOS;
                 cell.innerText = pcb.m_Priority;
             }
         };
+
+        Control.SetSchedule = function (type) {
+            var label = document.getElementById("ReadyQScheduleLabel");
+            switch (type) {
+                case 0:
+                    label.innerText = "Round Robin";
+                    break;
+                case 1:
+                    label.innerText = "FirstCome FirstServe";
+                    break;
+                case 2:
+                    label.innerText = "Priority";
+                    break;
+            }
+        };
         Control.m_LastExecutedOpPos = new Array();
         Control.m_LastMemoryAddress1Pos = new Array();
         Control.m_LastMemoryAddress2Pos = new Array();

@@ -22,7 +22,8 @@
 		// 2 for Priority
 		public SetType(t: number):void
 		{
-			this.m_SchedulerType = t;
+            this.m_SchedulerType = t;
+            Control.SetSchedule(t);
 		}
 		
 		public GetType():number

@@ -497,5 +497,19 @@ module CTOS {
                 cell.innerText = pcb.m_Priority;
             }
         }
+
+        public static SetSchedule(type: number): void
+        {
+            var label = document.getElementById("ReadyQScheduleLabel");
+            switch (type)
+            {
+                case 0:
+                    label.innerText = "Round Robin"; break;
+                case 1:
+                    label.innerText = "FirstCome FirstServe"; break;
+                case 2:
+                    label.innerText = "Priority"; break;
+            }
+        }
     }
 }

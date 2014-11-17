@@ -689,15 +689,15 @@ module CTOS
             {
                 if (args[0] == "rr")
                 {
-					Globals.m_CPUScheduler.SetType(0);
+                    Globals.m_CPUScheduler.SetType(0);
                 }
                 else if (args[0] == "fcfs")
                 {
-					Globals.m_CPUScheduler.SetType(1);
+                    Globals.m_CPUScheduler.SetType(1);
                 }
                 else if (args[0] == "priority")
                 {
-					Globals.m_CPUScheduler.SetType(2);
+                    Globals.m_CPUScheduler.SetType(2);
                 }
                 else
                 {
