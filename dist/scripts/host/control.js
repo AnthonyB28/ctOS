@@ -122,6 +122,8 @@ var CTOS;
             CTOS.Globals.m_Kernel = new CTOS.Kernel();
             CTOS.Globals.m_Kernel.Bootstrap();
 
+            CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
+
             // Achievement unlocked!
             CTOS.Globals.m_AchievementSystem.Unlock(0);
         };

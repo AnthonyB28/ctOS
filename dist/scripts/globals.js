@@ -26,10 +26,7 @@ var CTOS;
         Globals.INTERRUPT_CPU_CNTXSWTCH = 7;
         Globals.MAX_COMMAND_HISTORY = 10;
 
-        Globals.m_OSClock = 0;
-        Globals.m_StepMode = false;
-        Globals.m_StepNext = false;
-        Globals.m_MemTableAutoScroll = true;
+        Globals.m_HardDrive = null;
 
         Globals.m_Mode = 0;
 
@@ -57,6 +54,11 @@ var CTOS;
 
         Globals.m_StdIn = null;
         Globals.m_StdOut = null;
+
+        Globals.m_OSClock = 0;
+        Globals.m_StepMode = false;
+        Globals.m_StepNext = false;
+        Globals.m_MemTableAutoScroll = true;
 
         Globals.m_BSODColor = "#236B8E";
         Globals.m_ConsoleTextDefaultColor = "white";

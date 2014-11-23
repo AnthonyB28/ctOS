@@ -139,6 +139,8 @@ module CTOS {
             Globals.m_Kernel = new Kernel();
             Globals.m_Kernel.Bootstrap();
 
+            Globals.m_HardDrive = new HardDrive();
+
             // Achievement unlocked!
             Globals.m_AchievementSystem.Unlock(0);
         }

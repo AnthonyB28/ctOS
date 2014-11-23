@@ -36,10 +36,7 @@ module CTOS
         static m_CPU: Cpu;  // Utilize TypeScript's type annotation system to ensure that CPU is an instance of the Cpu class.
         static m_CPUScheduler: CPUScheduler; // Round Robin scheduler for CPU
         static m_MemoryManager: MemoryManager; // Interface with our memory
-        static m_OSClock: number = 0;  // Page 23.
-        static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
-        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
-        static m_MemTableAutoScroll: boolean = true;
+        static m_HardDrive: HardDrive = null;
 
         //oops mode
         static m_Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
@@ -74,6 +71,10 @@ module CTOS
         static m_StdOut: CTOS.Console = null;
 
         // UI
+        static m_OSClock: number = 0;  // Page 23.
+        static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
+        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
+        static m_MemTableAutoScroll: boolean = true;
         static m_Console: CTOS.Console;
         static m_OsShell: CTOS.Shell;
         static m_BSODColor: string = "#236B8E"; // Inner circle

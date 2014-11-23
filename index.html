@@ -10,6 +10,9 @@
         <meta name="author" content="Anthony Barranco" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
 		
+        <!-- modernizr -->
+        <script src="dist/styles/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+
 		<!-- Our CSS -->
 		<link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
 		<!-- Globals CONSTANTS and _Variables. Must included be first. -->
@@ -18,6 +21,7 @@
 		<!-- Host (Hardware Simulation) Routines -->
         <script type="text/javascript" src="dist/scripts/host/byte.js"></script>
         <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
+        <script type="text/javascript" src="dist/scripts/host/hardDrive.js"></script>
         <script type="text/javascript" src="dist/scripts/host/instructions.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/control.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/devices.js"></script>
@@ -60,7 +64,7 @@
         <link rel="stylesheet" href="dist/styles/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="dist/styles/css/main.css">
 
-        <script src="dist/styles/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        
     </head>
     <body onload="CTOS.Globals.onDocumentLoad();">
         <!--[if lt IE 7]>
