@@ -621,9 +621,12 @@ module CTOS
         // Creates a file using args for filename
         public shellCreateFile(args): void
         {
-            if (args && args.size > 0)
+            if (args && args.length > 0)
             {
-
+                var params: Array < any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_CREATE_FILE;
+                params[1] = args[0];
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params)); 
             }
             else
             {

@@ -36,11 +36,15 @@ module CTOS
             Globals.m_StdIn  = Globals.m_Console;
             Globals.m_StdOut = Globals.m_Console;
 
-            // Load the Keyboard Device Driver
+            // Load the device drivers
             this.Trace("Loading the keyboard device driver.");
             Globals.m_KrnKeyboardDriver = new DeviceDriverKeyboard();     // Construct it.
             Globals.m_KrnKeyboardDriver.driverEntry();                    // Call the driverEntry() initialization routine.
             this.Trace(Globals.m_KrnKeyboardDriver.status);
+            this.Trace("Loading the hard drive device driver.");
+            Globals.m_KrnHardDriveDriver = new DeviceDriverHardDrive();
+            Globals.m_KrnHardDriveDriver.driverEntry();
+            this.Trace(Globals.m_KrnHardDriveDriver.status);
 
             //
             // ... more?
@@ -192,6 +196,10 @@ module CTOS
                     {
                         this.Trace("Context switch occured. Round Robin.");
                     }
+                    break;
+                case Globals.INTERRUPT_REQUEST_HD:
+                    Globals.m_KrnHardDriveDriver.isr(params);
+                    this.Trace("Hard Drive interrupt params=[" + params + "]");
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

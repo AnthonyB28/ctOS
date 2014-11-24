@@ -28,6 +28,7 @@ module CTOS
         static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
         static INTERRUPT_CPU_BRK: number = 6; // Program had an invalid op.
         static INTERRUPT_CPU_CNTXSWTCH: number = 7;
+        static INTERRUPT_REQUEST_HD: number = 8;
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //
@@ -86,6 +87,7 @@ module CTOS
 
         // Global Device Driver Objects - page 12
         static m_KrnKeyboardDriver = null;
+        static m_KrnHardDriveDriver = null;
         static m_HardwareClockID: number = null;
 
         // For testing...

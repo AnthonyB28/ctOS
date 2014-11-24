@@ -24,6 +24,7 @@ var CTOS;
         Globals.INTERRUPT_INVALID_OP = 5;
         Globals.INTERRUPT_CPU_BRK = 6;
         Globals.INTERRUPT_CPU_CNTXSWTCH = 7;
+        Globals.INTERRUPT_REQUEST_HD = 8;
         Globals.MAX_COMMAND_HISTORY = 10;
 
         Globals.m_HardDrive = null;
@@ -66,6 +67,7 @@ var CTOS;
         Globals.m_SarcasticMode = false;
 
         Globals.m_KrnKeyboardDriver = null;
+        Globals.m_KrnHardDriveDriver = null;
         Globals.m_HardwareClockID = null;
 
         Globals.m_GLaDOS = null;

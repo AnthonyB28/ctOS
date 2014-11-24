@@ -72,46 +72,40 @@ module CTOS
         public SetNextAvailableDir(tsb: string): void
         {
             var mbr: string = localStorage.getItem("000");
-            mbr[4] = tsb[0];
-            mbr[5] = tsb[1];
-            mbr[6] = tsb[2];
-            localStorage.setItem("000", mbr);
+            var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
+            localStorage.setItem("000", newMbr);
         }
 
         public GetNextAvailableDir(): string
         {
             var mbr: string = localStorage.getItem("000");
-            return mbr.substr(4, 7);
+            return mbr.substr(4, 3);
         }
 
         public SetNextAvailableData(tsb: string): void
         {
             var mbr: string = localStorage.getItem("000");
-            mbr[7] = tsb[0];
-            mbr[8] = tsb[1];
-            mbr[9] = tsb[2];
-            localStorage.setItem("000", mbr);
+            var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
+            localStorage.setItem("000", newMbr);
         }
 
         public GetNextAvailableData(): string
         {
             var mbr: string = localStorage.getItem("000");
-            return mbr.substr(7, 10);
+            return mbr.substr(7, 3);
         }
 
         public SetNextAvailableSwap(tsb: string): void
         {
             var mbr: string = localStorage.getItem("000");
-            mbr[10] = tsb[0];
-            mbr[11] = tsb[1];
-            mbr[12] = tsb[2];
-            localStorage.setItem("000", mbr);
+            var newMbr: string = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
+            localStorage.setItem("000", newMbr);
         }
 
         public GetNextAvailableSwap(): string
         {
             var mbr: string = localStorage.getItem("000");
-            return mbr.substr(10, 13);
+            return mbr.substr(10, 3);
         }
 
         private IsSupported(): boolean

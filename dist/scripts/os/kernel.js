@@ -31,11 +31,15 @@ var CTOS;
             CTOS.Globals.m_StdIn = CTOS.Globals.m_Console;
             CTOS.Globals.m_StdOut = CTOS.Globals.m_Console;
 
-            // Load the Keyboard Device Driver
+            // Load the device drivers
             this.Trace("Loading the keyboard device driver.");
             CTOS.Globals.m_KrnKeyboardDriver = new CTOS.DeviceDriverKeyboard(); // Construct it.
             CTOS.Globals.m_KrnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.Trace(CTOS.Globals.m_KrnKeyboardDriver.status);
+            this.Trace("Loading the hard drive device driver.");
+            CTOS.Globals.m_KrnHardDriveDriver = new CTOS.DeviceDriverHardDrive();
+            CTOS.Globals.m_KrnHardDriveDriver.driverEntry();
+            this.Trace(CTOS.Globals.m_KrnHardDriveDriver.status);
 
             //
             // ... more?
@@ -163,6 +167,10 @@ var CTOS;
                     } else {
                         this.Trace("Context switch occured. Round Robin.");
                     }
+                    break;
+                case CTOS.Globals.INTERRUPT_REQUEST_HD:
+                    CTOS.Globals.m_KrnHardDriveDriver.isr(params);
+                    this.Trace("Hard Drive interrupt params=[" + params + "]");
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
