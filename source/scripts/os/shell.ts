@@ -650,9 +650,27 @@ module CTOS
         // Writes to a file using args for filename AND data
         public shellWriteFile(args): void
         {
-            if (args && args.size == 2)
+            if (args && args.length >= 2)
             {
-                
+                var params: Array<any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_WRITE_DATA;
+                params[1] = args[0];
+                var dataString: string = "";
+                if (args[1][0] == "\"" && args[args.length-1][0] == "\"")
+                {
+
+                    for (var i: number = 1; i <= args.length - 1; ++i)
+                    {
+                        dataString += args[i];
+                    }
+                    Globals.m_StdOut.PutText(dataString.replace("\"", ""));
+                    params[2] = dataString.replace("\"", "");
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("Incorrect data format");
+                }
             }
             else
             {

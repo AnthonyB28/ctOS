@@ -15,6 +15,7 @@ module CTOS
     export class HardDrive
     {
         static Supported: boolean = false;
+        static INIT_TSB: string = "0@@@00000000000000000000000000000000000000000000000000000000000";
         
         constructor()
         {
@@ -48,7 +49,7 @@ module CTOS
                 {
                     tsb += i.toString();
                 }
-                localStorage.setItem(tsb, "0@@@00000000000000000000000000000000000000000000000000000000000");
+                localStorage.setItem(tsb, HardDrive.INIT_TSB);
             }
         }
 
@@ -62,6 +63,11 @@ module CTOS
             {
                 localStorage.setItem(tsb, data);
             }
+        }
+
+        public ResetTSB(tsb: string): void
+        {
+            localStorage.setItem(tsb, HardDrive.INIT_TSB);
         }
 
         public GetTSB(tsb: string): string

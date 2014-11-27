@@ -32,7 +32,7 @@ var CTOS;
                 } else {
                     tsb += i.toString();
                 }
-                localStorage.setItem(tsb, "0@@@00000000000000000000000000000000000000000000000000000000000");
+                localStorage.setItem(tsb, HardDrive.INIT_TSB);
             }
         };
 
@@ -42,6 +42,10 @@ var CTOS;
             } else {
                 localStorage.setItem(tsb, data);
             }
+        };
+
+        HardDrive.prototype.ResetTSB = function (tsb) {
+            localStorage.setItem(tsb, HardDrive.INIT_TSB);
         };
 
         HardDrive.prototype.GetTSB = function (tsb) {
@@ -89,6 +93,7 @@ var CTOS;
             }
         };
         HardDrive.Supported = false;
+        HardDrive.INIT_TSB = "0@@@00000000000000000000000000000000000000000000000000000000000";
         return HardDrive;
     })();
     CTOS.HardDrive = HardDrive;

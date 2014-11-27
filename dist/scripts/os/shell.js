@@ -495,7 +495,21 @@ var CTOS;
 
         // Writes to a file using args for filename AND data
         Shell.prototype.shellWriteFile = function (args) {
-            if (args && args.size == 2) {
+            if (args && args.length >= 2) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_WRITE_DATA;
+                params[1] = args[0];
+                var dataString = "";
+                if (args[1][0] == "\"" && args[args.length - 1][0] == "\"") {
+                    for (var i = 1; i <= args.length - 1; ++i) {
+                        dataString += args[i];
+                    }
+                    CTOS.Globals.m_StdOut.PutText(dataString.replace("\"", ""));
+                    params[2] = dataString.replace("\"", "");
+                    CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("Incorrect data format");
+                }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");
             }

@@ -19,6 +19,26 @@ var CTOS;
             */
         };
 
+        // Converts a string to hex data.
+        // The result can be up to twice the length of the string.
+        Utils.ConvertToHex = function (str) {
+            var hexString = "";
+            for (var i = 0; i < str.length; ++i) {
+                hexString += str.charCodeAt(i).toString(16);
+            }
+            return hexString;
+        };
+
+        // Convert from hex data string to 'readable' string
+        Utils.ConvertHexToString = function (str) {
+            var hexString = "";
+            for (var i = 0; i < str.length; ++i) {
+                hexString += String.fromCharCode(parseInt(str.substr(i, 2), 16));
+                ++i;
+            }
+            return hexString;
+        };
+
         // Returns whether a string is a valid hex number or not
         Utils.IsValidHex = function (str) {
             if (str.length == 2 && parseInt(str, 16) >= 0) {

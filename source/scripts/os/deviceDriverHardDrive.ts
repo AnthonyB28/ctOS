@@ -11,6 +11,7 @@ module CTOS
         static IRQ_FORMAT: number = 0;
         static IRQ_CREATE_FILE: number = 1;
         static IRQ_CREATE_FILE_DATA: number = 2;
+        static IRQ_WRITE_DATA: number = 3;
 
         private m_AvailableDir: Array<number>;
         private m_AvailableData: Array<number>;
@@ -39,6 +40,8 @@ module CTOS
                     this.Format(); break;
                 case DeviceDriverHardDrive.IRQ_CREATE_FILE:
                     this.CreateFile(params[1]); break;
+                case DeviceDriverHardDrive.IRQ_WRITE_DATA:
+                    this.CreateData(params[1], params[2]); break;
             }
         }
 
@@ -61,6 +64,7 @@ module CTOS
             else
             {
                 Globals.m_StdOut.PutText("HTML5 Local Storage not supported");
+                Globals.m_StdOut.AdvanceLine();
                 return false;
             }
         }
@@ -74,20 +78,17 @@ module CTOS
             }
         }
 
-        public CreateFile(filename: string): void
+        private CreateFile(filename: string): void
         {
             if (this.IsSupported())
             {
                 if (filename.length > 59)
                 {
-                    Globals.m_StdOut.PutText("Filename: " + filename + " is too long.");
+                    Globals.m_StdOut.PutText("Error - Filename: " + filename + " is too long.");
+                    Globals.m_StdOut.AdvanceLine();
                     return;
                 }
-                var hexString: string = "";
-                for (var i: number = 0; i < filename.length; ++i)
-                {
-                    hexString += filename.charCodeAt(i).toString(16);
-                }
+                var hexString: string = Utils.ConvertToHex(filename);
                 var tsbDir: string = Globals.m_HardDrive.GetNextAvailableDir();
                 var tsbData: string = Globals.m_HardDrive.GetNextAvailableData();
                 if (Globals.m_HardDrive.GetTSB(tsbDir)[0] == "0")
@@ -103,17 +104,98 @@ module CTOS
                         var nextData: number = this.ProbeNextAvailableData()
                         Globals.m_HardDrive.SetNextAvailableDir(this.ConvertIntegerToTSB(nextDir));
                         Globals.m_HardDrive.SetNextAvailableData(this.ConvertIntegerToTSB(nextData));
+                        Globals.m_StdOut.PutText("Success - filename TSB " + tsbDir);
+                        Globals.m_StdOut.AdvanceLine();
                     }
                     else
                     {
-                        Globals.m_StdOut.PutText(tsbData + " data is not avail");
+                        Globals.m_StdOut.PutText("Error - TSB" + tsbData + " data not avail");
+                        Globals.m_StdOut.AdvanceLine();
                     }
                 }
                 else
                 {
-                    Globals.m_StdOut.PutText(tsbDir + " dir is not avail");
+                    Globals.m_StdOut.PutText("Error - TSB" + tsbDir + " dir not avail");
+                    Globals.m_StdOut.AdvanceLine();
                 }
             }
+        }
+
+        private CreateData(file:string, data: string): void
+        {
+            if (this.IsSupported())
+            {
+                var dirTSB: string = this.GetFilenameTSB(file);
+                if (dirTSB)
+                {
+                    var startingDataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
+                    this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
+                    var tsbNeededToFill: number = Math.ceil(data.length / 59);
+                    var hexDataToWrite: string = Utils.ConvertToHex(data);
+                    if (tsbNeededToFill == 1)
+                    {
+                        Globals.m_HardDrive.SetTSB(startingDataTSB, "1@@@" + hexDataToWrite);
+                    }
+                    else
+                    {
+                        var curDataTSB: string = startingDataTSB;
+                        var nextAvailDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
+                        // Get next available tsb, set the current tsb with next available tsb and data
+                        for (var i: number = 0; i < tsbNeededToFill; ++i)
+                        {
+                            var startIndex: number = i * (118); //118 = 59*2 for hex byte
+                            var endIndex: number = i + 118;
+                            Globals.m_HardDrive.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
+                            this.m_AvailableData[parseInt(curDataTSB, 10)] = 1; // Set this data TSB to in use
+                            curDataTSB = nextAvailDataTSB;
+                            nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                            Globals.m_StdOut.PutText(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
+                            Globals.m_StdOut.AdvanceLine();
+                        }
+                        Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB);
+                    }
+                    Globals.m_StdOut.PutText("Success writing data");
+                    Globals.m_StdOut.AdvanceLine();
+                }
+            }
+        }
+
+        private DeleteDataTSB(tsb: string): void
+        {
+            while (tsb != "@@@")
+            {
+                this.m_AvailableData[parseInt(tsb, 10)] = 0;
+                tsb = Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
+                Globals.m_HardDrive.ResetTSB(tsb);
+            }
+        }
+
+        private GetFilenameTSB(file:string): string
+        {
+            for (var i: number = 1; i < 77; ++i)
+            {
+                var tsb: string = "";
+                if (i < 10)
+                {
+                    tsb += "00" + i.toString();
+                }
+                else
+                {
+                    tsb += "0" + i.toString();
+                }
+                var dirData: string = Globals.m_HardDrive.GetTSB(tsb);
+                if (dirData[0] == "1")
+                {
+                    var fileName: string = Utils.ConvertHexToString(dirData.substr(4, file.length * 2));
+                    if (fileName == file)
+                    {
+                        return dirData.substr(1, 3);
+                    }
+                }
+            }
+            Globals.m_StdOut.PutText("Filename doesn't exist.");
+            Globals.m_StdOut.AdvanceLine();
+            return null;
         }
 
         private ConvertIntegerToTSB(i: number): string
