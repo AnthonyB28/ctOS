@@ -23,14 +23,25 @@ module CTOS
             // Override the base method pointers.
             super(this.krnHdDriverEntry, this.krnHdDriverISR);
             this.m_AvailableDir = new Array<number>();
-            for (var i: number = 1; i < 78; ++i)
+            for (var i: number = 1; i < 64; ++i)
             {
-                this.m_AvailableDir[i] = 0;
+                var tsb: string = "";
+                var baseEight: number = parseInt(i.toString(8), 10);
+                if (i <= 7)
+                {
+                    tsb += "00" + baseEight.toString();
+                }
+                else
+                {
+                    tsb += "0" + baseEight.toString();
+                }
+                this.m_AvailableDir[tsb] = 0;
             }
             this.m_AvailableData = new Array<number>();
-            for (var i: number = 100; i < 378; ++i)
+            for (var i: number = 64; i < 256; ++i)
             {
-                this.m_AvailableData[i] = 0;
+                var baseEight: number = parseInt(i.toString(8), 10);
+                this.m_AvailableData[baseEight.toString()] = 0;
             }
         }
 
@@ -107,13 +118,13 @@ module CTOS
                         var fileNameStr: string = "1" + tsbData + hexString;
                         Globals.m_HardDrive.SetTSB(tsbDir, fileNameStr);
                         Globals.m_HardDrive.SetTSB(tsbData, "1@@@");
-                        this.m_AvailableDir[parseInt(tsbDir, 10)] = 1;
-                        this.m_AvailableData[parseInt(tsbData, 10)] = 1;
+                        this.m_AvailableDir[tsbDir] = 1;
+                        this.m_AvailableData[tsbData] = 1;
                         var nextDir: number = this.ProbeNextAvailableDir();
                         var nextData: number = this.ProbeNextAvailableData()
                         Globals.m_HardDrive.SetNextAvailableDir(this.ConvertIntegerToTSB(nextDir));
                         Globals.m_HardDrive.SetNextAvailableData(this.ConvertIntegerToTSB(nextData));
-                        Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir);
+                        Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir + " data TSB " +tsbData);
                     }
                     else
                     {
@@ -132,11 +143,16 @@ module CTOS
             if (this.IsSupported())
             {
                 var dirTSB: string = this.GetDirTSBFromFilename(file);
-                var dataTSB: string = Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substr(1, 3);
-                this.m_AvailableDir[parseInt(dirTSB, 10)] = 0;
+                if (!dirTSB)
+                {
+                    return;
+                }
+                var dataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
+                this.m_AvailableDir[dirTSB] = 0;
                 Globals.m_HardDrive.SetNextAvailableDir(dirTSB);
                 Globals.m_HardDrive.ResetTSB(dirTSB);
                 this.DeleteDataTSB(dataTSB);
+                Globals.m_StdOut.PutText("Success");
             }
         }
 
@@ -181,20 +197,19 @@ module CTOS
                     }
                     else
                     {
-                        var startingDataTSB: string = Globals.m_HardDrive.GetTSB(firstDataTSB).substr(1, 3);
-                        this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
-                        var curDataTSB: string = startingDataTSB;
+                        this.DeleteDataTSB(firstDataTSB); // Make sure to reset the data chain, if needed
+                        var curDataTSB: string = firstDataTSB;
                         var nextAvailDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
+                        this.m_AvailableData[curDataTSB] = 1;
                         // Get next available tsb, set the current tsb with next available tsb and data
                         for (var i: number = 0; i < tsbNeededToFill; ++i)
                         {
                             var startIndex: number = i * (118); //118 = 59*2 for hex byte
-                            var endIndex: number = i + 118;
+                            var endIndex: number = i + 117;
                             Globals.m_HardDrive.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
-                            this.m_AvailableData[parseInt(curDataTSB, 10)] = 1; // Set this data TSB to in use
+                            this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
                             curDataTSB = nextAvailDataTSB;
                             nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                            Globals.m_OsShell.PutTextLine(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
                         }
                         Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB);
                     }
@@ -207,7 +222,7 @@ module CTOS
         {
             while (tsb != "@@@")
             {
-                this.m_AvailableData[parseInt(tsb, 10)] = 0;
+                this.m_AvailableData[tsb] = 0;
                 tsb = Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
                 Globals.m_HardDrive.ResetTSB(tsb);
             }
@@ -215,21 +230,23 @@ module CTOS
 
         private GetDirTSBFromFilename(file:string): string
         {
-            for (var i: number = 1; i < 77; ++i)
+            for (var i: number = 1; i < 64; ++i)
             {
                 var tsb: string = "";
-                if (i < 10)
+                if (i <= 7)
                 {
-                    tsb += "00" + i.toString();
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "00" + baseEight.toString();
                 }
                 else
                 {
-                    tsb += "0" + i.toString();
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "0" + baseEight.toString();
                 }
                 var dirData: string = Globals.m_HardDrive.GetTSB(tsb);
                 if (dirData[0] == "1")
                 {
-                    var fileName: string = Utils.ConvertHexToString(dirData.substr(4, file.length * 2));
+                    var fileName: string = Utils.ConvertHexToString(dirData.substr(4, dirData.length-4));
                     if (fileName == file)
                     {
                         return tsb;
@@ -242,7 +259,7 @@ module CTOS
 
         private ConvertIntegerToTSB(i: number): string
         {
-            if (i < 10)
+            if (i <= 7)
             {
                 return "00" + i.toString();
             }
@@ -252,28 +269,40 @@ module CTOS
             }
             else
             {
-               return i.toString();
+                return i.toString();
             }
         }
 
         private ProbeNextAvailableDir(): number
         {
-            for (var i: number = 1; i < 78; ++i)
+            for (var i: number = 1; i < 64; ++i)
             {
-                if (this.m_AvailableDir[i] == 0)
+                var tsb: string = "";
+                if (i <= 7)
                 {
-                    return i;
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "00" + baseEight.toString();
+                }
+                else
+                {
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "0" + baseEight.toString();
+                }
+                if (this.m_AvailableDir[tsb] == 0)
+                {
+                    return baseEight;
                 }
             }
         }
 
         private ProbeNextAvailableData(): number
         {
-            for (var i: number = 100; i < 378; ++i)
+            for (var i: number = 64; i < 256; ++i)
             {
-                if (this.m_AvailableData[i] == 0)
+                var baseEight: number = parseInt(i.toString(8), 10);
+                if (this.m_AvailableData[baseEight.toString()] == 0)
                 {
-                    return i;
+                    return baseEight;
                 }
             } 
         }

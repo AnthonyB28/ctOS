@@ -23,15 +23,17 @@ var CTOS;
         }
         HardDrive.prototype.Init = function () {
             localStorage.setItem("000", "1@@@001100302ctOS MBR");
-            for (var i = 1; i < 378; ++i) {
+            for (var i = 1; i < 572; ++i) {
+                var baseEight = parseInt(i.toString(8), 10);
                 var tsb = "";
-                if (i < 10) {
-                    tsb += "00" + i.toString();
-                } else if (i >= 10 && i < 100) {
-                    tsb += "0" + i.toString();
+                if (baseEight <= 7) {
+                    tsb += "00" + baseEight.toString();
+                } else if (baseEight >= 10 && baseEight < 100) {
+                    tsb += "0" + baseEight.toString();
                 } else {
-                    tsb += i.toString();
+                    tsb += baseEight.toString();
                 }
+
                 localStorage.setItem(tsb, HardDrive.INIT_TSB);
             }
         };

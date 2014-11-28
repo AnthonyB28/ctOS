@@ -34,21 +34,23 @@ module CTOS
         private Init(): void
         {
             localStorage.setItem("000", "1@@@001100302ctOS MBR");
-            for (var i: number = 1; i < 378; ++i)
+            for (var i: number = 1; i < 572; ++i)
             {
+                var baseEight: number = parseInt(i.toString(8), 10);
                 var tsb: string = "";
-                if (i < 10)
+                if (baseEight <= 7)
                 {
-                    tsb += "00" + i.toString();
+                    tsb += "00" + baseEight.toString();
                 }
-                else if (i >= 10 && i < 100)
+                else if (baseEight >= 10 && baseEight < 100)
                 {
-                    tsb += "0" + i.toString();
+                    tsb += "0" + baseEight.toString();
                 }
                 else
                 {
-                    tsb += i.toString();
+                    tsb += baseEight.toString();
                 }
+                
                 localStorage.setItem(tsb, HardDrive.INIT_TSB);
             }
         }
