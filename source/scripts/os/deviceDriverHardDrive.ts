@@ -14,6 +14,7 @@ module CTOS
         static IRQ_WRITE_DATA: number = 3;
         static IRQ_READ_FILE: number = 4;
         static IRQ_DELETE_FILE: number = 5;
+        static IRQ_LIST_DISK: number = 6;
 
         private m_AvailableDir: Array<number>;
         private m_AvailableData: Array<number>;
@@ -22,6 +23,11 @@ module CTOS
         {
             // Override the base method pointers.
             super(this.krnHdDriverEntry, this.krnHdDriverISR);
+            this.Init();
+        }
+
+        private Init(): void
+        {
             this.m_AvailableDir = new Array<number>();
             for (var i: number = 1; i < 64; ++i)
             {
@@ -64,6 +70,8 @@ module CTOS
                     break;
                 case DeviceDriverHardDrive.IRQ_DELETE_FILE:
                     this.DeleteFile(params[1]); break;
+                case DeviceDriverHardDrive.IRQ_LIST_DISK:
+                    this.ListFiles(); break;
             }
         }
 
@@ -90,12 +98,23 @@ module CTOS
             }
         }
 
-        public Format(): void
+        private Format(): void
         {
             if (this.IsSupported())
             {
-                // TODO: make sure we're not running programs
+                if (Globals.m_KernelReadyQueue.getSize() > 0)
+                {
+                    Globals.m_OsShell.PutTextLine("Error - programs in ready queue!");
+                    return;
+                }
+                if (Globals.m_CPU.m_IsExecuting)
+                {
+                    Globals.m_OsShell.PutTextLine("Error - programs are running on CPU!");
+                    return;
+                }
+
                 Globals.m_HardDrive = new HardDrive();
+                this.Init();
             }
         }
 
@@ -152,7 +171,7 @@ module CTOS
                 Globals.m_HardDrive.SetNextAvailableDir(dirTSB);
                 Globals.m_HardDrive.ResetTSB(dirTSB);
                 this.DeleteDataTSB(dataTSB);
-                Globals.m_StdOut.PutText("Success");
+                Globals.m_OsShell.shellWriteFile("Success");
             }
         }
 
@@ -226,6 +245,33 @@ module CTOS
                 tsb = Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
                 Globals.m_HardDrive.ResetTSB(tsb);
             }
+        }
+
+        private ListFiles(): void
+        {
+            var numberOfFiles: number = 0;
+            for (var i: number = 1; i < 64; ++i)
+            {
+                var tsb: string = "";
+                if (i <= 7)
+                {
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "00" + baseEight.toString();
+                }
+                else
+                {
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    tsb += "0" + baseEight.toString();
+                }
+                var dirData: string = Globals.m_HardDrive.GetTSB(tsb);
+                if (dirData[0] == "1")
+                {
+                    Globals.m_OsShell.PutTextLine(Utils.ConvertHexToString(dirData.substr(4, dirData.length - 4)));
+                    ++numberOfFiles;
+                }
+            }
+
+            Globals.m_OsShell.PutTextLine("# of files: " + numberOfFiles.toString());
         }
 
         private GetDirTSBFromFilename(file:string): string

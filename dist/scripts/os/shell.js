@@ -541,11 +541,16 @@ var CTOS;
 
         // Initialize disk
         Shell.prototype.shellFormat = function (args) {
+            var params = new Array();
+            params[0] = CTOS.DeviceDriverHardDrive.IRQ_FORMAT;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
         };
 
         // List all files on the disk
         Shell.prototype.shellLs = function (args) {
-            //TODO
+            var params = new Array();
+            params[0] = CTOS.DeviceDriverHardDrive.IRQ_LIST_DISK;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
         };
 
         // Sets scheduler to rr, fcfs, or priority from args

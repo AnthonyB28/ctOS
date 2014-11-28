@@ -16,6 +16,9 @@ var CTOS;
         function DeviceDriverHardDrive() {
             // Override the base method pointers.
             _super.call(this, this.krnHdDriverEntry, this.krnHdDriverISR);
+            this.Init();
+        }
+        DeviceDriverHardDrive.prototype.Init = function () {
             this.m_AvailableDir = new Array();
             for (var i = 1; i < 64; ++i) {
                 var tsb = "";
@@ -32,7 +35,8 @@ var CTOS;
                 var baseEight = parseInt(i.toString(8), 10);
                 this.m_AvailableData[baseEight.toString()] = 0;
             }
-        }
+        };
+
         DeviceDriverHardDrive.prototype.krnHdDriverISR = function (params) {
             switch (params[0]) {
                 case DeviceDriverHardDrive.IRQ_FORMAT:
@@ -52,6 +56,9 @@ var CTOS;
                     break;
                 case DeviceDriverHardDrive.IRQ_DELETE_FILE:
                     this.DeleteFile(params[1]);
+                    break;
+                case DeviceDriverHardDrive.IRQ_LIST_DISK:
+                    this.ListFiles();
                     break;
             }
         };
@@ -75,8 +82,17 @@ var CTOS;
 
         DeviceDriverHardDrive.prototype.Format = function () {
             if (this.IsSupported()) {
-                // TODO: make sure we're not running programs
+                if (CTOS.Globals.m_KernelReadyQueue.getSize() > 0) {
+                    CTOS.Globals.m_OsShell.PutTextLine("Error - programs in ready queue!");
+                    return;
+                }
+                if (CTOS.Globals.m_CPU.m_IsExecuting) {
+                    CTOS.Globals.m_OsShell.PutTextLine("Error - programs are running on CPU!");
+                    return;
+                }
+
                 CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
+                this.Init();
             }
         };
 
@@ -121,7 +137,7 @@ var CTOS;
                 CTOS.Globals.m_HardDrive.SetNextAvailableDir(dirTSB);
                 CTOS.Globals.m_HardDrive.ResetTSB(dirTSB);
                 this.DeleteDataTSB(dataTSB);
-                CTOS.Globals.m_StdOut.PutText("Success");
+                CTOS.Globals.m_OsShell.shellWriteFile("Success");
             }
         };
 
@@ -180,6 +196,27 @@ var CTOS;
                 tsb = CTOS.Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
                 CTOS.Globals.m_HardDrive.ResetTSB(tsb);
             }
+        };
+
+        DeviceDriverHardDrive.prototype.ListFiles = function () {
+            var numberOfFiles = 0;
+            for (var i = 1; i < 64; ++i) {
+                var tsb = "";
+                if (i <= 7) {
+                    var baseEight = parseInt(i.toString(8), 10);
+                    tsb += "00" + baseEight.toString();
+                } else {
+                    var baseEight = parseInt(i.toString(8), 10);
+                    tsb += "0" + baseEight.toString();
+                }
+                var dirData = CTOS.Globals.m_HardDrive.GetTSB(tsb);
+                if (dirData[0] == "1") {
+                    CTOS.Globals.m_OsShell.PutTextLine(CTOS.Utils.ConvertHexToString(dirData.substr(4, dirData.length - 4)));
+                    ++numberOfFiles;
+                }
+            }
+
+            CTOS.Globals.m_OsShell.PutTextLine("# of files: " + numberOfFiles.toString());
         };
 
         DeviceDriverHardDrive.prototype.GetDirTSBFromFilename = function (file) {
@@ -244,6 +281,7 @@ var CTOS;
         DeviceDriverHardDrive.IRQ_WRITE_DATA = 3;
         DeviceDriverHardDrive.IRQ_READ_FILE = 4;
         DeviceDriverHardDrive.IRQ_DELETE_FILE = 5;
+        DeviceDriverHardDrive.IRQ_LIST_DISK = 6;
         return DeviceDriverHardDrive;
     })(CTOS.DeviceDriver);
     CTOS.DeviceDriverHardDrive = DeviceDriverHardDrive;

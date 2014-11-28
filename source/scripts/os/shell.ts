@@ -709,13 +709,17 @@ module CTOS
         // Initialize disk
         public shellFormat(args): void
         {
-          
+            var params: Array<any> = new Array<any>()
+            params[0] = DeviceDriverHardDrive.IRQ_FORMAT;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
         }
 
         // List all files on the disk
         public shellLs(args): void
         {
-            //TODO
+            var params: Array<any> = new Array<any>()
+            params[0] = DeviceDriverHardDrive.IRQ_LIST_DISK;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
         }
 
         // Sets scheduler to rr, fcfs, or priority from args
