@@ -12,6 +12,7 @@ module CTOS
         static IRQ_CREATE_FILE: number = 1;
         static IRQ_CREATE_FILE_DATA: number = 2;
         static IRQ_WRITE_DATA: number = 3;
+        static IRQ_READ_FILE: number = 4;
 
         private m_AvailableDir: Array<number>;
         private m_AvailableData: Array<number>;
@@ -29,7 +30,7 @@ module CTOS
             for (var i: number = 100; i < 378; ++i)
             {
                 this.m_AvailableData[i] = 0;
-            } 
+            }
         }
 
         public krnHdDriverISR(params): void
@@ -41,7 +42,14 @@ module CTOS
                 case DeviceDriverHardDrive.IRQ_CREATE_FILE:
                     this.CreateFile(params[1]); break;
                 case DeviceDriverHardDrive.IRQ_WRITE_DATA:
-                    this.CreateData(params[1], params[2]); break;
+                    this.WriteData(params[1], params[2]); break;
+                case DeviceDriverHardDrive.IRQ_READ_FILE:
+                    var fileData: string = this.ReadFile(params[1]);
+                    if (fileData)
+                    {
+                        Globals.m_OsShell.PutTextLine(this.ReadFile(params[1]));
+                    }
+                    break;
             }
         }
 
@@ -63,8 +71,7 @@ module CTOS
             }
             else
             {
-                Globals.m_StdOut.PutText("HTML5 Local Storage not supported");
-                Globals.m_StdOut.AdvanceLine();
+                Globals.m_OsShell.PutTextLine("HTML5 Local Storage not supported");
                 return false;
             }
         }
@@ -84,8 +91,7 @@ module CTOS
             {
                 if (filename.length > 59)
                 {
-                    Globals.m_StdOut.PutText("Error - Filename: " + filename + " is too long.");
-                    Globals.m_StdOut.AdvanceLine();
+                    Globals.m_OsShell.PutTextLine("Error - Filename: " + filename + " is too long.");
                     return;
                 }
                 var hexString: string = Utils.ConvertToHex(filename);
@@ -104,40 +110,63 @@ module CTOS
                         var nextData: number = this.ProbeNextAvailableData()
                         Globals.m_HardDrive.SetNextAvailableDir(this.ConvertIntegerToTSB(nextDir));
                         Globals.m_HardDrive.SetNextAvailableData(this.ConvertIntegerToTSB(nextData));
-                        Globals.m_StdOut.PutText("Success - filename TSB " + tsbDir);
-                        Globals.m_StdOut.AdvanceLine();
+                        Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir);
                     }
                     else
                     {
-                        Globals.m_StdOut.PutText("Error - TSB" + tsbData + " data not avail");
-                        Globals.m_StdOut.AdvanceLine();
+                        Globals.m_OsShell.PutTextLine("Error - TSB" + tsbData + " data not avail");
                     }
                 }
                 else
                 {
-                    Globals.m_StdOut.PutText("Error - TSB" + tsbDir + " dir not avail");
-                    Globals.m_StdOut.AdvanceLine();
+                    Globals.m_OsShell.PutTextLine("Error - TSB" + tsbDir + " dir not avail");
                 }
             }
         }
 
-        private CreateData(file:string, data: string): void
+        private ReadFile(file: string): string
         {
             if (this.IsSupported())
             {
-                var dirTSB: string = this.GetFilenameTSB(file);
-                if (dirTSB)
+                var firstDataTSB: string = this.GetDataTSBFromFilename(file);
+                if (firstDataTSB)
                 {
-                    var startingDataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
-                    this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
+                    var hexData: string = "";
+                    var data: string = "";
+                    var dataTSB: string = firstDataTSB;
+                    do 
+                    {
+                        hexData = Globals.m_HardDrive.GetTSB(dataTSB);
+                        dataTSB = hexData.substr(1, 3);
+                        data += Utils.ConvertHexToString(hexData.substr(4, hexData.length - 4));
+                    } while (dataTSB != "@@@")
+                }
+
+                return data;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private WriteData(file:string, data: string): void
+        {
+            if (this.IsSupported())
+            {
+                var firstDataTSB: string = this.GetDataTSBFromFilename(file);
+                if (firstDataTSB)
+                {
                     var tsbNeededToFill: number = Math.ceil(data.length / 59);
                     var hexDataToWrite: string = Utils.ConvertToHex(data);
                     if (tsbNeededToFill == 1)
                     {
-                        Globals.m_HardDrive.SetTSB(startingDataTSB, "1@@@" + hexDataToWrite);
+                        Globals.m_HardDrive.SetTSB(firstDataTSB, "1@@@" + hexDataToWrite);
                     }
                     else
                     {
+                        var startingDataTSB: string = Globals.m_HardDrive.GetTSB(firstDataTSB).substr(1, 3);
+                        this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
                         var curDataTSB: string = startingDataTSB;
                         var nextAvailDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
                         // Get next available tsb, set the current tsb with next available tsb and data
@@ -149,13 +178,11 @@ module CTOS
                             this.m_AvailableData[parseInt(curDataTSB, 10)] = 1; // Set this data TSB to in use
                             curDataTSB = nextAvailDataTSB;
                             nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                            Globals.m_StdOut.PutText(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
-                            Globals.m_StdOut.AdvanceLine();
+                            Globals.m_OsShell.PutTextLine(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
                         }
                         Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB);
                     }
-                    Globals.m_StdOut.PutText("Success writing data");
-                    Globals.m_StdOut.AdvanceLine();
+                    Globals.m_OsShell.PutTextLine("Success writing data");
                 }
             }
         }
@@ -170,7 +197,7 @@ module CTOS
             }
         }
 
-        private GetFilenameTSB(file:string): string
+        private GetDataTSBFromFilename(file:string): string
         {
             for (var i: number = 1; i < 77; ++i)
             {
@@ -193,8 +220,7 @@ module CTOS
                     }
                 }
             }
-            Globals.m_StdOut.PutText("Filename doesn't exist.");
-            Globals.m_StdOut.AdvanceLine();
+            Globals.m_OsShell.PutTextLine("Filename doesn't exist.");
             return null;
         }
 

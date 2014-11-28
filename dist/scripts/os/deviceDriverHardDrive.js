@@ -34,7 +34,13 @@ var CTOS;
                     this.CreateFile(params[1]);
                     break;
                 case DeviceDriverHardDrive.IRQ_WRITE_DATA:
-                    this.CreateData(params[1], params[2]);
+                    this.WriteData(params[1], params[2]);
+                    break;
+                case DeviceDriverHardDrive.IRQ_READ_FILE:
+                    var fileData = this.ReadFile(params[1]);
+                    if (fileData) {
+                        CTOS.Globals.m_OsShell.PutTextLine(this.ReadFile(params[1]));
+                    }
                     break;
             }
         };
@@ -51,8 +57,7 @@ var CTOS;
             if (CTOS.HardDrive.Supported) {
                 return true;
             } else {
-                CTOS.Globals.m_StdOut.PutText("HTML5 Local Storage not supported");
-                CTOS.Globals.m_StdOut.AdvanceLine();
+                CTOS.Globals.m_OsShell.PutTextLine("HTML5 Local Storage not supported");
                 return false;
             }
         };
@@ -67,8 +72,7 @@ var CTOS;
         DeviceDriverHardDrive.prototype.CreateFile = function (filename) {
             if (this.IsSupported()) {
                 if (filename.length > 59) {
-                    CTOS.Globals.m_StdOut.PutText("Error - Filename: " + filename + " is too long.");
-                    CTOS.Globals.m_StdOut.AdvanceLine();
+                    CTOS.Globals.m_OsShell.PutTextLine("Error - Filename: " + filename + " is too long.");
                     return;
                 }
                 var hexString = CTOS.Utils.ConvertToHex(filename);
@@ -85,30 +89,47 @@ var CTOS;
                         var nextData = this.ProbeNextAvailableData();
                         CTOS.Globals.m_HardDrive.SetNextAvailableDir(this.ConvertIntegerToTSB(nextDir));
                         CTOS.Globals.m_HardDrive.SetNextAvailableData(this.ConvertIntegerToTSB(nextData));
-                        CTOS.Globals.m_StdOut.PutText("Success - filename TSB " + tsbDir);
-                        CTOS.Globals.m_StdOut.AdvanceLine();
+                        CTOS.Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir);
                     } else {
-                        CTOS.Globals.m_StdOut.PutText("Error - TSB" + tsbData + " data not avail");
-                        CTOS.Globals.m_StdOut.AdvanceLine();
+                        CTOS.Globals.m_OsShell.PutTextLine("Error - TSB" + tsbData + " data not avail");
                     }
                 } else {
-                    CTOS.Globals.m_StdOut.PutText("Error - TSB" + tsbDir + " dir not avail");
-                    CTOS.Globals.m_StdOut.AdvanceLine();
+                    CTOS.Globals.m_OsShell.PutTextLine("Error - TSB" + tsbDir + " dir not avail");
                 }
             }
         };
 
-        DeviceDriverHardDrive.prototype.CreateData = function (file, data) {
+        DeviceDriverHardDrive.prototype.ReadFile = function (file) {
             if (this.IsSupported()) {
-                var dirTSB = this.GetFilenameTSB(file);
-                if (dirTSB) {
-                    var startingDataTSB = CTOS.Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
-                    this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
+                var firstDataTSB = this.GetDataTSBFromFilename(file);
+                if (firstDataTSB) {
+                    var hexData = "";
+                    var data = "";
+                    var dataTSB = firstDataTSB;
+                    do {
+                        hexData = CTOS.Globals.m_HardDrive.GetTSB(dataTSB);
+                        dataTSB = hexData.substr(1, 3);
+                        data += CTOS.Utils.ConvertHexToString(hexData.substr(4, hexData.length - 4));
+                    } while(dataTSB != "@@@");
+                }
+
+                return data;
+            } else {
+                return null;
+            }
+        };
+
+        DeviceDriverHardDrive.prototype.WriteData = function (file, data) {
+            if (this.IsSupported()) {
+                var firstDataTSB = this.GetDataTSBFromFilename(file);
+                if (firstDataTSB) {
                     var tsbNeededToFill = Math.ceil(data.length / 59);
                     var hexDataToWrite = CTOS.Utils.ConvertToHex(data);
                     if (tsbNeededToFill == 1) {
-                        CTOS.Globals.m_HardDrive.SetTSB(startingDataTSB, "1@@@" + hexDataToWrite);
+                        CTOS.Globals.m_HardDrive.SetTSB(firstDataTSB, "1@@@" + hexDataToWrite);
                     } else {
+                        var startingDataTSB = CTOS.Globals.m_HardDrive.GetTSB(firstDataTSB).substr(1, 3);
+                        this.DeleteDataTSB(startingDataTSB); // Make sure to reset the data chain, if needed
                         var curDataTSB = startingDataTSB;
                         var nextAvailDataTSB = CTOS.Globals.m_HardDrive.GetNextAvailableData();
 
@@ -119,13 +140,11 @@ var CTOS;
                             this.m_AvailableData[parseInt(curDataTSB, 10)] = 1; // Set this data TSB to in use
                             curDataTSB = nextAvailDataTSB;
                             nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                            CTOS.Globals.m_StdOut.PutText(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
-                            CTOS.Globals.m_StdOut.AdvanceLine();
+                            CTOS.Globals.m_OsShell.PutTextLine(hexDataToWrite.substr(startIndex, endIndex) + " written to " + curDataTSB);
                         }
                         CTOS.Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB);
                     }
-                    CTOS.Globals.m_StdOut.PutText("Success writing data");
-                    CTOS.Globals.m_StdOut.AdvanceLine();
+                    CTOS.Globals.m_OsShell.PutTextLine("Success writing data");
                 }
             }
         };
@@ -138,7 +157,7 @@ var CTOS;
             }
         };
 
-        DeviceDriverHardDrive.prototype.GetFilenameTSB = function (file) {
+        DeviceDriverHardDrive.prototype.GetDataTSBFromFilename = function (file) {
             for (var i = 1; i < 77; ++i) {
                 var tsb = "";
                 if (i < 10) {
@@ -154,8 +173,7 @@ var CTOS;
                     }
                 }
             }
-            CTOS.Globals.m_StdOut.PutText("Filename doesn't exist.");
-            CTOS.Globals.m_StdOut.AdvanceLine();
+            CTOS.Globals.m_OsShell.PutTextLine("Filename doesn't exist.");
             return null;
         };
 
@@ -188,6 +206,7 @@ var CTOS;
         DeviceDriverHardDrive.IRQ_CREATE_FILE = 1;
         DeviceDriverHardDrive.IRQ_CREATE_FILE_DATA = 2;
         DeviceDriverHardDrive.IRQ_WRITE_DATA = 3;
+        DeviceDriverHardDrive.IRQ_READ_FILE = 4;
         return DeviceDriverHardDrive;
     })(CTOS.DeviceDriver);
     CTOS.DeviceDriverHardDrive = DeviceDriverHardDrive;

@@ -49,7 +49,12 @@ var CTOS;
         };
 
         HardDrive.prototype.GetTSB = function (tsb) {
-            return localStorage.getItem(tsb);
+            if (tsb != "@@@") {
+                return localStorage.getItem(tsb);
+            } else {
+                CTOS.Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
+                return null;
+            }
         };
 
         HardDrive.prototype.SetNextAvailableDir = function (tsb) {

@@ -163,6 +163,14 @@ var CTOS;
             this.PutPrompt();
         };
 
+        Shell.prototype.PutTextLine = function (msg) {
+            if (!CTOS.Globals.m_StdOut.m_BSOD) {
+                CTOS.Globals.m_Console.PutText(msg);
+                CTOS.Globals.m_Console.AdvanceLine();
+                this.PutPrompt();
+            }
+        };
+
         Shell.prototype.PutPrompt = function () {
             if (!CTOS.Globals.m_StdOut.m_BSOD) {
                 CTOS.Globals.m_StdOut.PutText(this.m_PromptStr);
@@ -487,7 +495,11 @@ var CTOS;
 
         // Display contents of a file using args for filename
         Shell.prototype.shellReadFile = function (args) {
-            if (args && args.size > 0) {
+            if (args && args.length == 1) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_READ_FILE;
+                params[1] = args[0];
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
             }
@@ -500,12 +512,12 @@ var CTOS;
                 params[0] = CTOS.DeviceDriverHardDrive.IRQ_WRITE_DATA;
                 params[1] = args[0];
                 var dataString = "";
-                if (args[1][0] == "\"" && args[args.length - 1][0] == "\"") {
-                    for (var i = 1; i <= args.length - 1; ++i) {
-                        dataString += args[i];
+                var lastArg = args[args.length - 1];
+                if (args[1][0] == "\"" && lastArg[lastArg.length - 1] == "\"") {
+                    for (var i = 1; i < args.length; ++i) {
+                        dataString += args[i] + " ";
                     }
-                    CTOS.Globals.m_StdOut.PutText(dataString.replace("\"", ""));
-                    params[2] = dataString.replace("\"", "");
+                    params[2] = dataString.replace(/\"/g, '');
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("Incorrect data format");

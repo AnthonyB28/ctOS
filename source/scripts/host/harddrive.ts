@@ -72,7 +72,15 @@ module CTOS
 
         public GetTSB(tsb: string): string
         {
-            return localStorage.getItem(tsb);
+            if (tsb != "@@@")
+            {
+                return localStorage.getItem(tsb);
+            }
+            else
+            {
+                Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
+                return null;
+            }
         }
 
         public SetNextAvailableDir(tsb: string): void

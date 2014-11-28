@@ -238,6 +238,16 @@ module CTOS
             this.PutPrompt();
         }
 
+        public PutTextLine(msg: string): void
+        {
+            if (!Globals.m_StdOut.m_BSOD)
+            {
+                Globals.m_Console.PutText(msg);
+                Globals.m_Console.AdvanceLine();
+                this.PutPrompt();
+            }
+        }
+
         public PutPrompt(): void
         {
             if (!Globals.m_StdOut.m_BSOD)
@@ -626,7 +636,7 @@ module CTOS
                 var params: Array < any> = new Array<any>()
                 params[0] = DeviceDriverHardDrive.IRQ_CREATE_FILE;
                 params[1] = args[0];
-                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params)); 
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
             }
             else
             {
@@ -637,9 +647,12 @@ module CTOS
         // Display contents of a file using args for filename
         public shellReadFile(args): void
         {
-            if (args && args.size > 0)
+            if (args && args.length == 1)
             {
-
+                var params: Array<any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_READ_FILE;
+                params[1] = args[0];
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
             }
             else
             {
@@ -656,15 +669,14 @@ module CTOS
                 params[0] = DeviceDriverHardDrive.IRQ_WRITE_DATA;
                 params[1] = args[0];
                 var dataString: string = "";
-                if (args[1][0] == "\"" && args[args.length-1][0] == "\"")
+                var lastArg: string = args[args.length-1];
+                if (args[1][0] == "\"" && lastArg[lastArg.length-1] == "\"")
                 {
-
-                    for (var i: number = 1; i <= args.length - 1; ++i)
+                    for (var i: number = 1; i < args.length; ++i)
                     {
-                        dataString += args[i];
+                        dataString += args[i] + " ";
                     }
-                    Globals.m_StdOut.PutText(dataString.replace("\"", ""));
-                    params[2] = dataString.replace("\"", "");
+                    params[2] = dataString.replace(/\"/g, '');
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
                 }
                 else
