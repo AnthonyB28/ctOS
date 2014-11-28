@@ -529,7 +529,11 @@ var CTOS;
 
         // Erase a file using args for filename
         Shell.prototype.shellDeleteFile = function (args) {
-            if (args && args.size > 0) {
+            if (args && args.length == 1) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_DELETE_FILE;
+                params[1] = args[0];
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
             }

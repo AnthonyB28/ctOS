@@ -13,6 +13,7 @@ module CTOS
         static IRQ_CREATE_FILE_DATA: number = 2;
         static IRQ_WRITE_DATA: number = 3;
         static IRQ_READ_FILE: number = 4;
+        static IRQ_DELETE_FILE: number = 5;
 
         private m_AvailableDir: Array<number>;
         private m_AvailableData: Array<number>;
@@ -50,6 +51,8 @@ module CTOS
                         Globals.m_OsShell.PutTextLine(this.ReadFile(params[1]));
                     }
                     break;
+                case DeviceDriverHardDrive.IRQ_DELETE_FILE:
+                    this.DeleteFile(params[1]); break;
             }
         }
 
@@ -124,11 +127,24 @@ module CTOS
             }
         }
 
+        private DeleteFile(file: string): void
+        {
+            if (this.IsSupported())
+            {
+                var dirTSB: string = this.GetDirTSBFromFilename(file);
+                var dataTSB: string = Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substr(1, 3);
+                this.m_AvailableDir[parseInt(dirTSB, 10)] = 0;
+                Globals.m_HardDrive.SetNextAvailableDir(dirTSB);
+                Globals.m_HardDrive.ResetTSB(dirTSB);
+                this.DeleteDataTSB(dataTSB);
+            }
+        }
+
         private ReadFile(file: string): string
         {
             if (this.IsSupported())
             {
-                var firstDataTSB: string = this.GetDataTSBFromFilename(file);
+                var firstDataTSB: string = Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substr(1,3);
                 if (firstDataTSB)
                 {
                     var hexData: string = "";
@@ -154,7 +170,7 @@ module CTOS
         {
             if (this.IsSupported())
             {
-                var firstDataTSB: string = this.GetDataTSBFromFilename(file);
+                var firstDataTSB: string = Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substring(1,4);
                 if (firstDataTSB)
                 {
                     var tsbNeededToFill: number = Math.ceil(data.length / 59);
@@ -197,7 +213,7 @@ module CTOS
             }
         }
 
-        private GetDataTSBFromFilename(file:string): string
+        private GetDirTSBFromFilename(file:string): string
         {
             for (var i: number = 1; i < 77; ++i)
             {
@@ -216,7 +232,7 @@ module CTOS
                     var fileName: string = Utils.ConvertHexToString(dirData.substr(4, file.length * 2));
                     if (fileName == file)
                     {
-                        return dirData.substr(1, 3);
+                        return tsb;
                     }
                 }
             }

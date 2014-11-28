@@ -42,6 +42,9 @@ var CTOS;
                         CTOS.Globals.m_OsShell.PutTextLine(this.ReadFile(params[1]));
                     }
                     break;
+                case DeviceDriverHardDrive.IRQ_DELETE_FILE:
+                    this.DeleteFile(params[1]);
+                    break;
             }
         };
 
@@ -99,9 +102,20 @@ var CTOS;
             }
         };
 
+        DeviceDriverHardDrive.prototype.DeleteFile = function (file) {
+            if (this.IsSupported()) {
+                var dirTSB = this.GetDirTSBFromFilename(file);
+                var dataTSB = CTOS.Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substr(1, 3);
+                this.m_AvailableDir[parseInt(dirTSB, 10)] = 0;
+                CTOS.Globals.m_HardDrive.SetNextAvailableDir(dirTSB);
+                CTOS.Globals.m_HardDrive.ResetTSB(dirTSB);
+                this.DeleteDataTSB(dataTSB);
+            }
+        };
+
         DeviceDriverHardDrive.prototype.ReadFile = function (file) {
             if (this.IsSupported()) {
-                var firstDataTSB = this.GetDataTSBFromFilename(file);
+                var firstDataTSB = CTOS.Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substr(1, 3);
                 if (firstDataTSB) {
                     var hexData = "";
                     var data = "";
@@ -121,7 +135,7 @@ var CTOS;
 
         DeviceDriverHardDrive.prototype.WriteData = function (file, data) {
             if (this.IsSupported()) {
-                var firstDataTSB = this.GetDataTSBFromFilename(file);
+                var firstDataTSB = CTOS.Globals.m_HardDrive.GetTSB(this.GetDirTSBFromFilename(file)).substring(1, 4);
                 if (firstDataTSB) {
                     var tsbNeededToFill = Math.ceil(data.length / 59);
                     var hexDataToWrite = CTOS.Utils.ConvertToHex(data);
@@ -157,7 +171,7 @@ var CTOS;
             }
         };
 
-        DeviceDriverHardDrive.prototype.GetDataTSBFromFilename = function (file) {
+        DeviceDriverHardDrive.prototype.GetDirTSBFromFilename = function (file) {
             for (var i = 1; i < 77; ++i) {
                 var tsb = "";
                 if (i < 10) {
@@ -169,7 +183,7 @@ var CTOS;
                 if (dirData[0] == "1") {
                     var fileName = CTOS.Utils.ConvertHexToString(dirData.substr(4, file.length * 2));
                     if (fileName == file) {
-                        return dirData.substr(1, 3);
+                        return tsb;
                     }
                 }
             }
@@ -207,6 +221,7 @@ var CTOS;
         DeviceDriverHardDrive.IRQ_CREATE_FILE_DATA = 2;
         DeviceDriverHardDrive.IRQ_WRITE_DATA = 3;
         DeviceDriverHardDrive.IRQ_READ_FILE = 4;
+        DeviceDriverHardDrive.IRQ_DELETE_FILE = 5;
         return DeviceDriverHardDrive;
     })(CTOS.DeviceDriver);
     CTOS.DeviceDriverHardDrive = DeviceDriverHardDrive;
