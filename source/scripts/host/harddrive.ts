@@ -31,97 +31,137 @@ module CTOS
             }
         }
 
+        // Sets all TSBs to default and setups the MBR at 000
         private Init(): void
         {
-            localStorage.setItem("000", "1@@@001100302ctOS MBR");
-            for (var i: number = 1; i < 572; ++i)
+            if (this.IsSupported())
             {
-                var baseEight: number = parseInt(i.toString(8), 10);
-                var tsb: string = "";
-                if (baseEight <= 7)
+                localStorage.setItem("000", "1@@@001100302ctOS MBR");
+                for (var i: number = 1; i < 572; ++i)
                 {
-                    tsb += "00" + baseEight.toString();
+                    var baseEight: number = parseInt(i.toString(8), 10);
+                    var tsb: string = "";
+                    if (baseEight <= 7)
+                    {
+                        tsb += "00" + baseEight.toString();
+                    }
+                    else if (baseEight >= 10 && baseEight < 100)
+                    {
+                        tsb += "0" + baseEight.toString();
+                    }
+                    else
+                    {
+                        tsb += baseEight.toString();
+                    }
+
+                    localStorage.setItem(tsb, HardDrive.INIT_TSB);
                 }
-                else if (baseEight >= 10 && baseEight < 100)
+            }
+        }
+
+        // Write data to tsb in HTML5 storage
+        public SetTSB(tsb: string, data: string): void
+        {
+            if (this.IsSupported())
+            {
+                if (tsb == "000")
                 {
-                    tsb += "0" + baseEight.toString();
+                    // Should maybe IRQ? Dont write here.
                 }
                 else
                 {
-                    tsb += baseEight.toString();
+                    localStorage.setItem(tsb, data);
                 }
-                
-                localStorage.setItem(tsb, HardDrive.INIT_TSB);
             }
         }
 
-        public SetTSB(tsb: string, data: string): void
-        {
-            if (tsb == "000")
-            {
-                // Should maybe IRQ? Dont write here.
-            }
-            else
-            {
-                localStorage.setItem(tsb, data);
-            }
-        }
-
+        // Returns the TSB from HTML5 storage
         public GetTSB(tsb: string): string
         {
-            if (tsb != "@@@")
+            if (this.IsSupported())
             {
-                return localStorage.getItem(tsb);
+                if (tsb != "@@@")
+                {
+                    return localStorage.getItem(tsb);
+                }
+                else
+                {
+                    Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
+                    return null;
+                }
             }
-            else
-            {
-                Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
-                return null;
-            }
+            return null;
         }
 
+        // Sets the MBR with the next available dir at TSB given
         public SetNextAvailableDir(tsb: string): string
         {
-            var mbr: string = localStorage.getItem("000");
-            var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
-            localStorage.setItem("000", newMbr);
-            return newMbr;
+            if (this.IsSupported())
+            {
+                var mbr: string = localStorage.getItem("000");
+                var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
+                localStorage.setItem("000", newMbr);
+                return newMbr;
+            }
+            return null;
         }
 
+        // Gets the next available dir TSB from MBR
         public GetNextAvailableDir(): string
         {
-            var mbr: string = localStorage.getItem("000");
-            return mbr.substr(4, 3);
+            if (this.IsSupported())
+            {
+                var mbr: string = localStorage.getItem("000");
+                return mbr.substr(4, 3);
+            }
+            return null;
         }
 
+        // Sets the MBR with the next available data at TSB given
         public SetNextAvailableData(tsb: string): string
         {
-            var mbr: string = localStorage.getItem("000");
-            var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
-            localStorage.setItem("000", newMbr);
-            return newMbr;
+            if (this.IsSupported())
+            {
+                var mbr: string = localStorage.getItem("000");
+                var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
+                localStorage.setItem("000", newMbr);
+                return newMbr;
+            }
+            return null;
         }
 
+        // Returns the next available data TSB from MBR
         public GetNextAvailableData(): string
         {
             var mbr: string = localStorage.getItem("000");
             return mbr.substr(7, 3);
         }
 
+        // Sets the MBR with the next available swap at TSB given
         public SetNextAvailableSwap(tsb: string): string
         {
-            var mbr: string = localStorage.getItem("000");
-            var newMbr: string = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
-            localStorage.setItem("000", newMbr);
-            return newMbr;
+            if (this.IsSupported())
+            {
+                var mbr: string = localStorage.getItem("000");
+                var newMbr: string = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
+                localStorage.setItem("000", newMbr);
+                return newMbr;
+            }
+            return null;
         }
 
+        // Returns the next available swap TSB from MBR
         public GetNextAvailableSwap(): string
         {
-            var mbr: string = localStorage.getItem("000");
-            return mbr.substr(10, 3);
+            if (this.IsSupported())
+            {
+                var mbr: string = localStorage.getItem("000");
+                return mbr.substr(10, 3);
+            }
+            return null;
         }
 
+        // Check if HTML5 is supported via Modernizr
         private IsSupported(): boolean
         {
             if (Modernizr.localstorage)

@@ -26,6 +26,7 @@ module CTOS
             this.Init();
         }
 
+        // Sets the available dictionaries and the display
         private Init(): void
         {
             Control.HardDriveTableInit();
@@ -52,27 +53,39 @@ module CTOS
             }
         }
 
+        // Driver interrupt request handling.
         public krnHdDriverISR(params): void
         {
             switch(params[0])
             {
                 case DeviceDriverHardDrive.IRQ_FORMAT:
-                    this.Format(); break;
+                    this.Format();
+                    Globals.m_Kernel.Trace("Hard drive format request.");
+                    break;
                 case DeviceDriverHardDrive.IRQ_CREATE_FILE:
-                    this.CreateFile(params[1]); break;
+                    this.CreateFile(params[1]);
+                    Globals.m_Kernel.Trace("Hard drive create file request.");
+                    break;
                 case DeviceDriverHardDrive.IRQ_WRITE_DATA:
-                    this.WriteData(params[1], params[2]); break;
+                    this.WriteData(params[1], params[2]);
+                    Globals.m_Kernel.Trace("Hard drive write data request.");
+                    break;
                 case DeviceDriverHardDrive.IRQ_READ_FILE:
                     var fileData: string = this.ReadFile(params[1]);
+                    Globals.m_Kernel.Trace("Hard drive read file request.");
                     if (fileData)
                     {
                         Globals.m_OsShell.PutTextLine(this.ReadFile(params[1]));
                     }
                     break;
                 case DeviceDriverHardDrive.IRQ_DELETE_FILE:
-                    this.DeleteFile(params[1]); break;
+                    Globals.m_Kernel.Trace("Hard drive delete file request");
+                    this.DeleteFile(params[1]);
+                    break;
                 case DeviceDriverHardDrive.IRQ_LIST_DISK:
-                    this.ListFiles(); break;
+                    Globals.m_Kernel.Trace("Hard drive list files request");
+                    this.ListFiles();
+                    break;
             }
         }
 
@@ -86,6 +99,7 @@ module CTOS
             }
         }
 
+        // Check if harddrive functionality is available
         private IsSupported(): boolean
         {
             if (HardDrive.Supported)
@@ -99,6 +113,7 @@ module CTOS
             }
         }
 
+        // Format (reinit) the drive without disturbing the CPU/ReadyQ
         private Format(): void
         {
             if (this.IsSupported())
@@ -119,6 +134,7 @@ module CTOS
             }
         }
 
+        // Create a new file
         private CreateFile(filename: string): void
         {
             if (this.IsSupported())
@@ -133,22 +149,28 @@ module CTOS
                     Globals.m_OsShell.PutTextLine("Error - Filename: " + filename + " already exists.");
                     return;
                 }
+
+                // Convert the filename to hex data and find where to store it and initial data
                 var hexString: string = Utils.ConvertToHex(filename);
                 var tsbDir: string = Globals.m_HardDrive.GetNextAvailableDir();
                 var tsbData: string = Globals.m_HardDrive.GetNextAvailableData();
+
+                // As long as the directories are not in use, we can use them.
                 if (Globals.m_HardDrive.GetTSB(tsbDir)[0] == "0")
                 {
                     if (Globals.m_HardDrive.GetTSB(tsbData)[0] == "0")
                     {
-                        var fileNameStr: string = "1" + tsbData + hexString;
+                        var fileNameStr: string = "1" + tsbData + hexString; // Data to store at dir tsb
                         this.SetTSB(tsbDir, fileNameStr);
                         this.SetTSB(tsbData, "1@@@");
+                        // Mark these tsbs as in use
                         this.m_AvailableDir[tsbDir] = 1;
                         this.m_AvailableData[tsbData] = 1;
+                        // Get the next tsbs and mark them in the MBR
                         var nextDir: number = this.ProbeNextAvailableDir();
                         var nextData: number = this.ProbeNextAvailableData()
-                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableDir(this.ConvertIntegerToTSB(nextDir)));
-                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(this.ConvertIntegerToTSB(nextData)));
+                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableDir(this.ConvertBaseEightToTSB(nextDir)));
+                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(this.ConvertBaseEightToTSB(nextData)));
                         Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir + " data TSB " +tsbData);
                     }
                     else
@@ -163,16 +185,19 @@ module CTOS
             }
         }
 
+        // Deletes the specified file if available
         private DeleteFile(file: string): void
         {
             if (this.IsSupported())
             {
+                // Attempt to get the file TSB data from the drive
                 var dirTSB: string = this.GetDirTSBFromFilename(file);
                 if (!dirTSB)
                 {
                     return;
                 }
-                var dataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
+                var dataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3); // Get the tsb from the data
+                // Reset the dir and file data, mark as available
                 this.m_AvailableDir[dirTSB] = 0;
                 Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableDir(dirTSB));
                 this.ResetTSB(dirTSB);
@@ -181,13 +206,16 @@ module CTOS
             }
         }
 
+        // Return the data string from the file provided
         private ReadFile(file: string): string
         {
             if (this.IsSupported())
             {
+                // Get the dir TSB if file exists
                 var fileTSB: string = this.GetDirTSBFromFilename(file);
                 if (fileTSB)
                 {
+                    // Get the data TSB if it exists, loop through converting hex, and return.
                     var firstDataTSB: string = Globals.m_HardDrive.GetTSB(fileTSB).substr(1, 3);
                     if (firstDataTSB)
                     {
@@ -209,16 +237,20 @@ module CTOS
             return null;
         }
 
+        // Writes data to a file if available
         private WriteData(file:string, data: string): void
         {
             if (this.IsSupported())
             {
+                // Find if file exists
                 var fileTSB: string = this.GetDirTSBFromFilename(file);
                 if (fileTSB)
                 {
+                    // Obtain where the start of the data should be if available
                     var firstDataTSB: string = Globals.m_HardDrive.GetTSB(fileTSB).substring(1, 4);
                     if (firstDataTSB)
                     {
+                        // Figure out how many TSBs we need, and fill them.
                         var tsbNeededToFill: number = Math.ceil(data.length / 59);
                         var hexDataToWrite: string = Utils.ConvertToHex(data);
                         if (tsbNeededToFill == 1)
@@ -240,6 +272,12 @@ module CTOS
                                 this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
                                 curDataTSB = nextAvailDataTSB;
                                 nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                                if (nextAvailDataTSB == "@@@")
+                                {
+                                    Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
+                                    Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                    return;
+                                }
                             }
                             Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
                         }
@@ -249,21 +287,24 @@ module CTOS
             }
         }
 
+        // Resets a data TSB and all of its links, if any
         private DeleteDataTSB(tsb: string): void
         {
             var nextTSB: string = "";
-            while (nextTSB != "@@@")
+            do
             {
                 this.m_AvailableData[tsb] = 0;
                 nextTSB = Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
                 this.ResetTSB(tsb);
                 tsb = nextTSB;
-            }
+            } while (tsb != "@@@")
         }
 
+        // Lists all filenames
         private ListFiles(): void
         {
             var numberOfFiles: number = 0;
+            // Loop through base 8 in directory and print names of files
             for (var i: number = 1; i < 64; ++i)
             {
                 var tsb: string = "";
@@ -288,6 +329,7 @@ module CTOS
             Globals.m_OsShell.PutTextLine("# of files: " + numberOfFiles.toString());
         }
 
+        // Returns the whole dir TSB of the file provided, false if no error for not found. Returns null if not found.
         private GetDirTSBFromFilename(file:string, error:boolean = true): string
         {
             for (var i: number = 1; i < 64; ++i)
@@ -321,7 +363,8 @@ module CTOS
             return null;
         }
 
-        private ConvertIntegerToTSB(i: number): string
+        // Converts a base 8 number to TSB
+        private ConvertBaseEightToTSB(i: number): string
         {
             if (i <= 7)
             {
@@ -337,6 +380,7 @@ module CTOS
             }
         }
 
+        // Writes data to TSB with hex byte padding and updates display
         private SetTSB(tsb: string, data: string): void
         {
             data = data.toLocaleUpperCase();
@@ -348,11 +392,13 @@ module CTOS
             Control.HardDriveTableUpdate(tsb, data);
         }
 
+        // Sets a TSB back to INIT_TSB
         private ResetTSB(tsb: string): void
         {
             this.SetTSB(tsb, HardDrive.INIT_TSB);
         }
 
+        // Looks for the next available dir TSB
         private ProbeNextAvailableDir(): number
         {
             for (var i: number = 1; i < 64; ++i)
@@ -375,6 +421,7 @@ module CTOS
             }
         }
 
+        // Looks for the next available data TSB
         private ProbeNextAvailableData(): number
         {
             for (var i: number = 64; i < 256; ++i)
