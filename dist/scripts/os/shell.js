@@ -520,7 +520,7 @@ var CTOS;
                     params[2] = dataString.replace(/\"/g, '');
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
                 } else {
-                    CTOS.Globals.m_StdOut.PutText("Incorrect data format");
+                    CTOS.Globals.m_OsShell.shellWriteFile("Incorrect data format");
                 }
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");

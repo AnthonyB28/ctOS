@@ -39,6 +39,7 @@ var CTOS;
         Globals.m_CPUTable = null;
         Globals.m_ProgramInput = null;
         Globals.m_DrawingContext = null;
+        Globals.m_HardDriveTable = null;
 
         Globals.m_DefaultFontFamily = "sans";
         Globals.m_DefaultFontSize = 13;

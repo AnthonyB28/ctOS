@@ -67,6 +67,15 @@ label {
     border-color:white;
 }
 
+#HardDriveTableDiv{
+    overflow-y:auto; 
+    overflow-x:auto;
+    height:300px; 
+    width:500px;
+    border:solid;
+    border-color:white;
+}
+
 .achievementDiv
 {
     position: absolute;
@@ -74,28 +83,12 @@ label {
     top:2%;
 }
 
-#CPUTable th
+td
 {
     color:white;
 }
 
-#CPUTable td
-{
-    color:white;
-}
-
-#MemTable td
-{
-    color:white;
-}
-
-#ReadyQTable th
-{
-    color:white;
-    text-align:center;
-}
-
-#ReadyQTable td
+th
 {
     color:white;
 }

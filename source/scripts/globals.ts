@@ -51,6 +51,7 @@ module CTOS
         static m_CPUTable: HTMLTableElement = null;
         static m_ProgramInput: HTMLTextAreaElement = null;
         static m_DrawingContext = null;  
+        static m_HardDriveTable = null;
        
         static m_DefaultFontFamily = "sans";        // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
         static m_DefaultFontSize = 13;

@@ -15,8 +15,8 @@ module CTOS
     export class HardDrive
     {
         static Supported: boolean = false;
-        static INIT_TSB: string = "0@@@00000000000000000000000000000000000000000000000000000000000";
-        
+        static INIT_TSB: string = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
         constructor()
         {
             if (this.IsSupported())
@@ -67,11 +67,6 @@ module CTOS
             }
         }
 
-        public ResetTSB(tsb: string): void
-        {
-            localStorage.setItem(tsb, HardDrive.INIT_TSB);
-        }
-
         public GetTSB(tsb: string): string
         {
             if (tsb != "@@@")
@@ -85,11 +80,12 @@ module CTOS
             }
         }
 
-        public SetNextAvailableDir(tsb: string): void
+        public SetNextAvailableDir(tsb: string): string
         {
             var mbr: string = localStorage.getItem("000");
             var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         }
 
         public GetNextAvailableDir(): string
@@ -98,11 +94,12 @@ module CTOS
             return mbr.substr(4, 3);
         }
 
-        public SetNextAvailableData(tsb: string): void
+        public SetNextAvailableData(tsb: string): string
         {
             var mbr: string = localStorage.getItem("000");
             var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         }
 
         public GetNextAvailableData(): string
@@ -111,11 +108,12 @@ module CTOS
             return mbr.substr(7, 3);
         }
 
-        public SetNextAvailableSwap(tsb: string): void
+        public SetNextAvailableSwap(tsb: string): string
         {
             var mbr: string = localStorage.getItem("000");
             var newMbr: string = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         }
 
         public GetNextAvailableSwap(): string

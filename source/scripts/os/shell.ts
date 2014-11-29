@@ -681,7 +681,7 @@ module CTOS
                 }
                 else
                 {
-                    Globals.m_StdOut.PutText("Incorrect data format");
+                    Globals.m_OsShell.shellWriteFile("Incorrect data format");
                 }
             }
             else

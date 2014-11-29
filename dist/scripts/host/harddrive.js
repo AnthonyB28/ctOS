@@ -46,10 +46,6 @@ var CTOS;
             }
         };
 
-        HardDrive.prototype.ResetTSB = function (tsb) {
-            localStorage.setItem(tsb, HardDrive.INIT_TSB);
-        };
-
         HardDrive.prototype.GetTSB = function (tsb) {
             if (tsb != "@@@") {
                 return localStorage.getItem(tsb);
@@ -63,6 +59,7 @@ var CTOS;
             var mbr = localStorage.getItem("000");
             var newMbr = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         };
 
         HardDrive.prototype.GetNextAvailableDir = function () {
@@ -74,6 +71,7 @@ var CTOS;
             var mbr = localStorage.getItem("000");
             var newMbr = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         };
 
         HardDrive.prototype.GetNextAvailableData = function () {
@@ -85,6 +83,7 @@ var CTOS;
             var mbr = localStorage.getItem("000");
             var newMbr = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
             localStorage.setItem("000", newMbr);
+            return newMbr;
         };
 
         HardDrive.prototype.GetNextAvailableSwap = function () {
@@ -100,7 +99,7 @@ var CTOS;
             }
         };
         HardDrive.Supported = false;
-        HardDrive.INIT_TSB = "0@@@00000000000000000000000000000000000000000000000000000000000";
+        HardDrive.INIT_TSB = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         return HardDrive;
     })();
     CTOS.HardDrive = HardDrive;

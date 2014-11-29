@@ -54,6 +54,9 @@ module CTOS {
             Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
+            //Get the hard drive table
+            Globals.m_HardDriveTable = document.getElementById("HardDriveTable");
+
             // Get the Ready Q table
             Globals.m_ReadyQTable = document.getElementById("ReadyQTable");
 
@@ -133,13 +136,13 @@ module CTOS {
             Globals.m_CPUScheduler = new CPUScheduler();
             Globals.m_CPU.Init();
 
+            Globals.m_HardDrive = new HardDrive();
+
             // ... then set the host clock pulse ...
             Globals.m_HardwareClockID = setInterval(Devices.hostClockPulse, Globals.CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
             Globals.m_Kernel = new Kernel();
             Globals.m_Kernel.Bootstrap();
-
-            Globals.m_HardDrive = new HardDrive();
 
             // Achievement unlocked!
             Globals.m_AchievementSystem.Unlock(0);
@@ -498,6 +501,45 @@ module CTOS {
                 cell = row.insertCell(9);
                 cell.innerText = pcb.m_Priority;
             }
+        }
+
+        public static HardDriveTableInit()
+        {
+            for (var i = 0; i < 256; ++i)
+            {
+                var tsb: string = "";
+                var baseEight: number = parseInt(i.toString(8), 10);
+                var row = Globals.m_HardDriveTable.insertRow(i+1);
+                var cell = row.insertCell(0);
+                if (baseEight <= 7)
+                {
+                    tsb += "00" + baseEight.toString();
+                }
+                else if (baseEight < 100)
+                {
+                    tsb += "0" + baseEight.toString();
+                }
+                else
+                {
+                    tsb += baseEight.toString();
+                }
+                cell.innerText = tsb;
+                cell = row.insertCell(1);
+                cell.align = "left";
+                cell.innerText = Globals.m_HardDrive.GetTSB(tsb);
+            }
+        }
+
+        public static HardDriveMBRUpdate(data: string)
+        {
+            var row = Globals.m_HardDriveTable.rows[1];
+            row.cells[1].innerText = data;
+        }
+
+        public static HardDriveTableUpdate(tsb: string, data: string)
+        {
+            var row = Globals.m_HardDriveTable.rows[parseInt(tsb, 8)+1];
+            row.cells[1].innerText = data;
         }
 
         public static SetSchedule(type: number): void

@@ -43,6 +43,9 @@ var CTOS;
             CTOS.Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
+            //Get the hard drive table
+            CTOS.Globals.m_HardDriveTable = document.getElementById("HardDriveTable");
+
             // Get the Ready Q table
             CTOS.Globals.m_ReadyQTable = document.getElementById("ReadyQTable");
 
@@ -115,14 +118,14 @@ var CTOS;
             CTOS.Globals.m_CPUScheduler = new CTOS.CPUScheduler();
             CTOS.Globals.m_CPU.Init();
 
+            CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
+
             // ... then set the host clock pulse ...
             CTOS.Globals.m_HardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CTOS.Globals.CPU_CLOCK_INTERVAL);
 
             // .. and call the OS Kernel Bootstrap routine.
             CTOS.Globals.m_Kernel = new CTOS.Kernel();
             CTOS.Globals.m_Kernel.Bootstrap();
-
-            CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
 
             // Achievement unlocked!
             CTOS.Globals.m_AchievementSystem.Unlock(0);
@@ -445,6 +448,36 @@ var CTOS;
                 cell = row.insertCell(9);
                 cell.innerText = pcb.m_Priority;
             }
+        };
+
+        Control.HardDriveTableInit = function () {
+            for (var i = 0; i < 256; ++i) {
+                var tsb = "";
+                var baseEight = parseInt(i.toString(8), 10);
+                var row = CTOS.Globals.m_HardDriveTable.insertRow(i + 1);
+                var cell = row.insertCell(0);
+                if (baseEight <= 7) {
+                    tsb += "00" + baseEight.toString();
+                } else if (baseEight < 100) {
+                    tsb += "0" + baseEight.toString();
+                } else {
+                    tsb += baseEight.toString();
+                }
+                cell.innerText = tsb;
+                cell = row.insertCell(1);
+                cell.align = "left";
+                cell.innerText = CTOS.Globals.m_HardDrive.GetTSB(tsb);
+            }
+        };
+
+        Control.HardDriveMBRUpdate = function (data) {
+            var row = CTOS.Globals.m_HardDriveTable.rows[1];
+            row.cells[1].innerText = data;
+        };
+
+        Control.HardDriveTableUpdate = function (tsb, data) {
+            var row = CTOS.Globals.m_HardDriveTable.rows[parseInt(tsb, 8) + 1];
+            row.cells[1].innerText = data;
         };
 
         Control.SetSchedule = function (type) {
