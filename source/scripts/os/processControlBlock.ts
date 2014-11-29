@@ -31,5 +31,6 @@ module CTOS
 
         public m_MemBase: number = 0;
         public m_MemLimit: number = 0; // base + size (255)
+        public m_SwapTSB: string = "@@@";
     }
 }

@@ -2,6 +2,7 @@
 Hard Drive
 Uses HTML5 local storage to access and modify data using Track-Sector-Block.
 The device driver will handle conversions to and from TSB, similar to memoryManager.
+DO NOT ACCESS DIRECTLY - use the deviceDriverHardDrive instead. This is important.
 001-077 = dir data
 100-377 = data
 0/1 - @@@ - filename or data
@@ -24,7 +25,7 @@ var CTOS;
         // Sets all TSBs to default and setups the MBR at 000
         HardDrive.prototype.Init = function () {
             if (this.IsSupported()) {
-                localStorage.setItem("000", "1@@@001100302ctOS MBR");
+                localStorage.setItem("000", "1@@@001100ctOS MBR");
                 for (var i = 1; i < 572; ++i) {
                     var baseEight = parseInt(i.toString(8), 10);
                     var tsb = "";
@@ -100,26 +101,6 @@ var CTOS;
         HardDrive.prototype.GetNextAvailableData = function () {
             var mbr = localStorage.getItem("000");
             return mbr.substr(7, 3);
-        };
-
-        // Sets the MBR with the next available swap at TSB given
-        HardDrive.prototype.SetNextAvailableSwap = function (tsb) {
-            if (this.IsSupported()) {
-                var mbr = localStorage.getItem("000");
-                var newMbr = mbr.substr(0, 10) + tsb + mbr.substr(13, mbr.length);
-                localStorage.setItem("000", newMbr);
-                return newMbr;
-            }
-            return null;
-        };
-
-        // Returns the next available swap TSB from MBR
-        HardDrive.prototype.GetNextAvailableSwap = function () {
-            if (this.IsSupported()) {
-                var mbr = localStorage.getItem("000");
-                return mbr.substr(10, 3);
-            }
-            return null;
         };
 
         // Check if HTML5 is supported via Modernizr

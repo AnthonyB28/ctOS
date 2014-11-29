@@ -100,7 +100,7 @@ module CTOS
         }
 
         // Check if harddrive functionality is available
-        private IsSupported(): boolean
+        public IsSupported(): boolean
         {
             if (HardDrive.Supported)
             {
@@ -261,22 +261,30 @@ module CTOS
                         {
                             this.DeleteDataTSB(firstDataTSB); // Make sure to reset the data chain, if needed
                             var curDataTSB: string = firstDataTSB;
-                            var nextAvailDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
                             this.m_AvailableData[curDataTSB] = 1;
+                            var nextAvailDataTSB: string = this.ConvertBaseEightToTSB(this.ProbeNextAvailableData());
                             // Get next available tsb, set the current tsb with next available tsb and data
                             for (var i: number = 0; i < tsbNeededToFill; ++i)
                             {
                                 var startIndex: number = i * (118); //118 = 59*2 for hex byte
                                 var endIndex: number = i + 117;
-                                this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
-                                this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
-                                curDataTSB = nextAvailDataTSB;
-                                nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                                if (nextAvailDataTSB == "@@@")
+
+                                if (i + 1 == tsbNeededToFill) // Don't need to worry about next TSB
                                 {
-                                    Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
-                                    Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
-                                    return;
+                                    this.SetTSB(curDataTSB, "1@@@" + hexDataToWrite.substr(startIndex, endIndex));
+                                }
+                                else
+                                {
+                                    this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
+                                    this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
+                                    curDataTSB = nextAvailDataTSB;
+                                    nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                                    if (nextAvailDataTSB == "@@@")
+                                    {
+                                        Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
+                                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                        return;
+                                    }
                                 }
                             }
                             Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
@@ -290,11 +298,13 @@ module CTOS
         // Resets a data TSB and all of its links, if any
         private DeleteDataTSB(tsb: string): void
         {
+            Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(tsb));
             var nextTSB: string = "";
             do
             {
-                this.m_AvailableData[tsb] = 0;
+                // Get the next TSB, reset this TSB, set this to next
                 nextTSB = Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
+                this.m_AvailableData[tsb] = 0;
                 this.ResetTSB(tsb);
                 tsb = nextTSB;
             } while (tsb != "@@@")
@@ -433,5 +443,80 @@ module CTOS
                 }
             } 
         }
+
+        // Retrieves the swap data for pcb from drive, and deletes it!
+        public SwapReadClear(pcb: ProcessControlBlock, data: string): string
+        {
+            if (this.IsSupported())
+            {
+                if (pcb.m_SwapTSB != "@@@")
+                {
+                    var hexData: string = "";
+                    var data: string = "";
+                    var dataTSB: string = pcb.m_SwapTSB;
+                    do 
+                    {
+                        // Get data from this TSB, clear this TSB, get next TSB from data, loop
+                        hexData = Globals.m_HardDrive.GetTSB(dataTSB);
+                        this.m_AvailableData[dataTSB] = 0;
+                        this.ResetTSB(dataTSB);
+                        dataTSB = hexData.substr(1, 3);
+                        data += hexData.substr(4, hexData.length - 4);
+                        
+                    } while (dataTSB != "@@@")
+
+                    return data;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        // Writes data to a file if available
+        public SwapWrite(pcb: ProcessControlBlock, data: string): boolean
+        {
+            if (this.IsSupported())
+            {
+                // Obtain where the start of the data should be if available
+                var firstDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
+                if (firstDataTSB)
+                {
+                    // Figure out how many TSBs we need, and fill them.
+                    this.DeleteDataTSB(firstDataTSB); // Make sure to reset the data chain, if needed
+                    var curDataTSB: string = firstDataTSB;
+                    pcb.m_SwapTSB = curDataTSB;
+                    this.m_AvailableData[curDataTSB] = 1;
+                    var nextAvailDataTSB: string = this.ConvertBaseEightToTSB(this.ProbeNextAvailableData());
+                    // We need at most 5 TSBs for memory
+                    // Get next available tsb, set the current tsb with next available tsb and data
+                    for (var i: number = 0; i < 5; ++i)
+                    {
+                        var startIndex: number = i * (118); //118 = 59*2 for hex byte
+                        var endIndex: number = i + 117;
+                        if (i == 4) // Don't have to worry about next TSB
+                        {
+                            this.SetTSB(curDataTSB, "1@@@" + data.substr(startIndex, endIndex));
+                        }
+                        else
+                        {
+                            this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + data.substr(startIndex, endIndex));
+                            this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
+                            curDataTSB = nextAvailDataTSB;
+                            nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                            if (nextAvailDataTSB == "@@@")
+                            {
+                                Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file for program!!!");
+                                Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                return false;
+                            }
+                        }
+                    }
+                    Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
+                    return true;
+                }
+            }
+            return false; // Error
+        }
+
     }
 }

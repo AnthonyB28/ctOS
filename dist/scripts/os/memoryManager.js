@@ -43,27 +43,34 @@ var CTOS;
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1) {
                 // OUT OF MEMORY!
-                return -1;
+                var data = "";
+                for (var i = 0; i < program.length; ++i) {
+                    data += program[i];
+                }
+                if (!CTOS.Globals.m_KrnHardDriveDriver.IsSupported() || !CTOS.Globals.m_KrnHardDriveDriver.SwapWrite(pcb, data)) {
+                    return -1;
+                }
+            } else {
+                // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+                pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+
+                // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+                pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
+
+                // Reset memory block & update display
+                this.m_Memory[memoryBlockLocation].Reset();
+                CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
+
+                for (var i = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i) {
+                    var address = i % MemoryManager.MAX_MEMORY;
+                    this.m_Memory[memoryBlockLocation].Set(address, program[address]);
+                    CTOS.Control.MemoryTableUpdateByte(i, program[address]);
+                }
+
+                this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             }
 
-            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
-            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
-
-            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
-            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
-
-            // Reset memory block & update display
-            this.m_Memory[memoryBlockLocation].Reset();
-            CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
-
-            for (var i = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i) {
-                var address = i % MemoryManager.MAX_MEMORY;
-                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                CTOS.Control.MemoryTableUpdateByte(i, program[address]);
-            }
-
-            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         };

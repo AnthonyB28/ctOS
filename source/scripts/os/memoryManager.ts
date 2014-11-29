@@ -61,27 +61,39 @@ module CTOS
             if (memoryBlockLocation == -1)
             {
                 // OUT OF MEMORY!
-                return -1;
+                var data: string = "";
+                for (var i: number = 0; i < program.length; ++i)
+                {
+                    data += program[i];
+                }
+                if (!Globals.m_KrnHardDriveDriver.IsSupported() || !Globals.m_KrnHardDriveDriver.SwapWrite(pcb, data))
+                {
+                    return -1;
+                }
             }
-            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
-            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY; 
-            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
-            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
-            pcb.m_State = ProcessControlBlock.STATE_NEW;
-
-            // Reset memory block & update display
-            this.m_Memory[memoryBlockLocation].Reset();
-            Control.MemoryTableResetBlock(memoryBlockLocation);
-
-            // Load our program into the block of memory
-            for (var i: number = pcb.m_MemBase; i < program.length+pcb.m_MemBase; ++i)
+            else
             {
-                var address: number = i % MemoryManager.MAX_MEMORY;
-                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                Control.MemoryTableUpdateByte(i, program[address]);
+                // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+                pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+                // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+                pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
+
+                // Reset memory block & update display
+                this.m_Memory[memoryBlockLocation].Reset();
+                Control.MemoryTableResetBlock(memoryBlockLocation);
+
+                // Load our program into the block of memory
+                for (var i: number = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i)
+                {
+                    var address: number = i % MemoryManager.MAX_MEMORY;
+                    this.m_Memory[memoryBlockLocation].Set(address, program[address]);
+                    Control.MemoryTableUpdateByte(i, program[address]);
+                }
+
+                this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             }
-            
-            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
+
+            pcb.m_State = ProcessControlBlock.STATE_NEW;
             Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         }

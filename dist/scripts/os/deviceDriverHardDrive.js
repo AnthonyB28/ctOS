@@ -212,20 +212,25 @@ var CTOS;
                         } else {
                             this.DeleteDataTSB(firstDataTSB); // Make sure to reset the data chain, if needed
                             var curDataTSB = firstDataTSB;
-                            var nextAvailDataTSB = CTOS.Globals.m_HardDrive.GetNextAvailableData();
                             this.m_AvailableData[curDataTSB] = 1;
+                            var nextAvailDataTSB = this.ConvertBaseEightToTSB(this.ProbeNextAvailableData());
 
                             for (var i = 0; i < tsbNeededToFill; ++i) {
                                 var startIndex = i * (118);
                                 var endIndex = i + 117;
-                                this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
-                                this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
-                                curDataTSB = nextAvailDataTSB;
-                                nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                                if (nextAvailDataTSB == "@@@") {
-                                    CTOS.Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
-                                    CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
-                                    return;
+
+                                if (i + 1 == tsbNeededToFill) {
+                                    this.SetTSB(curDataTSB, "1@@@" + hexDataToWrite.substr(startIndex, endIndex));
+                                } else {
+                                    this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + hexDataToWrite.substr(startIndex, endIndex));
+                                    this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
+                                    curDataTSB = nextAvailDataTSB;
+                                    nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                                    if (nextAvailDataTSB == "@@@") {
+                                        CTOS.Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
+                                        CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                        return;
+                                    }
                                 }
                             }
                             CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
@@ -238,10 +243,12 @@ var CTOS;
 
         // Resets a data TSB and all of its links, if any
         DeviceDriverHardDrive.prototype.DeleteDataTSB = function (tsb) {
+            CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(tsb));
             var nextTSB = "";
             do {
-                this.m_AvailableData[tsb] = 0;
+                // Get the next TSB, reset this TSB, set this to next
                 nextTSB = CTOS.Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
+                this.m_AvailableData[tsb] = 0;
                 this.ResetTSB(tsb);
                 tsb = nextTSB;
             } while(tsb != "@@@");
@@ -348,6 +355,66 @@ var CTOS;
                     return baseEight;
                 }
             }
+        };
+
+        // Retrieves the swap data for pcb from drive, and deletes it!
+        DeviceDriverHardDrive.prototype.SwapReadClear = function (pcb, data) {
+            if (this.IsSupported()) {
+                if (pcb.m_SwapTSB != "@@@") {
+                    var hexData = "";
+                    var data = "";
+                    var dataTSB = pcb.m_SwapTSB;
+                    do {
+                        // Get data from this TSB, clear this TSB, get next TSB from data, loop
+                        hexData = CTOS.Globals.m_HardDrive.GetTSB(dataTSB);
+                        this.m_AvailableData[dataTSB] = 0;
+                        this.ResetTSB(dataTSB);
+                        dataTSB = hexData.substr(1, 3);
+                        data += hexData.substr(4, hexData.length - 4);
+                    } while(dataTSB != "@@@");
+
+                    return data;
+                }
+                return null;
+            }
+            return null;
+        };
+
+        // Writes data to a file if available
+        DeviceDriverHardDrive.prototype.SwapWrite = function (pcb, data) {
+            if (this.IsSupported()) {
+                // Obtain where the start of the data should be if available
+                var firstDataTSB = CTOS.Globals.m_HardDrive.GetNextAvailableData();
+                if (firstDataTSB) {
+                    // Figure out how many TSBs we need, and fill them.
+                    this.DeleteDataTSB(firstDataTSB); // Make sure to reset the data chain, if needed
+                    var curDataTSB = firstDataTSB;
+                    pcb.m_SwapTSB = curDataTSB;
+                    this.m_AvailableData[curDataTSB] = 1;
+                    var nextAvailDataTSB = this.ConvertBaseEightToTSB(this.ProbeNextAvailableData());
+
+                    for (var i = 0; i < 5; ++i) {
+                        var startIndex = i * (118);
+                        var endIndex = i + 117;
+                        if (i == 4) {
+                            this.SetTSB(curDataTSB, "1@@@" + data.substr(startIndex, endIndex));
+                        } else {
+                            this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + data.substr(startIndex, endIndex));
+                            this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
+                            curDataTSB = nextAvailDataTSB;
+                            nextAvailDataTSB = this.ProbeNextAvailableData().toString();
+                            if (nextAvailDataTSB == "@@@") {
+                                CTOS.Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file for program!!!");
+                                CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                return false;
+                            }
+                        }
+                    }
+                    CTOS.Control.HardDriveMBRUpdate(CTOS.Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
+                    return true;
+                }
+            }
+            return false;
         };
         DeviceDriverHardDrive.IRQ_FORMAT = 0;
         DeviceDriverHardDrive.IRQ_CREATE_FILE = 1;

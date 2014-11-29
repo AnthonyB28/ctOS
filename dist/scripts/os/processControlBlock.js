@@ -19,6 +19,7 @@ var CTOS;
             this.m_Z = 0;
             this.m_MemBase = 0;
             this.m_MemLimit = 0;
+            this.m_SwapTSB = "@@@";
         }
         ProcessControlBlock.m_GPID = -1;
         ProcessControlBlock.STATE_NEW = 0;
