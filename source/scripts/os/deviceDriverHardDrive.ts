@@ -445,7 +445,7 @@ module CTOS
         }
 
         // Retrieves the swap data for pcb from drive, and deletes it!
-        public SwapReadClear(pcb: ProcessControlBlock, data: string): string
+        public SwapReadClear(pcb: ProcessControlBlock): string
         {
             if (this.IsSupported())
             {

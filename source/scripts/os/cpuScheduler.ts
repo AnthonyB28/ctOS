@@ -104,6 +104,35 @@
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, true));
         }
 
+        public CheckRollOut(): boolean
+        {
+            if (Globals.m_KernelReadyQueue.getSize() > 1)
+            {
+                var pcbOut: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+                var pcbIn: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(1);
+                if (pcbIn.m_SwapTSB != "@@@") // PCB coming in is paged.
+                {
+                    // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
+                    pcbIn.m_MemBase = pcbOut.m_MemBase;
+                    pcbIn.m_MemLimit = pcbOut.m_MemLimit;
+                    var inData: string = Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
+                    var outData: string = Globals.m_MemoryManager.SwapMemory(inData, pcbIn.m_MemBase, pcbIn.m_MemLimit);
+                    pcbIn.m_SwapTSB = "@@@"; // No longer in swap file
+                    if (Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData))
+                    {
+                        Globals.m_OsShell.PutTextLine("Succesfull swap");
+                        return true;
+                    }
+                    else
+                    {
+                        Globals.m_CPU.m_IsExecuting = false;
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         // When a process is done executing, this is the callback from the CPU
         public OnCPUDoneExecuting(): void
         {

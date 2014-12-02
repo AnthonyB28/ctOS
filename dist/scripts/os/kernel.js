@@ -160,12 +160,16 @@ var CTOS;
                     CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
-                    CTOS.Globals.m_CPU.ContextSwitch(params);
-                    CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
-                    if (params) {
-                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                    if (CTOS.Globals.m_CPUScheduler.CheckRollOut()) {
+                        CTOS.Globals.m_CPU.ContextSwitch(params);
+                        CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
+                        if (params) {
+                            this.Trace("Context switch occured. Forced PCB off ready queue");
+                        } else {
+                            this.Trace("Context switch occured. Round Robin.");
+                        }
                     } else {
-                        this.Trace("Context switch occured. Round Robin.");
+                        this.Trace("Error swapping! Broke CPU");
                     }
                     break;
                 case CTOS.Globals.INTERRUPT_REQUEST_HD:

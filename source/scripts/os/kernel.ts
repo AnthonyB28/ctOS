@@ -186,15 +186,22 @@ module CTOS
                     Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     break;
                 case Globals.INTERRUPT_CPU_CNTXSWTCH:
-                    Globals.m_CPU.ContextSwitch(params);
-                    Globals.m_CPUScheduler.OnContextSwitchInterrupt();
-                    if (params) // params is true if shellKill
+                    if (Globals.m_CPUScheduler.CheckRollOut())
                     {
-                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                        Globals.m_CPU.ContextSwitch(params);
+                        Globals.m_CPUScheduler.OnContextSwitchInterrupt();
+                        if (params) // params is true if shellKill
+                        {
+                            this.Trace("Context switch occured. Forced PCB off ready queue");
+                        }
+                        else
+                        {
+                            this.Trace("Context switch occured. Round Robin.");
+                        }
                     }
                     else
                     {
-                        this.Trace("Context switch occured. Round Robin.");
+                        this.Trace("Error swapping! Broke CPU");
                     }
                     break;
                 case Globals.INTERRUPT_REQUEST_HD:

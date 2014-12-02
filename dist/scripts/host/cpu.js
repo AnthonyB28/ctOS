@@ -166,7 +166,7 @@ var CTOS;
                     // TODO interupt?
                     var params = new Array();
                     var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
-                    params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+                    params[0] = pcb.m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
                     params[1] = op;
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_INVALID_OP, params));
                     break;

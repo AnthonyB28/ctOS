@@ -7,7 +7,6 @@ DO NOT ACCESS DIRECTLY - use the deviceDriverHardDrive instead. This is importan
 100-377 = data
 0/1 - @@@ - filename or data
 in use bit - next TSB or @ invalid - data string from 4 bytes to 63
-Need 5 TSBs for a single swap file, aprox 15 available from TSB 302
 **/
 var CTOS;
 (function (CTOS) {

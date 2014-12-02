@@ -358,7 +358,7 @@ var CTOS;
         };
 
         // Retrieves the swap data for pcb from drive, and deletes it!
-        DeviceDriverHardDrive.prototype.SwapReadClear = function (pcb, data) {
+        DeviceDriverHardDrive.prototype.SwapReadClear = function (pcb) {
             if (this.IsSupported()) {
                 if (pcb.m_SwapTSB != "@@@") {
                     var hexData = "";

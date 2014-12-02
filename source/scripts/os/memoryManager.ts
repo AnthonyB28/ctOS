@@ -25,9 +25,11 @@ module CTOS
             }
         }
 
+        // Resets memory and makes it available given the base of the memory block in bytes
         public UnlockMemory(memBase: number)
         {
             var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new Memory();
             this.m_MemInUse[memBlock] = false;
         }
 
@@ -96,6 +98,33 @@ module CTOS
             pcb.m_State = ProcessControlBlock.STATE_NEW;
             Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
+        }
+
+        public SwapMemory(dataToWrite: string, memBase: number, memLimit: number): string
+        {
+            var outData: string = "";
+            
+            for (var i: number = 0; i < 256; ++i)
+            {
+                var byte: Byte = this.GetByte(i);
+                outData += byte.GetHex();
+            }
+
+            // Reset memory
+            var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new Memory();
+
+            var bytesToWrite:Array<string> = dataToWrite.match(/.{2}/g);
+            // Write new data to same memory
+            for (var i: number = 0; i < 256; ++i)
+            {
+                if (i < bytesToWrite.length)
+                {
+                    this.SetByte(i, bytesToWrite[i]);
+                }
+            }
+
+            return outData;
         }
 
         // Gets the byte from memory using address

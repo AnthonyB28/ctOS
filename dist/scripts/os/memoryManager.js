@@ -14,8 +14,10 @@ var CTOS;
                 this.m_MemInUse[i] = false;
             }
         }
+        // Resets memory and makes it available given the base of the memory block in bytes
         MemoryManager.prototype.UnlockMemory = function (memBase) {
             var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new CTOS.Memory();
             this.m_MemInUse[memBlock] = false;
         };
 
@@ -73,6 +75,29 @@ var CTOS;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
             CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
+        };
+
+        MemoryManager.prototype.SwapMemory = function (dataToWrite, memBase, memLimit) {
+            var outData = "";
+
+            for (var i = 0; i < 256; ++i) {
+                var byte = this.GetByte(i);
+                outData += byte.GetHex();
+            }
+
+            // Reset memory
+            var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new CTOS.Memory();
+
+            var bytesToWrite = dataToWrite.match(/.{2}/g);
+
+            for (var i = 0; i < 256; ++i) {
+                if (i < bytesToWrite.length) {
+                    this.SetByte(i, bytesToWrite[i]);
+                }
+            }
+
+            return outData;
         };
 
         // Gets the byte from memory using address

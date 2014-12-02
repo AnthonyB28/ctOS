@@ -87,8 +87,8 @@ module CTOS
         static m_SarcasticMode: boolean = false;
 
         // Global Device Driver Objects - page 12
-        static m_KrnKeyboardDriver = null;
-        static m_KrnHardDriveDriver = null;
+        static m_KrnKeyboardDriver : DeviceDriverKeyboard = null;
+        static m_KrnHardDriveDriver : DeviceDriverHardDrive = null;
         static m_HardwareClockID: number = null;
 
         // For testing...
