@@ -81,8 +81,15 @@ var CTOS;
             var outData = "";
 
             for (var i = 0; i < 256; ++i) {
-                var byte = this.GetByte(i);
-                outData += byte.GetHex();
+                var byte = this.GetByte(i, memBase);
+                var hex = byte.GetHex();
+                var hexPad = "";
+                if (hex.length == 1) {
+                    hexPad += "0" + hex;
+                } else {
+                    hexPad = hex;
+                }
+                outData += hexPad;
             }
 
             // Reset memory
@@ -92,20 +99,23 @@ var CTOS;
             var bytesToWrite = dataToWrite.match(/.{2}/g);
 
             for (var i = 0; i < 256; ++i) {
-                if (i < bytesToWrite.length) {
-                    this.SetByte(i, bytesToWrite[i]);
-                }
+                this.SetByte(i, bytesToWrite[i]);
             }
 
             return outData;
         };
 
         // Gets the byte from memory using address
-        MemoryManager.prototype.GetByte = function (address) {
+        MemoryManager.prototype.GetByte = function (address, base) {
+            if (typeof base === "undefined") { base = null; }
             var memBase = 0;
             if (CTOS.Globals.m_CurrentPCBExe) {
                 memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
             }
+            if (base) {
+                memBase = base;
+            }
+
             var physicalAddress = address + memBase;
             var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
             var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
@@ -117,10 +127,14 @@ var CTOS;
         };
 
         // Set the byte @ address in memory with value in hex
-        MemoryManager.prototype.SetByte = function (address, hexValue) {
+        MemoryManager.prototype.SetByte = function (address, hexValue, base) {
+            if (typeof base === "undefined") { base = null; }
             var memBase = 0;
             if (CTOS.Globals.m_CurrentPCBExe) {
                 memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
+            if (base) {
+                memBase = base;
             }
             var physicalAddress = address + memBase;
             var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);

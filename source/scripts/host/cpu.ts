@@ -83,6 +83,9 @@ module CTOS {
         {
             this.m_IsExecuting = false;
             var indexToRemove: number = 0;
+
+            Globals.m_CPUScheduler.CheckRollOut(false); // Check to make sure rollout isn't needed
+
             // Dequeue the process that is currently RUNNING, don't just dequeue from the start.
             // Necessary for priority scheduling which is sorted, new pid could be at the front. Nonpreemptive
             var qSize: number = Globals.m_KernelReadyQueue.getSize();
@@ -100,7 +103,12 @@ module CTOS {
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = ProcessControlBlock.STATE_TERMINATED;
-            Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+
+            // Don't reset memory if rollout occured!!
+            if (!Globals.m_CPUScheduler.RolloutOccured(pcb))
+            {
+                Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+            }
             Globals.m_AchievementSystem.Unlock(16);
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_BRK, null));
         }

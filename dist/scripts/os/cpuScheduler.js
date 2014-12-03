@@ -87,27 +87,46 @@
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH, true));
         };
 
-        CPUScheduler.prototype.CheckRollOut = function () {
+        // Determines if rollout is necessary and performs it. Returns true if successful or didn't need to occur & false if error writing
+        // writeRollout is true if roll needs to write to page
+        CPUScheduler.prototype.CheckRollOut = function (writeRollout) {
             if (CTOS.Globals.m_KernelReadyQueue.getSize() > 1) {
                 var pcbOut = CTOS.Globals.m_KernelReadyQueue.peek(0);
                 var pcbIn = CTOS.Globals.m_KernelReadyQueue.peek(1);
-                if (pcbIn.m_SwapTSB != "@@@") {
-                    // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
-                    pcbIn.m_MemBase = pcbOut.m_MemBase;
-                    pcbIn.m_MemLimit = pcbOut.m_MemLimit;
-                    var inData = CTOS.Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
-                    var outData = CTOS.Globals.m_MemoryManager.SwapMemory(inData, pcbIn.m_MemBase, pcbIn.m_MemLimit);
-                    pcbIn.m_SwapTSB = "@@@"; // No longer in swap file
-                    if (CTOS.Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData)) {
-                        CTOS.Globals.m_OsShell.PutTextLine("Succesfull swap");
-                        return true;
-                    } else {
-                        CTOS.Globals.m_CPU.m_IsExecuting = false;
-                        return false;
-                    }
+                if (pcbIn.m_SwapTSB != CTOS.DeviceDriverHardDrive.TSB_INVALID) {
+                    return this.Roll(pcbIn, pcbOut, writeRollout);
                 }
             }
             return true;
+        };
+
+        // Performs roll in with pcbIn. Set rollOut to true to do roll out - writing the program out to page
+        CPUScheduler.prototype.Roll = function (pcbIn, pcbOut, rollOut) {
+            // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
+            var inData = CTOS.Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
+            var outData = CTOS.Globals.m_MemoryManager.SwapMemory(inData, pcbOut.m_MemBase, pcbOut.m_MemLimit);
+            pcbIn.m_MemBase = pcbOut.m_MemBase;
+            pcbIn.m_MemLimit = pcbOut.m_MemLimit;
+
+            pcbOut.m_MemBase = 0;
+            pcbOut.m_MemLimit = 0;
+
+            // Don't write out data to drive. E.g program has terminated, doesnt need to be put back into drive
+            if (rollOut) {
+                if (CTOS.Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData)) {
+                    //Globals.m_OsShell.PutTextLine("Succesfull swap -" + pcbOut.m_PID.toString() + " to " + pcbIn.m_PID.toString());
+                    return true;
+                } else {
+                    CTOS.Globals.m_CPU.m_IsExecuting = false;
+                    return false;
+                }
+            }
+        };
+
+        // Returns if rollout had occured based on the PCB
+        // CPU uses this to determine if memory needs to be erased.
+        CPUScheduler.prototype.RolloutOccured = function (pcb) {
+            return pcb.m_SwapTSB != CTOS.DeviceDriverHardDrive.TSB_INVALID ? true : false;
         };
 
         // When a process is done executing, this is the callback from the CPU
@@ -118,6 +137,10 @@
                 if (sizeOfReadyQueue > 0) {
                     if (sizeOfReadyQueue == 1) {
                         this.m_WaitingExe = false;
+                        var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
+                        if (pcb.m_SwapTSB != CTOS.DeviceDriverHardDrive.TSB_INVALID) {
+                            this.Roll(pcb, CTOS.Globals.m_CurrentPCBExe, false);
+                        }
                     }
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {

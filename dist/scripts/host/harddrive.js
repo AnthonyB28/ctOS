@@ -24,7 +24,7 @@ var CTOS;
         // Sets all TSBs to default and setups the MBR at 000
         HardDrive.prototype.Init = function () {
             if (this.IsSupported()) {
-                localStorage.setItem("000", "1@@@001100ctOS MBR");
+                localStorage.setItem("000", "1" + CTOS.DeviceDriverHardDrive.TSB_INVALID + "001100ctOS MBR");
                 for (var i = 1; i < 572; ++i) {
                     var baseEight = parseInt(i.toString(8), 10);
                     var tsb = "";
@@ -36,7 +36,7 @@ var CTOS;
                         tsb += baseEight.toString();
                     }
 
-                    localStorage.setItem(tsb, HardDrive.INIT_TSB);
+                    localStorage.setItem(tsb, CTOS.DeviceDriverHardDrive.TSB_INIT);
                 }
             }
         };
@@ -44,62 +44,21 @@ var CTOS;
         // Write data to tsb in HTML5 storage
         HardDrive.prototype.SetTSB = function (tsb, data) {
             if (this.IsSupported()) {
-                if (tsb == "000") {
-                    // Should maybe IRQ? Dont write here.
-                } else {
-                    localStorage.setItem(tsb, data);
-                }
+                localStorage.setItem(tsb, data);
             }
         };
 
         // Returns the TSB from HTML5 storage
         HardDrive.prototype.GetTSB = function (tsb) {
             if (this.IsSupported()) {
-                if (tsb != "@@@") {
+                if (tsb != CTOS.DeviceDriverHardDrive.TSB_INVALID) {
                     return localStorage.getItem(tsb);
                 } else {
-                    CTOS.Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
+                    CTOS.Globals.m_OsShell.PutTextLine("Hard Drive tried to get " + CTOS.DeviceDriverHardDrive.TSB_INVALID + " TSB");
                     return null;
                 }
             }
             return null;
-        };
-
-        // Sets the MBR with the next available dir at TSB given
-        HardDrive.prototype.SetNextAvailableDir = function (tsb) {
-            if (this.IsSupported()) {
-                var mbr = localStorage.getItem("000");
-                var newMbr = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
-                localStorage.setItem("000", newMbr);
-                return newMbr;
-            }
-            return null;
-        };
-
-        // Gets the next available dir TSB from MBR
-        HardDrive.prototype.GetNextAvailableDir = function () {
-            if (this.IsSupported()) {
-                var mbr = localStorage.getItem("000");
-                return mbr.substr(4, 3);
-            }
-            return null;
-        };
-
-        // Sets the MBR with the next available data at TSB given
-        HardDrive.prototype.SetNextAvailableData = function (tsb) {
-            if (this.IsSupported()) {
-                var mbr = localStorage.getItem("000");
-                var newMbr = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
-                localStorage.setItem("000", newMbr);
-                return newMbr;
-            }
-            return null;
-        };
-
-        // Returns the next available data TSB from MBR
-        HardDrive.prototype.GetNextAvailableData = function () {
-            var mbr = localStorage.getItem("000");
-            return mbr.substr(7, 3);
         };
 
         // Check if HTML5 is supported via Modernizr
@@ -111,7 +70,6 @@ var CTOS;
             }
         };
         HardDrive.Supported = false;
-        HardDrive.INIT_TSB = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         return HardDrive;
     })();
     CTOS.HardDrive = HardDrive;

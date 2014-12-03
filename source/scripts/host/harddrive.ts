@@ -15,7 +15,6 @@ module CTOS
     export class HardDrive
     {
         static Supported: boolean = false;
-        static INIT_TSB: string = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
         constructor()
         {
@@ -36,7 +35,7 @@ module CTOS
         {
             if (this.IsSupported())
             {
-                localStorage.setItem("000", "1@@@001100ctOS MBR");
+                localStorage.setItem("000", "1"+DeviceDriverHardDrive.TSB_INVALID+"001100ctOS MBR");
                 for (var i: number = 1; i < 572; ++i)
                 {
                     var baseEight: number = parseInt(i.toString(8), 10);
@@ -54,7 +53,7 @@ module CTOS
                         tsb += baseEight.toString();
                     }
 
-                    localStorage.setItem(tsb, HardDrive.INIT_TSB);
+                    localStorage.setItem(tsb, DeviceDriverHardDrive.TSB_INIT);
                 }
             }
         }
@@ -64,14 +63,7 @@ module CTOS
         {
             if (this.IsSupported())
             {
-                if (tsb == "000")
-                {
-                    // Should maybe IRQ? Dont write here.
-                }
-                else
-                {
-                    localStorage.setItem(tsb, data);
-                }
+                localStorage.setItem(tsb, data);
             }
         }
 
@@ -80,61 +72,17 @@ module CTOS
         {
             if (this.IsSupported())
             {
-                if (tsb != "@@@")
+                if (tsb != DeviceDriverHardDrive.TSB_INVALID)
                 {
                     return localStorage.getItem(tsb);
                 }
                 else
                 {
-                    Globals.m_OsShell.PutTextLine("Hard Drive tried to get @@@ TSB");
+                    Globals.m_OsShell.PutTextLine("Hard Drive tried to get " + DeviceDriverHardDrive.TSB_INVALID+ " TSB");
                     return null;
                 }
             }
             return null;
-        }
-
-        // Sets the MBR with the next available dir at TSB given
-        public SetNextAvailableDir(tsb: string): string
-        {
-            if (this.IsSupported())
-            {
-                var mbr: string = localStorage.getItem("000");
-                var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
-                localStorage.setItem("000", newMbr);
-                return newMbr;
-            }
-            return null;
-        }
-
-        // Gets the next available dir TSB from MBR
-        public GetNextAvailableDir(): string
-        {
-            if (this.IsSupported())
-            {
-                var mbr: string = localStorage.getItem("000");
-                return mbr.substr(4, 3);
-            }
-            return null;
-        }
-
-        // Sets the MBR with the next available data at TSB given
-        public SetNextAvailableData(tsb: string): string
-        {
-            if (this.IsSupported())
-            {
-                var mbr: string = localStorage.getItem("000");
-                var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
-                localStorage.setItem("000", newMbr);
-                return newMbr;
-            }
-            return null;
-        }
-
-        // Returns the next available data TSB from MBR
-        public GetNextAvailableData(): string
-        {
-            var mbr: string = localStorage.getItem("000");
-            return mbr.substr(7, 3);
         }
 
         // Check if HTML5 is supported via Modernizr

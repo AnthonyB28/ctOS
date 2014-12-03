@@ -8,6 +8,9 @@ module CTOS
     // Extends DeviceDriver
     export class DeviceDriverHardDrive extends DeviceDriver
     {
+        static TSB_INIT: string = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        static TSB_INVALID: string = "@@@";
+
         static IRQ_FORMAT: number = 0;
         static IRQ_CREATE_FILE: number = 1;
         static IRQ_CREATE_FILE_DATA: number = 2;
@@ -152,8 +155,8 @@ module CTOS
 
                 // Convert the filename to hex data and find where to store it and initial data
                 var hexString: string = Utils.ConvertToHex(filename);
-                var tsbDir: string = Globals.m_HardDrive.GetNextAvailableDir();
-                var tsbData: string = Globals.m_HardDrive.GetNextAvailableData();
+                var tsbDir: string = this.GetNextAvailableDir();
+                var tsbData: string = this.GetNextAvailableData();
 
                 // As long as the directories are not in use, we can use them.
                 if (Globals.m_HardDrive.GetTSB(tsbDir)[0] == "0")
@@ -169,8 +172,8 @@ module CTOS
                         // Get the next tsbs and mark them in the MBR
                         var nextDir: number = this.ProbeNextAvailableDir();
                         var nextData: number = this.ProbeNextAvailableData()
-                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableDir(this.ConvertBaseEightToTSB(nextDir)));
-                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(this.ConvertBaseEightToTSB(nextData)));
+                        Control.HardDriveMBRUpdate(this.SetNextAvailableDir(this.ConvertBaseEightToTSB(nextDir)));
+                        Control.HardDriveMBRUpdate(this.SetNextAvailableData(this.ConvertBaseEightToTSB(nextData)));
                         Globals.m_OsShell.PutTextLine("Success - filename TSB " + tsbDir + " data TSB " +tsbData);
                     }
                     else
@@ -199,7 +202,7 @@ module CTOS
                 var dataTSB: string = Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3); // Get the tsb from the data
                 // Reset the dir and file data, mark as available
                 this.m_AvailableDir[dirTSB] = 0;
-                Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableDir(dirTSB));
+                Control.HardDriveMBRUpdate(this.SetNextAvailableDir(dirTSB));
                 this.ResetTSB(dirTSB);
                 this.DeleteDataTSB(dataTSB);
                 Globals.m_OsShell.PutTextLine("Success");
@@ -227,7 +230,7 @@ module CTOS
                             hexData = Globals.m_HardDrive.GetTSB(dataTSB);
                             dataTSB = hexData.substr(1, 3);
                             data += Utils.ConvertHexToString(hexData.substr(4, hexData.length - 4));
-                        } while (dataTSB != "@@@")
+                        } while (dataTSB != DeviceDriverHardDrive.TSB_INVALID)
                     }
 
                     return data;
@@ -271,7 +274,7 @@ module CTOS
 
                                 if (i + 1 == tsbNeededToFill) // Don't need to worry about next TSB
                                 {
-                                    this.SetTSB(curDataTSB, "1@@@" + hexDataToWrite.substr(startIndex, endIndex));
+                                    this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + hexDataToWrite.substr(startIndex, endIndex));
                                 }
                                 else
                                 {
@@ -279,15 +282,15 @@ module CTOS
                                     this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
                                     curDataTSB = nextAvailDataTSB;
                                     nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                                    if (nextAvailDataTSB == "@@@")
+                                    if (nextAvailDataTSB == DeviceDriverHardDrive.TSB_INVALID)
                                     {
                                         Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file.");
-                                        Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                        Control.HardDriveMBRUpdate(this.SetNextAvailableData(curDataTSB));
                                         return;
                                     }
                                 }
                             }
-                            Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
+                            Control.HardDriveMBRUpdate(this.SetNextAvailableData(nextAvailDataTSB));
                         }
                         Globals.m_OsShell.PutTextLine("Success writing data");
                     }
@@ -298,7 +301,7 @@ module CTOS
         // Resets a data TSB and all of its links, if any
         private DeleteDataTSB(tsb: string): void
         {
-            Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(tsb));
+            Control.HardDriveMBRUpdate(this.SetNextAvailableData(tsb));
             var nextTSB: string = "";
             do
             {
@@ -307,7 +310,7 @@ module CTOS
                 this.m_AvailableData[tsb] = 0;
                 this.ResetTSB(tsb);
                 tsb = nextTSB;
-            } while (tsb != "@@@")
+            } while (tsb != DeviceDriverHardDrive.TSB_INVALID)
         }
 
         // Lists all filenames
@@ -405,7 +408,7 @@ module CTOS
         // Sets a TSB back to INIT_TSB
         private ResetTSB(tsb: string): void
         {
-            this.SetTSB(tsb, HardDrive.INIT_TSB);
+            this.SetTSB(tsb, DeviceDriverHardDrive.TSB_INIT);
         }
 
         // Looks for the next available dir TSB
@@ -449,11 +452,12 @@ module CTOS
         {
             if (this.IsSupported())
             {
-                if (pcb.m_SwapTSB != "@@@")
+                if (pcb.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID)
                 {
                     var hexData: string = "";
                     var data: string = "";
                     var dataTSB: string = pcb.m_SwapTSB;
+                    
                     do 
                     {
                         // Get data from this TSB, clear this TSB, get next TSB from data, loop
@@ -463,8 +467,10 @@ module CTOS
                         dataTSB = hexData.substr(1, 3);
                         data += hexData.substr(4, hexData.length - 4);
                         
-                    } while (dataTSB != "@@@")
+                    } while (dataTSB != DeviceDriverHardDrive.TSB_INVALID)
 
+                    Control.HardDriveMBRUpdate(this.SetNextAvailableData(pcb.m_SwapTSB));
+                    pcb.m_SwapTSB = DeviceDriverHardDrive.TSB_INVALID;
                     return data;
                 }
                 return null;
@@ -478,7 +484,7 @@ module CTOS
             if (this.IsSupported())
             {
                 // Obtain where the start of the data should be if available
-                var firstDataTSB: string = Globals.m_HardDrive.GetNextAvailableData();
+                var firstDataTSB: string = this.GetNextAvailableData();
                 if (firstDataTSB)
                 {
                     // Figure out how many TSBs we need, and fill them.
@@ -491,31 +497,74 @@ module CTOS
                     // Get next available tsb, set the current tsb with next available tsb and data
                     for (var i: number = 0; i < 5; ++i)
                     {
-                        var startIndex: number = i * (118); //118 = 59*2 for hex byte
-                        var endIndex: number = i + 117;
+                        var startIndex: number = i * (120); //118 = 59*2 for hex byte
                         if (i == 4) // Don't have to worry about next TSB
                         {
-                            this.SetTSB(curDataTSB, "1@@@" + data.substr(startIndex, endIndex));
+                            this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + + data.substr(startIndex, 120));
                         }
                         else
                         {
-                            this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + data.substr(startIndex, endIndex));
+                            this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + data.substr(startIndex, 120));
                             this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop
                             curDataTSB = nextAvailDataTSB;
                             nextAvailDataTSB = this.ProbeNextAvailableData().toString();
-                            if (nextAvailDataTSB == "@@@")
+                            if (nextAvailDataTSB == DeviceDriverHardDrive.TSB_INVALID)
                             {
                                 Globals.m_OsShell.PutTextLine("Error - Ran out of data! Next TSB not available. Partial written file for program!!!");
-                                Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(curDataTSB));
+                                Control.HardDriveMBRUpdate(this.SetNextAvailableData(curDataTSB));
                                 return false;
                             }
                         }
                     }
-                    Control.HardDriveMBRUpdate(Globals.m_HardDrive.SetNextAvailableData(nextAvailDataTSB));
+                    Control.HardDriveMBRUpdate(this.SetNextAvailableData(nextAvailDataTSB));
                     return true;
                 }
             }
             return false; // Error
+        }
+
+        // Sets the MBR with the next available dir at TSB given
+        public SetNextAvailableDir(tsb: string): string
+        {
+            if (this.IsSupported())
+            {
+                var mbr: string = Globals.m_HardDrive.GetTSB("000");
+                var newMbr: string = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
+                Globals.m_HardDrive.SetTSB("000", newMbr);
+                return newMbr;
+            }
+            return null;
+        }
+
+        // Gets the next available dir TSB from MBR
+        public GetNextAvailableDir(): string
+        {
+            if (this.IsSupported())
+            {
+                var mbr: string = Globals.m_HardDrive.GetTSB("000");
+                return mbr.substr(4, 3);
+            }
+            return null;
+        }
+
+        // Sets the MBR with the next available data at TSB given
+        public SetNextAvailableData(tsb: string): string
+        {
+            if (this.IsSupported())
+            {
+                var mbr: string = Globals.m_HardDrive.GetTSB("000");
+                var newMbr: string = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
+                Globals.m_HardDrive.SetTSB("000", newMbr);
+                return newMbr;
+            }
+            return null;
+        }
+
+        // Returns the next available data TSB from MBR
+        public GetNextAvailableData(): string
+        {
+            var mbr: string = Globals.m_HardDrive.GetTSB("000");
+            return mbr.substr(7, 3);
         }
 
     }

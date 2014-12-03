@@ -149,6 +149,7 @@ var CTOS;
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_BRK:
                     // PCB is done executing or we've done some kind of context switch for P3
+                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     if (CTOS.Globals.m_CurrentPCBExe) {
                         if (CTOS.Globals.m_CurrentPCBExe.m_State == CTOS.ProcessControlBlock.STATE_TERMINATED) {
                             CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_CurrentPCBExe.m_PID.toString() + "] is done executing.");
@@ -157,10 +158,10 @@ var CTOS;
                         }
                         CTOS.Globals.m_CurrentPCBExe = null;
                     }
-                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
+
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
-                    if (CTOS.Globals.m_CPUScheduler.CheckRollOut()) {
+                    if (CTOS.Globals.m_CPUScheduler.CheckRollOut(true)) {
                         CTOS.Globals.m_CPU.ContextSwitch(params);
                         CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
                         if (params) {

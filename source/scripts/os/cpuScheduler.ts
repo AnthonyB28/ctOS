@@ -104,33 +104,55 @@
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, true));
         }
 
-        public CheckRollOut(): boolean
+        // Determines if rollout is necessary and performs it. Returns true if successful or didn't need to occur & false if error writing
+        // writeRollout is true if roll needs to write to page
+        public CheckRollOut(writeRollout: boolean): boolean
         {
             if (Globals.m_KernelReadyQueue.getSize() > 1)
             {
                 var pcbOut: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
                 var pcbIn: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(1);
-                if (pcbIn.m_SwapTSB != "@@@") // PCB coming in is paged.
+                if (pcbIn.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID) // PCB coming in is paged.
                 {
-                    // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
-                    pcbIn.m_MemBase = pcbOut.m_MemBase;
-                    pcbIn.m_MemLimit = pcbOut.m_MemLimit;
-                    var inData: string = Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
-                    var outData: string = Globals.m_MemoryManager.SwapMemory(inData, pcbIn.m_MemBase, pcbIn.m_MemLimit);
-                    pcbIn.m_SwapTSB = "@@@"; // No longer in swap file
-                    if (Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData))
-                    {
-                        Globals.m_OsShell.PutTextLine("Succesfull swap");
-                        return true;
-                    }
-                    else
-                    {
-                        Globals.m_CPU.m_IsExecuting = false;
-                        return false;
-                    }
+                    return this.Roll(pcbIn, pcbOut, writeRollout);
                 }
             }
-            return true;
+            return true; // no error, no need to roll out
+        }
+
+        // Performs roll in with pcbIn. Set rollOut to true to do roll out - writing the program out to page
+        private Roll(pcbIn: ProcessControlBlock, pcbOut: ProcessControlBlock, rollOut: boolean): boolean
+        {
+            // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
+            var inData: string = Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
+            var outData: string = Globals.m_MemoryManager.SwapMemory(inData, pcbOut.m_MemBase, pcbOut.m_MemLimit);
+            pcbIn.m_MemBase = pcbOut.m_MemBase;
+            pcbIn.m_MemLimit = pcbOut.m_MemLimit;
+
+            pcbOut.m_MemBase = 0;
+            pcbOut.m_MemLimit = 0;
+
+            // Don't write out data to drive. E.g program has terminated, doesnt need to be put back into drive
+            if (rollOut)
+            {
+                if (Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData))
+                {
+                    //Globals.m_OsShell.PutTextLine("Succesfull swap -" + pcbOut.m_PID.toString() + " to " + pcbIn.m_PID.toString());
+                    return true;
+                }
+                else
+                {
+                    Globals.m_CPU.m_IsExecuting = false;
+                    return false;
+                }
+            }
+        }
+
+        // Returns if rollout had occured based on the PCB
+        // CPU uses this to determine if memory needs to be erased.
+        public RolloutOccured(pcb: ProcessControlBlock): boolean
+        {
+            return pcb.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID ? true : false;
         }
 
         // When a process is done executing, this is the callback from the CPU
@@ -145,6 +167,11 @@
                     if (sizeOfReadyQueue == 1) // Last process in the queue at the moment
                     {
                         this.m_WaitingExe = false;
+                        var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(0);
+                        if (pcb.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID)
+                        {
+                            this.Roll(pcb, Globals.m_CurrentPCBExe, false);
+                        }
                     }
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }

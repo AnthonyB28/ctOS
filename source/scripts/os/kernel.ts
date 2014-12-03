@@ -172,7 +172,10 @@ module CTOS
                     this.Trace("PID[" + params[0].toString() + "] had an invalid op @" + params[1].GetHex());
                     break;
                 case Globals.INTERRUPT_CPU_BRK:
+
                     // PCB is done executing or we've done some kind of context switch for P3
+                    
+                    Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     if (Globals.m_CurrentPCBExe)
                     {
                         if (Globals.m_CurrentPCBExe.m_State == ProcessControlBlock.STATE_TERMINATED)
@@ -183,10 +186,10 @@ module CTOS
                         }
                         Globals.m_CurrentPCBExe = null;
                     }
-                    Globals.m_CPUScheduler.OnCPUDoneExecuting();
+                    
                     break;
                 case Globals.INTERRUPT_CPU_CNTXSWTCH:
-                    if (Globals.m_CPUScheduler.CheckRollOut())
+                    if (Globals.m_CPUScheduler.CheckRollOut(true))
                     {
                         Globals.m_CPU.ContextSwitch(params);
                         Globals.m_CPUScheduler.OnContextSwitchInterrupt();
