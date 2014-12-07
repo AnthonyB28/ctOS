@@ -132,6 +132,7 @@
             pcbOut.m_MemBase = 0;
             pcbOut.m_MemLimit = 0;
 
+            Globals.m_Kernel.Trace("Program swap PID[" + pcbOut.m_PID.toString() + "] with PID[" +pcbIn.m_PID.toString() + "]");
             // Don't write out data to drive. E.g program has terminated, doesnt need to be put back into drive
             if (rollOut)
             {
@@ -152,7 +153,7 @@
         // CPU uses this to determine if memory needs to be erased.
         public RolloutOccured(pcb: ProcessControlBlock): boolean
         {
-            return pcb.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID ? true : false;
+            return pcb.m_SwapTSB == DeviceDriverHardDrive.TSB_INVALID ? true : false;
         }
 
         // When a process is done executing, this is the callback from the CPU

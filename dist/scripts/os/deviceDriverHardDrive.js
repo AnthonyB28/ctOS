@@ -394,7 +394,8 @@ var CTOS;
                         data += hexData.substr(4, hexData.length - 4);
                     } while(dataTSB != DeviceDriverHardDrive.TSB_INVALID);
 
-                    CTOS.Control.HardDriveMBRUpdate(this.SetNextAvailableData(pcb.m_SwapTSB));
+                    // Update the MBR with the next available TSB that isn't from the PCB. Requires probing and conversion from base 8
+                    CTOS.Control.HardDriveMBRUpdate(this.SetNextAvailableData(this.ConvertBaseEightToTSB(this.ProbeNextAvailableData())));
                     pcb.m_SwapTSB = DeviceDriverHardDrive.TSB_INVALID;
                     return data;
                 }

@@ -94,6 +94,7 @@ module CTOS {
                 if (Globals.m_CurrentPCBExe.m_PID == Globals.m_KernelReadyQueue.peek(i).m_PID)
                 {
                     indexToRemove = i;
+                    break;
                 }
             }
             var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.q.splice(indexToRemove,1)[0];

@@ -73,7 +73,7 @@ label {
 
 #HardDriveTableDiv{
     overflow-y:auto; 
-    overflow-x:auto;
+    overflow-x:scroll;
     height:300px; 
     width:500px;
     border:solid;

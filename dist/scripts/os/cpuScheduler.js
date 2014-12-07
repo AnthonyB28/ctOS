@@ -111,6 +111,8 @@
             pcbOut.m_MemBase = 0;
             pcbOut.m_MemLimit = 0;
 
+            CTOS.Globals.m_Kernel.Trace("Program swap PID[" + pcbOut.m_PID.toString() + "] with PID[" + pcbIn.m_PID.toString() + "]");
+
             // Don't write out data to drive. E.g program has terminated, doesnt need to be put back into drive
             if (rollOut) {
                 if (CTOS.Globals.m_KrnHardDriveDriver.SwapWrite(pcbOut, outData)) {
@@ -126,7 +128,7 @@
         // Returns if rollout had occured based on the PCB
         // CPU uses this to determine if memory needs to be erased.
         CPUScheduler.prototype.RolloutOccured = function (pcb) {
-            return pcb.m_SwapTSB != CTOS.DeviceDriverHardDrive.TSB_INVALID ? true : false;
+            return pcb.m_SwapTSB == CTOS.DeviceDriverHardDrive.TSB_INVALID ? true : false;
         };
 
         // When a process is done executing, this is the callback from the CPU

@@ -85,6 +85,7 @@ var CTOS;
             for (var i = 0; i < qSize; ++i) {
                 if (CTOS.Globals.m_CurrentPCBExe.m_PID == CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID) {
                     indexToRemove = i;
+                    break;
                 }
             }
             var pcb = CTOS.Globals.m_KernelReadyQueue.q.splice(indexToRemove, 1)[0];
