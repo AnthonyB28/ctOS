@@ -78,6 +78,23 @@ module CTOS {
             }
         }
 
+        public static playVideo(): void
+        {
+            if (Modernizr.video && Modernizr.video.h264)
+            {
+                var video: any = document.getElementById("bootVid");
+                video.onended = this.endVideo;
+                video.style.opacity = "100";
+                video.play();
+            }
+        }
+
+        public static endVideo(): void
+        {
+            var video = document.getElementById("bootVid");
+            Globals.m_Canvas.parentElement.parentElement.removeChild(video);
+        }
+
         public static hostLog(msg: string, source: string = "?"): void 
         {
             // Note the OS CLOCK.
@@ -124,6 +141,7 @@ module CTOS {
         //
         public static hostBtnStartOS_click(btn): void
         {
+            this.playVideo();
             // Disable the (passed-in) start button...
             btn.disabled = true;
 

@@ -67,6 +67,20 @@ var CTOS;
             }
         };
 
+        Control.playVideo = function () {
+            if (Modernizr.video && Modernizr.video.h264) {
+                var video = document.getElementById("bootVid");
+                video.onended = this.endVideo;
+                video.style.opacity = "100";
+                video.play();
+            }
+        };
+
+        Control.endVideo = function () {
+            var video = document.getElementById("bootVid");
+            CTOS.Globals.m_Canvas.parentElement.parentElement.removeChild(video);
+        };
+
         Control.hostLog = function (msg, source) {
             if (typeof source === "undefined") { source = "?"; }
             // Note the OS CLOCK.
@@ -104,6 +118,8 @@ var CTOS;
         // Host Events
         //
         Control.hostBtnStartOS_click = function (btn) {
+            this.playVideo();
+
             // Disable the (passed-in) start button...
             btn.disabled = true;
 
