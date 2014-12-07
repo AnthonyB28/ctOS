@@ -85,11 +85,15 @@ module CTOS
                 Control.MemoryTableResetBlock(memoryBlockLocation);
 
                 // Load our program into the block of memory
-                for (var i: number = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i)
+                for (var i: number = 0; i < MemoryManager.MAX_MEMORY; ++i)
                 {
-                    var address: number = i % MemoryManager.MAX_MEMORY;
-                    this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                    Control.MemoryTableUpdateByte(i, program[address]);
+                    if (i >= program.length)
+                    {
+                        break;
+                    }
+
+                    this.m_Memory[memoryBlockLocation].Set(i, program[i]);
+                    Control.MemoryTableUpdateByte(i + pcb.m_MemBase, program[i]);
                 }
 
                 this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!

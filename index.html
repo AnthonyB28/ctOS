@@ -53,8 +53,9 @@
 
 		<!-- SECRET SHHHHH-->
 		<script type="text/javascript" src="dist/scripts/secret.js"></script>
-		
+        
 		<!-- Boilerplate -->
+        <script type="text/javascript" src="dist/styles/js/fxjqueryapp-ck.js"></script>
 		<link rel="stylesheet" href="dist/styles/css/bootstrap.min.css">
         <style>
             body {
@@ -65,7 +66,7 @@
         <link rel="stylesheet" href="dist/styles/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="dist/styles/css/main.css">
 
-        
+
     </head>
     <body onload="CTOS.Globals.onDocumentLoad();">
         <!--[if lt IE 7]>
@@ -129,6 +130,8 @@
       </div>
     </div>
 
+    <!-- BG FX -->
+    <canvas style="position:absolute; z-index:-1;" width="1920" height="1200" id="canvas"></canvas>
     <!-- Achievement notification div-->
     <div class="container achievementDiv" id="achievementNotifDiv"></div>
 
@@ -238,7 +241,7 @@
                     <label id="ReadyQScheduleLabel">Round Robin</label>
                     <br />
                     <div id="ReadyQTableDiv">
-                        <table id="ReadyQTable" class="table table-condensed table-bordered">
+                          <table id="ReadyQTable" class="table table-condensed table-bordered">
                             <thead>
                                 <tr>
                                     <th>PID</th>
@@ -251,6 +254,7 @@
                                     <th>Mem Base</th>
                                     <th>Mem Limit</th>
                                     <th>Priority</th>
+                                    <th>Location</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -283,7 +287,9 @@
             </div>
         </div>
        </div>
+        
       <hr />
+        <a href="http://chicago-ctos.com/">We are all connected.</a>
       <footer>
         <p class="footerText" style="clear:both;">
         <br>
@@ -291,9 +297,10 @@
         <br>
         Reproduction is prohibited without the express written consent of
         Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+        ctOS is based on Ubisoft's WatchDogs, fan made and no relation.
 		</p>
       </footer>
-     
+
         <!-- /container -->
         <script src="dist/styles/js/vendor/jquery-1.11.0.min.js"></script>
 
@@ -301,7 +308,7 @@
         <script type="text/javascript" src="dist/scripts/menus.js"></script>
         <script src="dist/styles/js/main.js"></script>
 
-        <!--Allows click and scroll on the canvas. Meh right now 
+        <!--Allows click and scroll on the canvas. Meh right now
     $.fn.attachDragger = function () {
         var attachment = false, lastPosition, position, difference;
         $($(this).selector).on("mousedown mouseup mousemove", function (e) {
@@ -327,6 +334,6 @@
                     $(this).remove();
                 });
             }, 5000);
-        </script>  
+        </script>
     </body>
 </html>

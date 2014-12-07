@@ -442,7 +442,7 @@ module CTOS
             var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
             var invalidMsg = "";
-            if (programInput.length > 0)
+            if (programInput.length > 0 && programInput.length <= MemoryManager.MAX_MEMORY)
             {
                 programInput.every(function (code) // JS can't break a ForEach? WTF
                 {
@@ -461,7 +461,7 @@ module CTOS
             else
             {
                 isValid = false;
-                invalidMsg = "Empty";
+                invalidMsg = "Empty or too big";
             }
 
             if (isValid)

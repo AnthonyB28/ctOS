@@ -397,9 +397,9 @@ var CTOS;
                     var nextAvailDataTSB = this.ConvertBaseEightToTSB(this.ProbeNextAvailableData());
 
                     for (var i = 0; i < 5; ++i) {
-                        var startIndex = i * (120);
+                        var startIndex = i * 120;
                         if (i == 4) {
-                            this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + +data.substr(startIndex, 120));
+                            this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + data.substr(startIndex));
                         } else {
                             this.SetTSB(curDataTSB, "1" + nextAvailDataTSB + data.substr(startIndex, 120));
                             this.m_AvailableData[nextAvailDataTSB] = 1; // Flag next TSB as in use for next loop

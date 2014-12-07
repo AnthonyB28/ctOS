@@ -86,11 +86,13 @@ label {
 td
 {
     color:white;
+    background-color: black;
 }
 
 th
 {
     color:white;
+    background-color: black;
 }
 
 /* General styles for all menus */

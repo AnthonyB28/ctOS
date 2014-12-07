@@ -497,10 +497,10 @@ module CTOS
                     // Get next available tsb, set the current tsb with next available tsb and data
                     for (var i: number = 0; i < 5; ++i)
                     {
-                        var startIndex: number = i * (120); //118 = 59*2 for hex byte
+                        var startIndex: number = i * 120; //60*2 for hex byte
                         if (i == 4) // Don't have to worry about next TSB
                         {
-                            this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + + data.substr(startIndex, 120));
+                            this.SetTSB(curDataTSB, "1" + DeviceDriverHardDrive.TSB_INVALID + data.substr(startIndex));
                         }
                         else
                         {

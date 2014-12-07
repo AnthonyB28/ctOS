@@ -63,10 +63,13 @@ var CTOS;
                 this.m_Memory[memoryBlockLocation].Reset();
                 CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
 
-                for (var i = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i) {
-                    var address = i % MemoryManager.MAX_MEMORY;
-                    this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                    CTOS.Control.MemoryTableUpdateByte(i, program[address]);
+                for (var i = 0; i < MemoryManager.MAX_MEMORY; ++i) {
+                    if (i >= program.length) {
+                        break;
+                    }
+
+                    this.m_Memory[memoryBlockLocation].Set(i, program[i]);
+                    CTOS.Control.MemoryTableUpdateByte(i + pcb.m_MemBase, program[i]);
                 }
 
                 this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!

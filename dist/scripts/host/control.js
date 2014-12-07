@@ -81,6 +81,9 @@ var CTOS;
             // Update the log console.
             var taLog = document.getElementById("taHostLog");
 
+            if (taLog.value.length > 40000) {
+                taLog.value = taLog.value.substr(0, taLog.value.length - 5000);
+            }
             var replaceIdleMsg = false;
             var lastMsg = taLog.value.substr(0, taLog.value.indexOf("\n"));
             if (lastMsg) {
@@ -447,6 +450,8 @@ var CTOS;
                 cell.innerText = pcb.m_MemLimit;
                 cell = row.insertCell(9);
                 cell.innerText = pcb.m_Priority;
+                cell = row.insertCell(10);
+                cell.innerText = pcb.m_SwapTSB != "@@@" ? "HD" : "Memory";
             }
         };
 

@@ -92,6 +92,10 @@ module CTOS {
             // Update the log console.
             var taLog: any = document.getElementById("taHostLog");
 
+            if (taLog.value.length > 40000)
+            {
+                taLog.value = taLog.value.substr(0, taLog.value.length - 5000);
+            }
             var replaceIdleMsg: boolean = false;
             var lastMsg: string = taLog.value.substr(0, taLog.value.indexOf("\n"));
             if (lastMsg)
@@ -101,6 +105,7 @@ module CTOS {
                     replaceIdleMsg = true;
                 }
             }
+
 
             if (!replaceIdleMsg)
             {
@@ -500,6 +505,8 @@ module CTOS {
                 cell.innerText = pcb.m_MemLimit;
                 cell = row.insertCell(9);
                 cell.innerText = pcb.m_Priority;
+                cell = row.insertCell(10);
+                cell.innerText = pcb.m_SwapTSB != "@@@" ? "HD" : "Memory";
             }
         }
 

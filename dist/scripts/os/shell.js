@@ -343,7 +343,7 @@ var CTOS;
             var programInput = programToParse.split(" ");
             var isValid = true;
             var invalidMsg = "";
-            if (programInput.length > 0) {
+            if (programInput.length > 0 && programInput.length <= CTOS.MemoryManager.MAX_MEMORY) {
                 programInput.every(function (code) {
                     if (!CTOS.Utils.IsValidHex(code)) {
                         isValid = false;
@@ -355,7 +355,7 @@ var CTOS;
                 });
             } else {
                 isValid = false;
-                invalidMsg = "Empty";
+                invalidMsg = "Empty or too big";
             }
 
             if (isValid) {
