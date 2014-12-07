@@ -67,18 +67,34 @@ var CTOS;
             }
         };
 
-        Control.playVideo = function () {
-            if (Modernizr.video && Modernizr.video.h264) {
-                var video = document.getElementById("bootVid");
-                video.onended = this.endVideo;
-                video.style.opacity = "100";
-                video.play();
+        // Anytime the checkbox is changed, this will store if the boot video will play
+        Control.BootVideoSet = function (setting) {
+            var checkBox = document.getElementById("BootVidCheck");
+            checkBox.checked = setting;
+            CTOS.Globals.m_BootVideo = setting;
+            CTOS.DeviceDriverHardDrive.StoreBootVidSetting();
+        };
+
+        // Plays the boot video is supported and set
+        Control.BootVideoPlay = function () {
+            if (CTOS.Globals.m_BootVideo) {
+                if (Modernizr.video && Modernizr.video.h264) {
+                    var video = document.getElementById("bootVid");
+                    video.onended = this.BootVideoEnd;
+                    video.style.opacity = "100";
+                    video.play();
+                }
+            } else {
+                this.BootVideoEnd();
             }
         };
 
-        Control.endVideo = function () {
+        // Callback for boot video, removes element from DOM, restores hard drive table
+        Control.BootVideoEnd = function () {
             var video = document.getElementById("bootVid");
             CTOS.Globals.m_Canvas.parentElement.parentElement.removeChild(video);
+            CTOS.Globals.m_HardDriveTable.parentElement.parentElement.style.opacity = "100";
+            CTOS.Globals.m_HardDriveTable.parentElement.parentElement.style.display = "block";
         };
 
         Control.hostLog = function (msg, source) {
@@ -118,8 +134,6 @@ var CTOS;
         // Host Events
         //
         Control.hostBtnStartOS_click = function (btn) {
-            this.playVideo();
-
             // Disable the (passed-in) start button...
             btn.disabled = true;
 

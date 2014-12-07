@@ -40,6 +40,7 @@ var CTOS;
             CTOS.Globals.m_KrnHardDriveDriver = new CTOS.DeviceDriverHardDrive();
             CTOS.Globals.m_KrnHardDriveDriver.driverEntry();
             this.Trace(CTOS.Globals.m_KrnHardDriveDriver.status);
+            CTOS.Control.BootVideoPlay();
 
             //
             // ... more?

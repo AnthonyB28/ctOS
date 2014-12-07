@@ -33,6 +33,9 @@ module CTOS
         private Init(): void
         {
             Control.HardDriveTableInit();
+            // If hard drive has empty string, enable bootvideo
+            Control.BootVideoSet(!Boolean(Globals.m_HardDrive.GetTSB("bootVideo")));
+
             this.m_AvailableDir = new Array<number>();
             for (var i: number = 1; i < 64; ++i)
             {
@@ -53,6 +56,27 @@ module CTOS
             {
                 var baseEight: number = parseInt(i.toString(8), 10);
                 this.m_AvailableData[baseEight.toString()] = 0;
+            }
+        }
+
+        // Writes the boot video settings to the hard drive.
+        // This would technically be a BIOS thing, but we need to use local storage here.
+        public static StoreBootVidSetting(): void
+        {
+            // "Hacky" as in not part of the OS simulation. Unrealistic!
+            // Checkbox exists outside of krnBootstrap. Hard drive boots after this can be modified...
+            if (Globals.m_HardDrive == null)
+            {
+                Globals.m_HardDrive = new HardDrive();
+            }
+
+            if (Globals.m_BootVideo)
+            {
+                Globals.m_HardDrive.SetTSB("bootVideo", "");
+            }
+            else
+            {
+                Globals.m_HardDrive.SetTSB("bootVideo", "turnOff");
             }
         }
 

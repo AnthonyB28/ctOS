@@ -1,5 +1,9 @@
 /* CTOS.css */
 
+html, body{
+    overflow-x: hidden;
+}
+
 body {
   background: #909193 url(../images/bg.png) repeat;
   font-family: Helvetica, Verdana, Arial, sans-serif;

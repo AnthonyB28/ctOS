@@ -45,6 +45,7 @@ module CTOS
             Globals.m_KrnHardDriveDriver = new DeviceDriverHardDrive();
             Globals.m_KrnHardDriveDriver.driverEntry();
             this.Trace(Globals.m_KrnHardDriveDriver.status);
+            Control.BootVideoPlay();
 
             //
             // ... more?

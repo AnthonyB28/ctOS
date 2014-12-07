@@ -78,21 +78,41 @@ module CTOS {
             }
         }
 
-        public static playVideo(): void
+        // Anytime the checkbox is changed, this will store if the boot video will play
+        public static BootVideoSet(setting: boolean): void
         {
-            if (Modernizr.video && Modernizr.video.h264)
+            var checkBox: any = document.getElementById("BootVidCheck");
+            checkBox.checked = setting;
+            Globals.m_BootVideo = setting;
+            DeviceDriverHardDrive.StoreBootVidSetting();
+        }
+
+        // Plays the boot video is supported and set
+        public static BootVideoPlay(): void
+        {
+            if (Globals.m_BootVideo)
             {
-                var video: any = document.getElementById("bootVid");
-                video.onended = this.endVideo;
-                video.style.opacity = "100";
-                video.play();
+                if (Modernizr.video && Modernizr.video.h264)
+                {
+                    var video: any = document.getElementById("bootVid");
+                    video.onended = this.BootVideoEnd;
+                    video.style.opacity = "100";
+                    video.play();
+                }
+            }
+            else
+            {
+                this.BootVideoEnd();
             }
         }
 
-        public static endVideo(): void
+        // Callback for boot video, removes element from DOM, restores hard drive table
+        public static BootVideoEnd(): void
         {
             var video = document.getElementById("bootVid");
             Globals.m_Canvas.parentElement.parentElement.removeChild(video);
+            Globals.m_HardDriveTable.parentElement.parentElement.style.opacity = "100";
+            Globals.m_HardDriveTable.parentElement.parentElement.style.display = "block";
         }
 
         public static hostLog(msg: string, source: string = "?"): void 
@@ -141,7 +161,6 @@ module CTOS {
         //
         public static hostBtnStartOS_click(btn): void
         {
-            this.playVideo();
             // Disable the (passed-in) start button...
             btn.disabled = true;
 
