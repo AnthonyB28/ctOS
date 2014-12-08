@@ -75,14 +75,31 @@ var CTOS;
         // Stops executing program, does NOT put it back on the ready queue
         Cpu.prototype.EndProgram = function () {
             this.m_IsExecuting = false;
-            var pcb = CTOS.Globals.m_KernelReadyQueue.dequeue();
+            var indexToRemove = 0;
+
+            CTOS.Globals.m_CPUScheduler.CheckRollOut(false); // Check to make sure rollout isn't needed
+
+            // Dequeue the process that is currently RUNNING, don't just dequeue from the start.
+            // Necessary for priority scheduling which is sorted, new pid could be at the front. Nonpreemptive
+            var qSize = CTOS.Globals.m_KernelReadyQueue.getSize();
+            for (var i = 0; i < qSize; ++i) {
+                if (CTOS.Globals.m_CurrentPCBExe.m_PID == CTOS.Globals.m_KernelReadyQueue.peek(i).m_PID) {
+                    indexToRemove = i;
+                    break;
+                }
+            }
+            var pcb = CTOS.Globals.m_KernelReadyQueue.q.splice(indexToRemove, 1)[0];
             pcb.m_Accumulator = this.m_Accumulator;
             pcb.m_Counter = this.m_ProgramCounter;
             pcb.m_X = this.m_X;
             pcb.m_Y = this.m_Y;
             pcb.m_Z = this.m_Z;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
-            CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+
+            // Don't reset memory if rollout occured!!
+            if (!CTOS.Globals.m_CPUScheduler.GetRolloutOccured()) {
+                CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
+            }
             CTOS.Globals.m_AchievementSystem.Unlock(16);
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_BRK, null));
         };
@@ -156,7 +173,7 @@ var CTOS;
                     // TODO interupt?
                     var params = new Array();
                     var pcb = CTOS.Globals.m_KernelReadyQueue.peek(0);
-                    params[0] = pcb[0].m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
+                    params[0] = pcb.m_PID; // WHAT IS THIS? I dont have this issue elsewhere. Its undefined if I dont treat pcb like an array..
                     params[1] = op;
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_INVALID_OP, params));
                     break;

@@ -43,6 +43,9 @@ var CTOS;
             CTOS.Globals.m_MemTable = document.getElementById("MemTable");
             Control.MemoryTableCreate();
 
+            //Get the hard drive table
+            CTOS.Globals.m_HardDriveTable = document.getElementById("HardDriveTable");
+
             // Get the Ready Q table
             CTOS.Globals.m_ReadyQTable = document.getElementById("ReadyQTable");
 
@@ -64,6 +67,36 @@ var CTOS;
             }
         };
 
+        // Anytime the checkbox is changed, this will store if the boot video will play
+        Control.BootVideoSet = function (setting) {
+            var checkBox = document.getElementById("BootVidCheck");
+            checkBox.checked = setting;
+            CTOS.Globals.m_BootVideo = setting;
+            CTOS.DeviceDriverHardDrive.StoreBootVidSetting();
+        };
+
+        // Plays the boot video is supported and set
+        Control.BootVideoPlay = function () {
+            if (CTOS.Globals.m_BootVideo) {
+                if (Modernizr.video && Modernizr.video.h264) {
+                    var video = document.getElementById("bootVid");
+                    video.onended = this.BootVideoEnd;
+                    video.style.opacity = "100";
+                    video.play();
+                }
+            } else {
+                this.BootVideoEnd();
+            }
+        };
+
+        // Callback for boot video, removes element from DOM, restores hard drive table
+        Control.BootVideoEnd = function () {
+            var video = document.getElementById("bootVid");
+            CTOS.Globals.m_Canvas.parentElement.parentElement.removeChild(video);
+            CTOS.Globals.m_HardDriveTable.parentElement.parentElement.style.opacity = "100";
+            CTOS.Globals.m_HardDriveTable.parentElement.parentElement.style.display = "block";
+        };
+
         Control.hostLog = function (msg, source) {
             if (typeof source === "undefined") { source = "?"; }
             // Note the OS CLOCK.
@@ -78,6 +111,9 @@ var CTOS;
             // Update the log console.
             var taLog = document.getElementById("taHostLog");
 
+            if (taLog.value.length > 40000) {
+                taLog.value = taLog.value.substr(0, taLog.value.length - 5000);
+            }
             var replaceIdleMsg = false;
             var lastMsg = taLog.value.substr(0, taLog.value.indexOf("\n"));
             if (lastMsg) {
@@ -114,6 +150,8 @@ var CTOS;
             CTOS.Globals.m_MemoryManager = new CTOS.MemoryManager();
             CTOS.Globals.m_CPUScheduler = new CTOS.CPUScheduler();
             CTOS.Globals.m_CPU.Init();
+
+            CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
 
             // ... then set the host clock pulse ...
             CTOS.Globals.m_HardwareClockID = setInterval(CTOS.Devices.hostClockPulse, CTOS.Globals.CPU_CLOCK_INTERVAL);
@@ -440,6 +478,55 @@ var CTOS;
                 cell.innerText = pcb.m_MemBase;
                 cell = row.insertCell(8);
                 cell.innerText = pcb.m_MemLimit;
+                cell = row.insertCell(9);
+                cell.innerText = pcb.m_Priority;
+                cell = row.insertCell(10);
+                cell.innerText = pcb.m_SwapTSB != "@@@" ? "HD" : "Memory";
+            }
+        };
+
+        Control.HardDriveTableInit = function () {
+            for (var i = 0; i < 256; ++i) {
+                var tsb = "";
+                var baseEight = parseInt(i.toString(8), 10);
+                var row = CTOS.Globals.m_HardDriveTable.insertRow(i + 1);
+                var cell = row.insertCell(0);
+                if (baseEight <= 7) {
+                    tsb += "00" + baseEight.toString();
+                } else if (baseEight < 100) {
+                    tsb += "0" + baseEight.toString();
+                } else {
+                    tsb += baseEight.toString();
+                }
+                cell.innerText = tsb;
+                cell = row.insertCell(1);
+                cell.align = "left";
+                cell.innerText = CTOS.Globals.m_HardDrive.GetTSB(tsb);
+            }
+        };
+
+        Control.HardDriveMBRUpdate = function (data) {
+            var row = CTOS.Globals.m_HardDriveTable.rows[1];
+            row.cells[1].innerText = data;
+        };
+
+        Control.HardDriveTableUpdate = function (tsb, data) {
+            var row = CTOS.Globals.m_HardDriveTable.rows[parseInt(tsb, 8) + 1];
+            row.cells[1].innerText = data;
+        };
+
+        Control.SetSchedule = function (type) {
+            var label = document.getElementById("ReadyQScheduleLabel");
+            switch (type) {
+                case 0:
+                    label.innerText = "Round Robin";
+                    break;
+                case 1:
+                    label.innerText = "FirstCome FirstServe";
+                    break;
+                case 2:
+                    label.innerText = "Priority";
+                    break;
             }
         };
         Control.m_LastExecutedOpPos = new Array();

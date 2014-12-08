@@ -27,6 +27,14 @@
             this.m_Achievements[15] = new Achievement(5, "Invalid Op Fool");
             this.m_Achievements[16] = new Achievement(25, "My First Program");
             this.m_Achievements[17] = new Achievement(5, "CopyPasta");
+            this.m_Achievements[18] = new Achievement(15, "Straightened Priorities");
+            this.m_Achievements[19] = new Achievement(15, "Get off my swing");
+            this.m_Achievements[20] = new Achievement(5, "Swap me");
+            this.m_Achievements[21] = new Achievement(5, "Only shoot once");
+            this.m_Achievements[22] = new Achievement(10, "Swap me");
+            this.m_Achievements[23] = new Achievement(5, "Spring Cleaning");
+            this.m_Achievements[24] = new Achievement(25, "Need Another TB Pls");
+            this.m_Achievements[25] = new Achievement(25, "Don't buy a SSD");
         }
         AchievementSystem.prototype.Unlock = function (achievementID) {
             // If an achievement has already been unlocked, ignore

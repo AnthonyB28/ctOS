@@ -14,8 +14,10 @@ var CTOS;
                 this.m_MemInUse[i] = false;
             }
         }
+        // Resets memory and makes it available given the base of the memory block in bytes
         MemoryManager.prototype.UnlockMemory = function (memBase) {
             var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new CTOS.Memory();
             this.m_MemInUse[memBlock] = false;
         };
 
@@ -36,43 +38,108 @@ var CTOS;
         };
 
         // Loads the program into memory & returns PID
-        MemoryManager.prototype.LoadProgram = function (program) {
+        MemoryManager.prototype.LoadProgram = function (program, priority) {
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb = new CTOS.ProcessControlBlock();
+            pcb.m_Priority = priority;
             var memoryBlockLocation = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1) {
                 // OUT OF MEMORY!
-                return -1;
+                var data = "";
+                for (var i = 0; i < program.length; ++i) {
+                    data += program[i];
+                }
+                if (!CTOS.Globals.m_KrnHardDriveDriver.IsSupported() || !CTOS.Globals.m_KrnHardDriveDriver.SwapWrite(pcb, data)) {
+                    return -1;
+                }
+            } else {
+                // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+                pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+
+                // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+                pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
+
+                // Reset memory block & update display
+                this.m_Memory[memoryBlockLocation].Reset();
+                CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
+
+                for (var i = 0; i < MemoryManager.MAX_MEMORY; ++i) {
+                    if (i >= program.length) {
+                        break;
+                    }
+
+                    this.m_Memory[memoryBlockLocation].Set(i, program[i]);
+                    CTOS.Control.MemoryTableUpdateByte(i + pcb.m_MemBase, program[i]);
+                }
+
+                this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             }
 
-            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
-            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
-
-            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
-            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_NEW;
-
-            // Reset memory block & update display
-            this.m_Memory[memoryBlockLocation].Reset();
-            CTOS.Control.MemoryTableResetBlock(memoryBlockLocation);
-
-            for (var i = pcb.m_MemBase; i < program.length + pcb.m_MemBase; ++i) {
-                var address = i % MemoryManager.MAX_MEMORY;
-                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                CTOS.Control.MemoryTableUpdateByte(i, program[address]);
-            }
-
-            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             CTOS.Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         };
 
+        // Takes the PCB to find in memory and returns its data string after clearing out its memory and giving it,
+        // or a newer available memory, to the next PCB to save.
+        // This is a tricky bastard! Note that two scenarios occur.
+        MemoryManager.prototype.SwapMemory = function (dataToWrite, pcbToRead, pcbToSave) {
+            var outData = "";
+            var memBase = -1;
+
+            // If newer memory is available, we should use it up.
+            // Make sure the pcbToRead has HIS data returned and the mem location unlocked too!
+            var memBlockAvailable = this.GetAvailableMemoryLocation();
+            if (memBlockAvailable != -1) {
+                memBase = memBlockAvailable * MemoryManager.MAX_MEMORY;
+            } else {
+                memBase = pcbToRead.m_MemBase;
+            }
+
+            for (var i = 0; i < 256; ++i) {
+                var byte = this.GetByte(i, pcbToRead.m_MemBase);
+                var hex = byte.GetHex();
+                var hexPad = "";
+                if (hex.length == 1) {
+                    hexPad += "0" + hex;
+                } else {
+                    hexPad = hex;
+                }
+                outData += hexPad;
+            }
+            if (memBlockAvailable != -1) {
+                this.UnlockMemory(pcbToRead.m_MemBase);
+            }
+
+            // Reset memory
+            var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new CTOS.Memory();
+
+            var bytesToWrite = dataToWrite.match(/.{2}/g);
+
+            for (var i = 0; i < 256; ++i) {
+                this.SetByte(i, bytesToWrite[i], memBase);
+            }
+
+            pcbToSave.m_MemBase = memBase;
+            pcbToSave.m_MemLimit = memBase + MemoryManager.MAX_MEMORY - 1;
+            pcbToRead.m_MemBase = 0; //pcbToRead is either being tossed or going to the drive.
+            pcbToRead.m_MemLimit = 0;
+
+            return outData;
+        };
+
         // Gets the byte from memory using address
-        MemoryManager.prototype.GetByte = function (address) {
+        MemoryManager.prototype.GetByte = function (address, base) {
+            if (typeof base === "undefined") { base = null; }
             var memBase = 0;
             if (CTOS.Globals.m_CurrentPCBExe) {
                 memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
             }
+            if (base) {
+                memBase = base;
+            }
+
             var physicalAddress = address + memBase;
             var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);
             var translatedAddress = physicalAddress % MemoryManager.MAX_MEMORY;
@@ -84,10 +151,14 @@ var CTOS;
         };
 
         // Set the byte @ address in memory with value in hex
-        MemoryManager.prototype.SetByte = function (address, hexValue) {
+        MemoryManager.prototype.SetByte = function (address, hexValue, base) {
+            if (typeof base === "undefined") { base = null; }
             var memBase = 0;
             if (CTOS.Globals.m_CurrentPCBExe) {
                 memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
+            }
+            if (base != null) {
+                memBase = base;
             }
             var physicalAddress = address + memBase;
             var translatedBlock = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY);

@@ -164,6 +164,10 @@ module CTOS {
 
             this.EraseLine();
             var cmd: string = this.m_CmdHistory[this.m_CmdHistoryIndex];
+            if (!cmd)
+            {
+                cmd = this.m_CmdHistory[this.m_CmdHistory.length - 1];
+            }
             this.PutText(cmd);
             this.m_Buffer = cmd;
             this.m_CmdHistoryMovedOnce = true;

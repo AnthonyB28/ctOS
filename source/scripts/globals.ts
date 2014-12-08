@@ -28,6 +28,7 @@ module CTOS
         static INTERRUPT_INVALID_OP: number = 5; // Program had an invalid op.
         static INTERRUPT_CPU_BRK: number = 6; // Program had an invalid op.
         static INTERRUPT_CPU_CNTXSWTCH: number = 7;
+        static INTERRUPT_REQUEST_HD: number = 8;
         static MAX_COMMAND_HISTORY: number = 10; // How many commands we can keep in history. Realistically, it wouldn't be infinity.
 
         //
@@ -36,10 +37,7 @@ module CTOS
         static m_CPU: Cpu;  // Utilize TypeScript's type annotation system to ensure that CPU is an instance of the Cpu class.
         static m_CPUScheduler: CPUScheduler; // Round Robin scheduler for CPU
         static m_MemoryManager: MemoryManager; // Interface with our memory
-        static m_OSClock: number = 0;  // Page 23.
-        static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
-        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
-        static m_MemTableAutoScroll: boolean = true;
+        static m_HardDrive: HardDrive = null;
 
         //oops mode
         static m_Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
@@ -53,6 +51,7 @@ module CTOS
         static m_CPUTable: HTMLTableElement = null;
         static m_ProgramInput: HTMLTextAreaElement = null;
         static m_DrawingContext = null;  
+        static m_HardDriveTable = null;
        
         static m_DefaultFontFamily = "sans";        // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
         static m_DefaultFontSize = 13;
@@ -74,17 +73,23 @@ module CTOS
         static m_StdOut: CTOS.Console = null;
 
         // UI
+        static m_OSClock: number = 0;  // Page 23.
+        static m_StepMode: boolean = false; // If step mode is activated, don't go to next execution.
+        static m_StepNext: boolean = false; // If step next & mode are activated, go to next execution.
+        static m_MemTableAutoScroll: boolean = true;
         static m_Console: CTOS.Console;
         static m_OsShell: CTOS.Shell;
         static m_BSODColor: string = "#236B8E"; // Inner circle
         static m_ConsoleTextDefaultColor: string = "white";
+        static m_BootVideo: boolean = true;
 
         // At least this OS is not trying to kill you. (Yet.)
         static m_AchievementSystem: AchievementSystem;
         static m_SarcasticMode: boolean = false;
 
         // Global Device Driver Objects - page 12
-        static m_KrnKeyboardDriver = null;
+        static m_KrnKeyboardDriver : DeviceDriverKeyboard = null;
+        static m_KrnHardDriveDriver : DeviceDriverHardDrive = null;
         static m_HardwareClockID: number = null;
 
         // For testing...

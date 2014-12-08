@@ -51,8 +51,8 @@ module CTOS
 
             // run
             sc = new ShellCommand(this.shellRun,
-                                    "run",
-                                    "<PID> - Runs the program by ID that is in memory.");
+            "run",
+            "<PID> - Runs the program by ID that is in memory.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // runall
@@ -77,6 +77,54 @@ module CTOS
             sc = new ShellCommand(this.shellKill,
                 "kill",
                 "<pid> - Kills the specified PID");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellCreateFile
+            sc = new ShellCommand(this.shellCreateFile,
+                "create",
+                "<filename> - Creates a file.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellReadFile
+            sc = new ShellCommand(this.shellReadFile,
+                "read",
+                "<filename> - Reads and displays file content.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellWriteFile
+            sc = new ShellCommand(this.shellWriteFile,
+                "write",
+                "<filename> \"data\" - Write data in quotes to filename.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellDeleteFile
+            sc = new ShellCommand(this.shellDeleteFile,
+                "delete",
+                "<filename> - Remove filename from storage.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellFormat
+            sc = new ShellCommand(this.shellFormat,
+                "format",
+                "- All of the disk is initialized.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellLs
+            sc = new ShellCommand(this.shellLs,
+                "ls",
+                "- List all files currently stored on the disk.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellSetSchedules
+            sc = new ShellCommand(this.shellSetSchedule,
+                "setschedule",
+                "<type> - Set scheduler method rr, fcfs, or priority.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellGetSchedule
+            sc = new ShellCommand(this.shellGetSchedule,
+                "getschedule",
+                "- Returns type of scheduler method.");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
             // help
@@ -188,6 +236,16 @@ module CTOS
             //
             // Display the initial prompt.
             this.PutPrompt();
+        }
+
+        public PutTextLine(msg: string): void
+        {
+            if (!Globals.m_StdOut.m_BSOD)
+            {
+                Globals.m_Console.PutText(msg);
+                Globals.m_Console.AdvanceLine();
+                this.PutPrompt();
+            }
         }
 
         public PutPrompt(): void
@@ -371,14 +429,20 @@ module CTOS
             Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         }
 
-        public shellLoad(): void
+        public shellLoad(args): void
         {
+			var priority: number = 0;
+			if(args.length == 1)
+			{
+				priority = args[0];
+			}
+			
             var programToParse: string = Globals.m_ProgramInput.value;
             programToParse = Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput: Array<string> = programToParse.split(" "); // Split to each code
             var isValid: boolean = true;
             var invalidMsg = "";
-            if (programInput.length > 0)
+            if (programInput.length > 0 && programInput.length <= MemoryManager.MAX_MEMORY)
             {
                 programInput.every(function (code) // JS can't break a ForEach? WTF
                 {
@@ -397,14 +461,14 @@ module CTOS
             else
             {
                 isValid = false;
-                invalidMsg = "Empty";
+                invalidMsg = "Empty or too big";
             }
 
             if (isValid)
             {
                 Globals.m_AchievementSystem.Unlock(11);
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput);
+                var resultPID: number = Globals.m_MemoryManager.LoadProgram(programInput, priority);
                 if (resultPID != -1)
                 {
                     Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
@@ -459,6 +523,11 @@ module CTOS
                 {
                     pcb.m_State = ProcessControlBlock.STATE_READY;
                     Globals.m_KernelReadyQueue.enqueue(pcb);
+					if(Globals.m_CPUScheduler.GetType() == 2)
+					{
+						Globals.m_KernelReadyQueue.q.sort(CPUScheduler.PrioritySort);
+					}
+						
                     Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 }
                 else // If we didn't get a pcb from the Resident Queue, then it doesn't exist to be ran
@@ -472,6 +541,7 @@ module CTOS
             }
         }
 
+        // Run all EXEs in ResidentQueue
         public shellRunAll(args): void
         {
             // Need to check to see if a PCB is in the Resident Queue
@@ -484,6 +554,7 @@ module CTOS
             }
         }
 
+        // Kills PID
         public shellKill(args): void
         {
             if (args.length > 0)
@@ -496,6 +567,7 @@ module CTOS
                         var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) // Found the target PID
                         {
+                            Globals.m_AchievementSystem.Unlock(21);
                             if (pcb.m_State == ProcessControlBlock.STATE_READY)
                             {
                                 // If process is just in the ready queue, kick it and terminate it.
@@ -546,6 +618,7 @@ module CTOS
             }
         }
 
+        // Sets CPU Scheduler Round Robin Quantum
         public shellQuantum(args): void
         {
             if (args.length > 0)
@@ -558,6 +631,143 @@ module CTOS
                 Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
             }
         }
+
+        // Creates a file using args for filename
+        public shellCreateFile(args): void
+        {
+            if (args && args.length > 0)
+            {
+                var params: Array < any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_CREATE_FILE;
+                params[1] = args[0];
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Display contents of a file using args for filename
+        public shellReadFile(args): void
+        {
+            if (args && args.length == 1)
+            {
+                var params: Array<any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_READ_FILE;
+                params[1] = args[0];
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Writes to a file using args for filename AND data
+        public shellWriteFile(args): void
+        {
+            if (args && args.length >= 2)
+            {
+                var params: Array<any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_WRITE_DATA;
+                params[1] = args[0];
+                var dataString: string = "";
+                var lastArg: string = args[args.length-1];
+                if (args[1][0] == "\"" && lastArg[lastArg.length-1] == "\"")
+                {
+                    for (var i: number = 1; i < args.length; ++i)
+                    {
+                        dataString += args[i] + " ";
+                    }
+                    params[2] = dataString.replace(/\"/g, '');
+                    Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+                }
+                else
+                {
+                    Globals.m_OsShell.shellWriteFile("Incorrect data format");
+                }
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");
+            }
+        }
+
+        // Erase a file using args for filename
+        public shellDeleteFile(args): void
+        {
+            if (args && args.length == 1)
+            {
+                var params: Array<any> = new Array<any>()
+                params[0] = DeviceDriverHardDrive.IRQ_DELETE_FILE;
+                params[1] = args[0];
+                Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        }
+
+        // Initialize disk
+        public shellFormat(args): void
+        {
+            var params: Array<any> = new Array<any>()
+            params[0] = DeviceDriverHardDrive.IRQ_FORMAT;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+        }
+
+        // List all files on the disk
+        public shellLs(args): void
+        {
+            var params: Array<any> = new Array<any>()
+            params[0] = DeviceDriverHardDrive.IRQ_LIST_DISK;
+            Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_REQUEST_HD, params));
+        }
+
+        // Sets scheduler to rr, fcfs, or priority from args
+        public shellSetSchedule(args): void
+        {
+            if (args && args.length > 0)
+            {
+                if (args[0] == "rr")
+                {
+                    Globals.m_CPUScheduler.SetType(0);
+                }
+                else if (args[0] == "fcfs")
+                {
+                    Globals.m_CPUScheduler.SetType(1);
+                }
+                else if (args[0] == "priority")
+                {
+                    Globals.m_CPUScheduler.SetType(2);
+                }
+                else
+                {
+                    Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+                }
+            }
+            else
+            {
+                Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+            }
+        }
+
+        // Display current scheduling algorithm
+        public shellGetSchedule(args): void
+        {
+            switch(Globals.m_CPUScheduler.GetType())
+			{
+				case 0:
+					Globals.m_StdOut.PutText("Round Robin Scheduling"); break;
+				case 1:
+					Globals.m_StdOut.PutText("FirstComeFirstServer Scheduling"); break;
+				case 2:
+					Globals.m_StdOut.PutText("NonPreemptive Priority Scheduling"); break;
+			}
+        }
+
 
         public shellHelp(args): void
         {

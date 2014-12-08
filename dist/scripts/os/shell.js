@@ -55,6 +55,38 @@ var CTOS;
             sc = new CTOS.ShellCommand(this.shellKill, "kill", "<pid> - Kills the specified PID");
             this.m_CommandList[this.m_CommandList.length] = sc;
 
+            // shellCreateFile
+            sc = new CTOS.ShellCommand(this.shellCreateFile, "create", "<filename> - Creates a file.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellReadFile
+            sc = new CTOS.ShellCommand(this.shellReadFile, "read", "<filename> - Reads and displays file content.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellWriteFile
+            sc = new CTOS.ShellCommand(this.shellWriteFile, "write", "<filename> \"data\" - Write data in quotes to filename.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellDeleteFile
+            sc = new CTOS.ShellCommand(this.shellDeleteFile, "delete", "<filename> - Remove filename from storage.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellFormat
+            sc = new CTOS.ShellCommand(this.shellFormat, "format", "- All of the disk is initialized.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellLs
+            sc = new CTOS.ShellCommand(this.shellLs, "ls", "- List all files currently stored on the disk.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellSetSchedules
+            sc = new CTOS.ShellCommand(this.shellSetSchedule, "setschedule", "<type> - Set scheduler method rr, fcfs, or priority.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
+            // shellGetSchedule
+            sc = new CTOS.ShellCommand(this.shellGetSchedule, "getschedule", "- Returns type of scheduler method.");
+            this.m_CommandList[this.m_CommandList.length] = sc;
+
             // help
             sc = new CTOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.m_CommandList[this.m_CommandList.length] = sc;
@@ -129,6 +161,14 @@ var CTOS;
             //
             // Display the initial prompt.
             this.PutPrompt();
+        };
+
+        Shell.prototype.PutTextLine = function (msg) {
+            if (!CTOS.Globals.m_StdOut.m_BSOD) {
+                CTOS.Globals.m_Console.PutText(msg);
+                CTOS.Globals.m_Console.AdvanceLine();
+                this.PutPrompt();
+            }
         };
 
         Shell.prototype.PutPrompt = function () {
@@ -292,13 +332,18 @@ var CTOS;
             CTOS.Globals.m_StdOut.PutText("Ensuring the future through CenTral Operating System");
         };
 
-        Shell.prototype.shellLoad = function () {
+        Shell.prototype.shellLoad = function (args) {
+            var priority = 0;
+            if (args.length == 1) {
+                priority = args[0];
+            }
+
             var programToParse = CTOS.Globals.m_ProgramInput.value;
             programToParse = CTOS.Utils.trim(programToParse); // Remove leading and trailing spaces
             var programInput = programToParse.split(" ");
             var isValid = true;
             var invalidMsg = "";
-            if (programInput.length > 0) {
+            if (programInput.length > 0 && programInput.length <= CTOS.MemoryManager.MAX_MEMORY) {
                 programInput.every(function (code) {
                     if (!CTOS.Utils.IsValidHex(code)) {
                         isValid = false;
@@ -310,14 +355,14 @@ var CTOS;
                 });
             } else {
                 isValid = false;
-                invalidMsg = "Empty";
+                invalidMsg = "Empty or too big";
             }
 
             if (isValid) {
                 CTOS.Globals.m_AchievementSystem.Unlock(11);
 
                 //Globals.m_StdOut.PutText("Valid hex & space program input! Want some cake?");
-                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput);
+                var resultPID = CTOS.Globals.m_MemoryManager.LoadProgram(programInput, priority);
                 if (resultPID != -1) {
                     CTOS.Globals.m_StdOut.PutText("PID[" + resultPID.toString() + "] has been loaded!");
                 } else {
@@ -357,6 +402,10 @@ var CTOS;
                 if (pcb) {
                     pcb.m_State = CTOS.ProcessControlBlock.STATE_READY;
                     CTOS.Globals.m_KernelReadyQueue.enqueue(pcb);
+                    if (CTOS.Globals.m_CPUScheduler.GetType() == 2) {
+                        CTOS.Globals.m_KernelReadyQueue.q.sort(CTOS.CPUScheduler.PrioritySort);
+                    }
+
                     CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_CPU_RUN_PROGRAM, null));
                 } else {
                     CTOS.Globals.m_StdOut.PutText("PID is not in Resident Queue");
@@ -366,6 +415,7 @@ var CTOS;
             }
         };
 
+        // Run all EXEs in ResidentQueue
         Shell.prototype.shellRunAll = function (args) {
             while (!CTOS.Globals.m_KernelResidentQueue.isEmpty()) {
                 var params = new Array();
@@ -375,6 +425,7 @@ var CTOS;
             }
         };
 
+        // Kills PID
         Shell.prototype.shellKill = function (args) {
             if (args.length > 0) {
                 for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
@@ -382,6 +433,7 @@ var CTOS;
                     if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
                         var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) {
+                            CTOS.Globals.m_AchievementSystem.Unlock(21);
                             if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 CTOS.Globals.m_KernelReadyQueue.remove(i);
@@ -423,12 +475,117 @@ var CTOS;
             }
         };
 
+        // Sets CPU Scheduler Round Robin Quantum
         Shell.prototype.shellQuantum = function (args) {
             if (args.length > 0) {
                 CTOS.Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));
                 CTOS.Globals.m_StdOut.PutText("Quantum set to: " + args[0]);
             } else {
                 CTOS.Globals.m_StdOut.PutText("Usage: quantum <number> Please supply a quantum time in clock ticks.");
+            }
+        };
+
+        // Creates a file using args for filename
+        Shell.prototype.shellCreateFile = function (args) {
+            if (args && args.length > 0) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_CREATE_FILE;
+                params[1] = args[0];
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Display contents of a file using args for filename
+        Shell.prototype.shellReadFile = function (args) {
+            if (args && args.length == 1) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_READ_FILE;
+                params[1] = args[0];
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Writes to a file using args for filename AND data
+        Shell.prototype.shellWriteFile = function (args) {
+            if (args && args.length >= 2) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_WRITE_DATA;
+                params[1] = args[0];
+                var dataString = "";
+                var lastArg = args[args.length - 1];
+                if (args[1][0] == "\"" && lastArg[lastArg.length - 1] == "\"") {
+                    for (var i = 1; i < args.length; ++i) {
+                        dataString += args[i] + " ";
+                    }
+                    params[2] = dataString.replace(/\"/g, '');
+                    CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+                } else {
+                    CTOS.Globals.m_OsShell.shellWriteFile("Incorrect data format");
+                }
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> \"data\" Enter a file name with data to write in quotes");
+            }
+        };
+
+        // Erase a file using args for filename
+        Shell.prototype.shellDeleteFile = function (args) {
+            if (args && args.length == 1) {
+                var params = new Array();
+                params[0] = CTOS.DeviceDriverHardDrive.IRQ_DELETE_FILE;
+                params[1] = args[0];
+                CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <filename> Enter a file name");
+            }
+        };
+
+        // Initialize disk
+        Shell.prototype.shellFormat = function (args) {
+            var params = new Array();
+            params[0] = CTOS.DeviceDriverHardDrive.IRQ_FORMAT;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+        };
+
+        // List all files on the disk
+        Shell.prototype.shellLs = function (args) {
+            var params = new Array();
+            params[0] = CTOS.DeviceDriverHardDrive.IRQ_LIST_DISK;
+            CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_REQUEST_HD, params));
+        };
+
+        // Sets scheduler to rr, fcfs, or priority from args
+        Shell.prototype.shellSetSchedule = function (args) {
+            if (args && args.length > 0) {
+                if (args[0] == "rr") {
+                    CTOS.Globals.m_CPUScheduler.SetType(0);
+                } else if (args[0] == "fcfs") {
+                    CTOS.Globals.m_CPUScheduler.SetType(1);
+                } else if (args[0] == "priority") {
+                    CTOS.Globals.m_CPUScheduler.SetType(2);
+                } else {
+                    CTOS.Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+                }
+            } else {
+                CTOS.Globals.m_StdOut.PutText("Usage: <type> Either rr, fcfs, or priority");
+            }
+        };
+
+        // Display current scheduling algorithm
+        Shell.prototype.shellGetSchedule = function (args) {
+            switch (CTOS.Globals.m_CPUScheduler.GetType()) {
+                case 0:
+                    CTOS.Globals.m_StdOut.PutText("Round Robin Scheduling");
+                    break;
+                case 1:
+                    CTOS.Globals.m_StdOut.PutText("FirstComeFirstServer Scheduling");
+                    break;
+                case 2:
+                    CTOS.Globals.m_StdOut.PutText("NonPreemptive Priority Scheduling");
+                    break;
             }
         };
 

@@ -20,6 +20,30 @@ module CTOS {
             */
         }
 
+        // Converts a string to hex data.
+        // The result can be up to twice the length of the string.
+        public static ConvertToHex(str: string): string
+        {
+            var hexString: string = "";
+            for (var i: number = 0; i < str.length; ++i)
+            {
+                hexString += str.charCodeAt(i).toString(16);
+            }
+            return hexString;
+        }
+
+        // Convert from hex data string to 'readable' string
+        public static ConvertHexToString(str: string): string
+        {
+            var hexString: string = "";
+            for (var i: number = 0; i < str.length; ++i)
+            {
+                hexString += String.fromCharCode(parseInt(str.substr(i, 2), 16));
+                ++i;
+            }
+            return hexString;
+        }
+
         // Returns whether a string is a valid hex number or not
         public static IsValidHex(str: string): boolean
         {

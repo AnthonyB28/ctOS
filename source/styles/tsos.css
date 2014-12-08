@@ -1,5 +1,9 @@
 /* CTOS.css */
 
+html, body{
+    overflow-x: hidden;
+}
+
 body {
   background: #909193 url(../images/bg.png) repeat;
   font-family: Helvetica, Verdana, Arial, sans-serif;
@@ -67,6 +71,15 @@ label {
     border-color:white;
 }
 
+#HardDriveTableDiv{
+    overflow-y:auto; 
+    overflow-x:scroll;
+    height:300px; 
+    width:500px;
+    border:solid;
+    border-color:white;
+}
+
 .achievementDiv
 {
     position: absolute;
@@ -74,30 +87,16 @@ label {
     top:2%;
 }
 
-#CPUTable th
+td
 {
     color:white;
+    background-color: black;
 }
 
-#CPUTable td
+th
 {
     color:white;
-}
-
-#MemTable td
-{
-    color:white;
-}
-
-#ReadyQTable th
-{
-    color:white;
-    text-align:center;
-}
-
-#ReadyQTable td
-{
-    color:white;
+    background-color: black;
 }
 
 /* General styles for all menus */

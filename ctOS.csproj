@@ -23,6 +23,7 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="packages.config" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -31,12 +32,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="source\scripts\os\deviceDriverHardDrive.ts" />
+    <TypeScriptCompile Include="source\scripts\typings\modernizr.d.ts" />
     <TypeScriptCompile Include="source\scripts\achievements.ts" />
     <TypeScriptCompile Include="source\scripts\globals.ts" />
     <TypeScriptCompile Include="source\scripts\host\byte.ts" />
     <TypeScriptCompile Include="source\scripts\host\control.ts" />
     <TypeScriptCompile Include="source\scripts\host\cpu.ts" />
     <TypeScriptCompile Include="source\scripts\host\devices.ts" />
+    <TypeScriptCompile Include="source\scripts\host\hardDrive.ts" />
     <TypeScriptCompile Include="source\scripts\host\instructions.ts" />
     <TypeScriptCompile Include="source\scripts\host\memory.ts" />
     <TypeScriptCompile Include="source\scripts\os\cpuScheduler.ts" />
@@ -94,6 +98,7 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptOutDir>$(ProjectDir)\dist\scripts</TypeScriptOutDir>
+    <TypeScriptTarget>ES3</TypeScriptTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

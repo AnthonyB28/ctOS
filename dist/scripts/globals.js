@@ -24,12 +24,10 @@ var CTOS;
         Globals.INTERRUPT_INVALID_OP = 5;
         Globals.INTERRUPT_CPU_BRK = 6;
         Globals.INTERRUPT_CPU_CNTXSWTCH = 7;
+        Globals.INTERRUPT_REQUEST_HD = 8;
         Globals.MAX_COMMAND_HISTORY = 10;
 
-        Globals.m_OSClock = 0;
-        Globals.m_StepMode = false;
-        Globals.m_StepNext = false;
-        Globals.m_MemTableAutoScroll = true;
+        Globals.m_HardDrive = null;
 
         Globals.m_Mode = 0;
 
@@ -41,6 +39,7 @@ var CTOS;
         Globals.m_CPUTable = null;
         Globals.m_ProgramInput = null;
         Globals.m_DrawingContext = null;
+        Globals.m_HardDriveTable = null;
 
         Globals.m_DefaultFontFamily = "sans";
         Globals.m_DefaultFontSize = 13;
@@ -58,12 +57,19 @@ var CTOS;
         Globals.m_StdIn = null;
         Globals.m_StdOut = null;
 
+        Globals.m_OSClock = 0;
+        Globals.m_StepMode = false;
+        Globals.m_StepNext = false;
+        Globals.m_MemTableAutoScroll = true;
+
         Globals.m_BSODColor = "#236B8E";
         Globals.m_ConsoleTextDefaultColor = "white";
+        Globals.m_BootVideo = true;
 
         Globals.m_SarcasticMode = false;
 
         Globals.m_KrnKeyboardDriver = null;
+        Globals.m_KrnHardDriveDriver = null;
         Globals.m_HardwareClockID = null;
 
         Globals.m_GLaDOS = null;

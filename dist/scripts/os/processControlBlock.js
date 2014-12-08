@@ -11,6 +11,7 @@ var CTOS;
         function ProcessControlBlock() {
             this.m_State = 0;
             this.m_PID = ++ProcessControlBlock.m_GPID;
+            this.m_Priority = 0;
             this.m_Counter = 0;
             this.m_Accumulator = 0;
             this.m_X = 0;
@@ -18,6 +19,7 @@ var CTOS;
             this.m_Z = 0;
             this.m_MemBase = 0;
             this.m_MemLimit = 0;
+            this.m_SwapTSB = "@@@";
         }
         ProcessControlBlock.m_GPID = -1;
         ProcessControlBlock.STATE_NEW = 0;

@@ -25,9 +25,11 @@ module CTOS
             }
         }
 
+        // Resets memory and makes it available given the base of the memory block in bytes
         public UnlockMemory(memBase: number)
         {
             var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new Memory();
             this.m_MemInUse[memBlock] = false;
         }
 
@@ -52,47 +54,129 @@ module CTOS
         }
 
         // Loads the program into memory & returns PID
-        public LoadProgram(program: Array<string>): number
+        public LoadProgram(program: Array<string>, priority: number): number
         {
             // Create a new PCB, give it a PID, set the base & limit of the program memory
             var pcb: ProcessControlBlock = new ProcessControlBlock();
+			pcb.m_Priority = priority;
             var memoryBlockLocation: number = this.GetAvailableMemoryLocation();
             if (memoryBlockLocation == -1)
             {
                 // OUT OF MEMORY!
-                return -1;
+                var data: string = "";
+                for (var i: number = 0; i < program.length; ++i)
+                {
+                    data += program[i];
+                }
+                if (!Globals.m_KrnHardDriveDriver.IsSupported() || !Globals.m_KrnHardDriveDriver.SwapWrite(pcb, data))
+                {
+                    return -1;
+                }
             }
-            // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
-            pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY; 
-            // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
-            pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
-            pcb.m_State = ProcessControlBlock.STATE_NEW;
-
-            // Reset memory block & update display
-            this.m_Memory[memoryBlockLocation].Reset();
-            Control.MemoryTableResetBlock(memoryBlockLocation);
-
-            // Load our program into the block of memory
-            for (var i: number = pcb.m_MemBase; i < program.length+pcb.m_MemBase; ++i)
+            else
             {
-                var address: number = i % MemoryManager.MAX_MEMORY;
-                this.m_Memory[memoryBlockLocation].Set(address, program[address]);
-                Control.MemoryTableUpdateByte(i, program[address]);
+                // Base = (block * 256) e.g 3 * 256 = 768 start there for 0
+                pcb.m_MemBase = memoryBlockLocation * MemoryManager.MAX_MEMORY;
+                // Limit = base + 256 (e.g 2 block = 768 limit but 767 array)
+                pcb.m_MemLimit = pcb.m_MemBase + MemoryManager.MAX_MEMORY - 1;
+
+                // Reset memory block & update display
+                this.m_Memory[memoryBlockLocation].Reset();
+                Control.MemoryTableResetBlock(memoryBlockLocation);
+
+                // Load our program into the block of memory
+                for (var i: number = 0; i < MemoryManager.MAX_MEMORY; ++i)
+                {
+                    if (i >= program.length)
+                    {
+                        break;
+                    }
+
+                    this.m_Memory[memoryBlockLocation].Set(i, program[i]);
+                    Control.MemoryTableUpdateByte(i + pcb.m_MemBase, program[i]);
+                }
+
+                this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
             }
-            
-            this.m_MemInUse[memoryBlockLocation] = true; // Don't use this block of memory again while in use!
+
+            pcb.m_State = ProcessControlBlock.STATE_NEW;
             Globals.m_KernelResidentQueue.enqueue(pcb);
             return pcb.m_PID;
         }
 
+
+        // Takes the PCB to find in memory and returns its data string after clearing out its memory and giving it,
+        // or a newer available memory, to the next PCB to save.
+        // This is a tricky bastard! Note that two scenarios occur.
+        public SwapMemory(dataToWrite: string, pcbToRead:ProcessControlBlock, pcbToSave:ProcessControlBlock): string
+        {
+            var outData: string = "";
+            var memBase: number = -1;
+            // If newer memory is available, we should use it up.
+            // Make sure the pcbToRead has HIS data returned and the mem location unlocked too!
+            var memBlockAvailable: number = this.GetAvailableMemoryLocation();
+            if (memBlockAvailable != -1)
+            {
+                memBase = memBlockAvailable * MemoryManager.MAX_MEMORY;
+            }
+            else // otherwise, we're just going to switch the pcbToSave into pcbToRead memory
+            {
+                memBase = pcbToRead.m_MemBase;
+            }
+            
+            // Read out pcbToRead to string
+            for (var i: number = 0; i < 256; ++i)
+            {
+                var byte: Byte = this.GetByte(i, pcbToRead.m_MemBase);
+                var hex: string = byte.GetHex();
+                var hexPad: string = "";
+                if (hex.length == 1)
+                {
+                    hexPad += "0" + hex;
+                }
+                else
+                {
+                    hexPad = hex;
+                }
+                outData += hexPad;
+            }
+            if (memBlockAvailable != -1) // If we found new memory, make sure to unlock this old mem!
+            {
+                this.UnlockMemory(pcbToRead.m_MemBase);
+            }
+
+            // Reset memory
+            var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
+            this.m_Memory[memBlock] = new Memory();
+
+            var bytesToWrite:Array<string> = dataToWrite.match(/.{2}/g);
+            // Write new data for pcbToSave to its new location
+            for (var i: number = 0; i < 256; ++i)
+            {
+                this.SetByte(i, bytesToWrite[i], memBase);
+            }
+
+            pcbToSave.m_MemBase = memBase;
+            pcbToSave.m_MemLimit = memBase + MemoryManager.MAX_MEMORY - 1;
+            pcbToRead.m_MemBase = 0; //pcbToRead is either being tossed or going to the drive.
+            pcbToRead.m_MemLimit = 0;
+
+            return outData;
+        }
+
         // Gets the byte from memory using address
-        public GetByte(address: number): Byte
+        public GetByte(address: number, base: number = null): Byte
         {
             var memBase: number = 0;
             if (Globals.m_CurrentPCBExe)
             {
                 memBase = Globals.m_CurrentPCBExe.m_MemBase;
             }
+            if(base)
+            {
+                memBase = base;
+            }
+
             var physicalAddress: number = address + memBase;
             var translatedBlock: number = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY); // Which mem block
             var translatedAddress: number = physicalAddress % MemoryManager.MAX_MEMORY; // Address in that block
@@ -107,12 +191,16 @@ module CTOS
         }
         
         // Set the byte @ address in memory with value in hex
-        public SetByte(address: number, hexValue: string): void
+        public SetByte(address: number, hexValue: string, base: number = null): void
         {
             var memBase: number = 0;
             if (Globals.m_CurrentPCBExe)
             {
                 memBase = Globals.m_CurrentPCBExe.m_MemBase;
+            }
+            if (base != null)
+            {
+                memBase = base;
             }
             var physicalAddress: number = address + memBase;
             var translatedBlock: number = Math.floor(physicalAddress / MemoryManager.MAX_MEMORY); // Which mem block

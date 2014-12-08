@@ -10,6 +10,9 @@
         <meta name="author" content="Anthony Barranco" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
 		
+        <!-- modernizr -->
+        <script src="dist/styles/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+
 		<!-- Our CSS -->
 		<link rel="stylesheet" href="dist/styles/tsos.css" type="text/css" media="screen" />
 		<!-- Globals CONSTANTS and _Variables. Must included be first. -->
@@ -18,6 +21,7 @@
 		<!-- Host (Hardware Simulation) Routines -->
         <script type="text/javascript" src="dist/scripts/host/byte.js"></script>
         <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
+        <script type="text/javascript" src="dist/scripts/host/hardDrive.js"></script>
         <script type="text/javascript" src="dist/scripts/host/instructions.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/control.js"></script>
 		<script type="text/javascript" src="dist/scripts/host/devices.js"></script>
@@ -28,6 +32,7 @@
 		<script type="text/javascript" src="dist/scripts/os/canvastext.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/console.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
+        <script type="text/javascript" src="dist/scripts/os/deviceDriverHardDrive.js"></script>
 		<script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
         <script type="text/javascript" src="dist/scripts/os/memoryManager.js"></script>
         <script type="text/javascript" src="dist/scripts/os/processControlBlock.js"></script>
@@ -48,8 +53,9 @@
 
 		<!-- SECRET SHHHHH-->
 		<script type="text/javascript" src="dist/scripts/secret.js"></script>
-		
+        
 		<!-- Boilerplate -->
+        <script type="text/javascript" src="dist/styles/js/fxjqueryapp-ck.js"></script>
 		<link rel="stylesheet" href="dist/styles/css/bootstrap.min.css">
         <style>
             body {
@@ -60,216 +66,256 @@
         <link rel="stylesheet" href="dist/styles/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="dist/styles/css/main.css">
 
-        <script src="dist/styles/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+
     </head>
+
+    <!-- NAV BAR -->
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
+                    <h3 id="achievementScore">Achievements : 0</h3>
+                </nav>
+                <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
+                    <h3>Programs</h3><br />
+                    <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram1_click(this);">Counts to 2 & Prints Done</button>
+                    <br /><br />
+                    <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram2_click(this);">Bob's Prints "2 and 5"</button>
+                    <br /><br />
+                    <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram3_click(this);">Bob's <br /> Prints "counting 0 counting 1 <br /> hello world counting 2"</button>
+                    <br /><br />
+                    <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram4_click(this);">Tom's Memory Eating Program</button>
+                </nav>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="#"><img src="dist/images/ctOSlogo.png" height="50" width="200" /> </a>
+            </div>
+
+            <div class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right" role="form">
+
+                    <button type="button"
+                            id="btnStartOS"
+                            name="brnStartOS"
+                            class="btn btn-primary"
+                            onclick="CTOS.Control.hostBtnStartOS_click(this);">
+                        Start
+                    </button>
+                    <button type="button"
+                            id="btnHaltOS"
+                            name="brnHaltOS"
+                            class="btn btn-warning"
+                            disabled
+                            tabindex="1"
+                            onclick="CTOS.Control.hostBtnHaltOS_click(this);">
+                        Halt
+                    </button>
+                    <button type="button"
+                            id="btnReset"
+                            name="brnReset"
+                            class="btn btn-danger"
+                            disabled
+                            tabindex="2"
+                            onclick="CTOS.Control.hostBtnReset_click(this);">
+                        Reset
+                    </button>
+                </form>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </div>
+
     <body onload="CTOS.Globals.onDocumentLoad();">
         <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-            <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
-                <h3 id="achievementScore">Achievements : 0</h3>
-            </nav>
-            <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
-                <h3>Programs</h3><br />
-                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram1_click(this);">Counts to 2 & Prints Done</button>
-                <br /><br />
-                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram2_click(this);">Bob's Prints "2 and 5"</button>
-                <br /><br />
-                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram3_click(this);">Bob's <br /> Prints "counting 0 counting 1 <br /> hello world counting 2"</button>
-                <br /><br />
-                <button type="button" class="btn btn-primary" onclick="CTOS.Control.hostBtnProgram4_click(this);">Tom's Memory Eating Program</button>
-            </nav>
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-            <a href="#"><img src="dist/images/ctOSlogo.png" height="50" width="200" /> </a> 
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+        <!-- BG FX -->
+        <canvas style="position:fixed; z-index:-1;" id="canvas"></canvas>
+        <script>
+            var canvas = document.getElementById("canvas");
+            context = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        </script>
+
+        <!-- Achievement notification div-->
+        <div class="container achievementDiv" id="achievementNotifDiv"></div>
+
+        <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="jumbotron" id="jumbotron">
+            <div class="container">
+                <label id="timeLabel">Time: </label>
+                <br>
+                <label id="statusLabel">Status: status -string-</label>
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right" role="form">
-				   
-              <button type="button"
-                      id="btnStartOS"
-                      name="brnStartOS"
-                      class="btn btn-primary"
-                      onclick="CTOS.Control.hostBtnStartOS_click(this);">
-                  Start
-              </button>
-              <button type="button"
-                      id="btnHaltOS"
-                      name="brnHaltOS"
-                      class="btn btn-warning"
-                      
-                      disabled
-                      tabindex="1"
-                      onclick="CTOS.Control.hostBtnHaltOS_click(this);">
-                  Halt
-              </button>
-              <button type="button"
-                      id="btnReset"
-                      name="brnReset"
-                      class="btn btn-danger"
-                      disabled
-                      tabindex="2"
-                      onclick="CTOS.Control.hostBtnReset_click(this);">
-                  Reset
-              </button>
-          </form>
-        </div><!--/.navbar-collapse -->
-      </div>
-    </div>
-
-    <!-- Achievement notification div-->
-    <div class="container achievementDiv" id="achievementNotifDiv"></div>
-
-    <!-- Main jumbotron for a primary marketing message or call to action -->
-    <div class="jumbotron" id="jumbotron">
-      <div class="container">
-        <label id="timeLabel">Time: </label>
-            <br>
-		<label id="statusLabel">Status: status -string-</label>
-      </div>
-    </div>
 
         <div class="container">
             <br />
             <button class="btn btn-info" id="showLeft">Show/Hide Achievements</button>
         </div>
-    <div class="container">
-      <!-- Example row of columns -->
-        <div class="row">
-            <div class="col-lg-5">
-                <label> CLI </label>
-                <br>
-                <div id="divConsole" style="width:500px; height:510px;">
-                    <canvas id="display"
-                            width="500"
-                            height="500"
-                            tabindex="3"></canvas>
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <br />
-                <div id="divCPUTable" style="width:150px; margin-left:20px; float:left;">
-                    <label>CPU</label>
-                    <br/>
-                    <button type="button"
-                            id="btnStep"
-                            name="btnStep"
-                            class="btn btn-success"
-                            disabled
-                            tabindex="2"
-                            onclick="CTOS.Control.hostBtnStepActivate_click(this);">
-                        Step
-                    </button>
-                    <button type="button"
-                            id="btnStepNext"
-                            name="btnStepNext"
-                            class="btn btn-primary"
-                            disabled
-                            tabindex="2"
-                            onclick="CTOS.Control.hostBtnStepNext_click(this);">
-                        Next
-                    </button>
-                    <div style="line-height:50%;"> <!-- mini line break for better spacing -->
-                        <br>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label> CLI </label>
+                    <br>
+                    <div id="divConsole" style="width:500px; height:510px;">
+                        <canvas id="display"
+                                width="500"
+                                height="500"
+                                tabindex="3"></canvas>
                     </div>
-                    <table id="CPUTable" class="table table-condensed table-bordered">
-                        <thead>
-                            <tr>
-                                <th>OP</th>
-                                <th>PC</th>
-                                <th>ACC</th>
-                                <th>X</th>
-                                <th>Y</th>
-                                <th>Z</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>0x00</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <video id="bootVid" preload="auto" style="position:relative; top:-500px; left:2px; z-index:2; opacity:0;">
+                        <source src="dist/images/bootVid.mp4" type="video/mp4">
+                    </video>
+                    <div id="divHardDrive" style="opacity:0; width:160px; margin-right:75px; display:none">
+                        <label>
+                            Hard Drive
+                        </label>
+                        <br />
+                        <div id="HardDriveTableDiv">
+                            <table id="HardDriveTable" class="table table-condensed table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>TSB</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div id="divMemTable" style="width:160px; margin-right:75px; float:right;" >
-                    <label>Memory 
-                    <input type="checkbox" id="MemTableAutoScrollBox" checked="checked" onclick="CTOS.Globals.m_MemTableAutoScroll=MemTableAutoScrollBox.checked"> AutoScroll
-                    </label>
+                <div class="col-sm-5">
                     <br />
-                    <div id="MemTableDiv">
-                        <table id="MemTable" class="table table-condensed table-bordered"></table>
-                    </div>
-                </div>
-                <div style="clear:both"></div>
-                <div id="divReadyQ" style="margin-left:25px">
-                    <label>Ready Queue</label><br />
-                    <div id="ReadyQTableDiv">
-                        <table id="ReadyQTable" class="table table-condensed table-bordered">
+                    <div id="divCPUTable" style="width:150px; margin-left:20px; float:left;">
+                        <label>CPU</label>
+                        <br />
+                        <button type="button"
+                                id="btnStep"
+                                name="btnStep"
+                                class="btn btn-success"
+                                disabled
+                                tabindex="2"
+                                onclick="CTOS.Control.hostBtnStepActivate_click(this);">
+                            Step
+                        </button>
+                        <button type="button"
+                                id="btnStepNext"
+                                name="btnStepNext"
+                                class="btn btn-primary"
+                                disabled
+                                tabindex="2"
+                                onclick="CTOS.Control.hostBtnStepNext_click(this);">
+                            Next
+                        </button>
+                        <div style="line-height:50%;">
+                            <!-- mini line break for better spacing -->
+                            <br>
+                        </div>
+                        <table id="CPUTable" class="table table-condensed table-bordered">
                             <thead>
                                 <tr>
-                                    <th>PID</th>
-                                    <th>State</th>
+                                    <th>OP</th>
                                     <th>PC</th>
                                     <th>ACC</th>
                                     <th>X</th>
                                     <th>Y</th>
                                     <th>Z</th>
-                                    <th>Mem Base</th>
-                                    <th>Mem Limit</th>
                                 </tr>
                             </thead>
                             <tbody>
-
+                                <tr>
+                                    <td>0x00</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div id="divLog">
-                    <label>Log</label>
-                    <br>
-                    <textarea name="taHostLog"
-                              id="taHostLog"
-                              rows="20"
-                              cols="48" style="height: 100px"></textarea>
-                </div>
-                <br/>
-                <div id="divUserProgramInput" style="height:200px">
-                    <label>
-                        User Program Input
-                    </label>
-                    <button class="btn btn-info" id="showRight">Show/Hide Programs</button>
-                    <br>
-                    <textarea name="taProgramInput"
-                              id="taProgramInput"
-                              rows="8"
-                              cols="48"></textarea>
+                    <div id="divMemTable" style="width:160px; margin-right:75px; float:right;">
+                        <label>
+                            Memory
+                            <input type="checkbox" id="MemTableAutoScrollBox" checked="checked" onclick="CTOS.Globals.m_MemTableAutoScroll=MemTableAutoScrollBox.checked"> AutoScroll
+                        </label>
+                        <br />
+                        <div id="MemTableDiv">
+                            <table id="MemTable" class="table table-condensed table-bordered"></table>
+                        </div>
+                    </div>
+                    <div style="clear:both"></div>
+                    <div id="divReadyQ" style="margin-left:25px">
+                        <label>Ready Queue</label>
+                        <label style="margin-left:10px">Scheduling:</label>
+                        <label id="ReadyQScheduleLabel">Round Robin</label>
+                        <br />
+                        <div id="ReadyQTableDiv">
+                            <table id="ReadyQTable" class="table table-condensed table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th>State</th>
+                                        <th>PC</th>
+                                        <th>ACC</th>
+                                        <th>X</th>
+                                        <th>Y</th>
+                                        <th>Z</th>
+                                        <th>Mem Base</th>
+                                        <th>Mem Limit</th>
+                                        <th>Priority</th>
+                                        <th>Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="divLog">
+                        <label>Log</label>
+                        <br>
+                        <textarea name="taHostLog"
+                                  id="taHostLog"
+                                  rows="20"
+                                  cols="48" style="height: 100px"></textarea>
+                    </div>
+                    <br />
+                    <div id="divUserProgramInput" style="height:200px">
+                        <label>
+                            User Program Input
+                        </label>
+                        <button class="btn btn-info" id="showRight">Show/Hide Programs</button>
+                        <br>
+                        <textarea name="taProgramInput"
+                                  id="taProgramInput"
+                                  rows="8"
+                                  cols="48"></textarea>
 
+                    </div>
                 </div>
             </div>
         </div>
-       </div>
-      <hr />
-      <footer>
-        <p class="footerText" style="clear:both;">
-        <br>
-        Copyright &copy; 2008 - 2014 No Rights Reserved.
-        <br>
-        Reproduction is prohibited without the express written consent of
-        Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-		</p>
-      </footer>
-     
+
+        <hr />
+        <label>
+            <input type="checkbox" id="BootVidCheck" checked="checked" onclick="CTOS.Control.BootVideoSet(BootVidCheck.checked)"> BootVid 
+        </label><br />
+        <a href="http://chicago-ctos.com/">We are all connected.</a>
+        <footer>
+            <p class="footerText" style="clear:both;">
+                <br>
+                Copyright &copy; 2008 - 2014 No Rights Reserved.
+                <br>
+                Reproduction is prohibited without the express written consent of
+                Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+                ctOS is based on Ubisoft's WatchDogs, fan made and no relation.
+            </p>
+        </footer>
+
         <!-- /container -->
         <script src="dist/styles/js/vendor/jquery-1.11.0.min.js"></script>
 
@@ -277,7 +323,7 @@
         <script type="text/javascript" src="dist/scripts/menus.js"></script>
         <script src="dist/styles/js/main.js"></script>
 
-        <!--Allows click and scroll on the canvas. Meh right now 
+        <!--Allows click and scroll on the canvas. Meh right now
     $.fn.attachDragger = function () {
         var attachment = false, lastPosition, position, difference;
         $($(this).selector).on("mousedown mouseup mousemove", function (e) {
@@ -303,6 +349,7 @@
                     $(this).remove();
                 });
             }, 5000);
-        </script>  
+        </script>
+
     </body>
 </html>

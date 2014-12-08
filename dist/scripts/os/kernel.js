@@ -31,11 +31,16 @@ var CTOS;
             CTOS.Globals.m_StdIn = CTOS.Globals.m_Console;
             CTOS.Globals.m_StdOut = CTOS.Globals.m_Console;
 
-            // Load the Keyboard Device Driver
+            // Load the device drivers
             this.Trace("Loading the keyboard device driver.");
             CTOS.Globals.m_KrnKeyboardDriver = new CTOS.DeviceDriverKeyboard(); // Construct it.
             CTOS.Globals.m_KrnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.Trace(CTOS.Globals.m_KrnKeyboardDriver.status);
+            this.Trace("Loading the hard drive device driver.");
+            CTOS.Globals.m_KrnHardDriveDriver = new CTOS.DeviceDriverHardDrive();
+            CTOS.Globals.m_KrnHardDriveDriver.driverEntry();
+            this.Trace(CTOS.Globals.m_KrnHardDriveDriver.status);
+            CTOS.Control.BootVideoPlay();
 
             //
             // ... more?
@@ -145,6 +150,7 @@ var CTOS;
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_BRK:
                     // PCB is done executing or we've done some kind of context switch for P3
+                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
                     if (CTOS.Globals.m_CurrentPCBExe) {
                         if (CTOS.Globals.m_CurrentPCBExe.m_State == CTOS.ProcessControlBlock.STATE_TERMINATED) {
                             CTOS.Globals.m_StdOut.PutText("PID[" + CTOS.Globals.m_CurrentPCBExe.m_PID.toString() + "] is done executing.");
@@ -153,16 +159,24 @@ var CTOS;
                         }
                         CTOS.Globals.m_CurrentPCBExe = null;
                     }
-                    CTOS.Globals.m_CPUScheduler.OnCPUDoneExecuting();
+
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
-                    CTOS.Globals.m_CPU.ContextSwitch(params);
                     CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
-                    if (params) {
-                        this.Trace("Context switch occured. Forced PCB off ready queue");
+                    if (CTOS.Globals.m_CPUScheduler.CheckRollOut(true)) {
+                        CTOS.Globals.m_CPU.ContextSwitch(params);
+                        if (params) {
+                            this.Trace("Context switch occured. Forced PCB off ready queue");
+                        } else {
+                            this.Trace("Context switch occured. Round Robin.");
+                        }
                     } else {
-                        this.Trace("Context switch occured. Round Robin.");
+                        this.Trace("Error swapping! Broke CPU");
                     }
+                    break;
+                case CTOS.Globals.INTERRUPT_REQUEST_HD:
+                    CTOS.Globals.m_KrnHardDriveDriver.isr(params);
+                    this.Trace("Hard Drive interrupt params=[" + params + "]");
                     break;
                 default:
                     this.TrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
