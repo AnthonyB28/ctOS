@@ -104,13 +104,30 @@ module CTOS
             return pcb.m_PID;
         }
 
-        public SwapMemory(dataToWrite: string, memBase: number, memLimit: number): string
+
+        // Takes the PCB to find in memory and returns its data string after clearing out its memory and giving it,
+        // or a newer available memory, to the next PCB to save.
+        // This is a tricky bastard! Note that two scenarios occur.
+        public SwapMemory(dataToWrite: string, pcbToRead:ProcessControlBlock, pcbToSave:ProcessControlBlock): string
         {
             var outData: string = "";
+            var memBase: number = -1;
+            // If newer memory is available, we should use it up.
+            // Make sure the pcbToRead has HIS data returned and the mem location unlocked too!
+            var memBlockAvailable: number = this.GetAvailableMemoryLocation();
+            if (memBlockAvailable != -1)
+            {
+                memBase = memBlockAvailable * MemoryManager.MAX_MEMORY;
+            }
+            else // otherwise, we're just going to switch the pcbToSave into pcbToRead memory
+            {
+                memBase = pcbToRead.m_MemBase;
+            }
             
+            // Read out pcbToRead to string
             for (var i: number = 0; i < 256; ++i)
             {
-                var byte: Byte = this.GetByte(i, memBase);
+                var byte: Byte = this.GetByte(i, pcbToRead.m_MemBase);
                 var hex: string = byte.GetHex();
                 var hexPad: string = "";
                 if (hex.length == 1)
@@ -123,17 +140,26 @@ module CTOS
                 }
                 outData += hexPad;
             }
+            if (memBlockAvailable != -1) // If we found new memory, make sure to unlock this old mem!
+            {
+                this.UnlockMemory(pcbToRead.m_MemBase);
+            }
 
             // Reset memory
             var memBlock: number = Math.floor(memBase / MemoryManager.MAX_MEMORY);
             this.m_Memory[memBlock] = new Memory();
 
             var bytesToWrite:Array<string> = dataToWrite.match(/.{2}/g);
-            // Write new data to same memory
+            // Write new data for pcbToSave to its new location
             for (var i: number = 0; i < 256; ++i)
             {
-                this.SetByte(i, bytesToWrite[i]);
+                this.SetByte(i, bytesToWrite[i], memBase);
             }
+
+            pcbToSave.m_MemBase = memBase;
+            pcbToSave.m_MemLimit = memBase + MemoryManager.MAX_MEMORY - 1;
+            pcbToRead.m_MemBase = 0; //pcbToRead is either being tossed or going to the drive.
+            pcbToRead.m_MemLimit = 0;
 
             return outData;
         }
@@ -172,7 +198,7 @@ module CTOS
             {
                 memBase = Globals.m_CurrentPCBExe.m_MemBase;
             }
-            if (base)
+            if (base != null)
             {
                 memBase = base;
             }

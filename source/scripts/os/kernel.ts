@@ -190,10 +190,10 @@ module CTOS
                     
                     break;
                 case Globals.INTERRUPT_CPU_CNTXSWTCH:
+                    Globals.m_CPUScheduler.OnContextSwitchInterrupt();
                     if (Globals.m_CPUScheduler.CheckRollOut(true))
                     {
                         Globals.m_CPU.ContextSwitch(params);
-                        Globals.m_CPUScheduler.OnContextSwitchInterrupt();
                         if (params) // params is true if shellKill
                         {
                             this.Trace("Context switch occured. Forced PCB off ready queue");

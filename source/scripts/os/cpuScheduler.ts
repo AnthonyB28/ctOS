@@ -3,6 +3,8 @@
     export class CPUScheduler
     {
         constructor(private m_WaitingExe: boolean = false,
+            private m_PrimedCntxtSwitch:boolean = false,
+            private m_RolloutOccured: boolean = false,
             private m_Quantum: number = 6,
             private m_CPUCyles: number = 0,
 			private m_SchedulerType: number = 0)
@@ -29,7 +31,12 @@
 		public GetType():number
 		{
 			return this.m_SchedulerType;
-		}
+        }
+
+        public GetRolloutOccured(): boolean
+        {
+            return this.m_RolloutOccured;
+        }
 
         public IsWaiting(): boolean
         {
@@ -83,6 +90,7 @@
             if (this.m_WaitingExe && Globals.m_CPU.m_IsExecuting)
             {
                 Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, false));
+                this.m_PrimedCntxtSwitch = true;
             }
             else
             {
@@ -95,6 +103,7 @@
         public OnContextSwitchInterrupt()
         {
             this.m_CPUCyles = 0;
+            this.m_PrimedCntxtSwitch = false;
         }
 
         // Forcibly stops the currently running process on the CPU. Called from shellKill cmd
@@ -102,6 +111,7 @@
         public ForceKillRunningProcess(): void
         {
             Globals.m_KernelInterruptQueue.enqueue(new Interrupt(Globals.INTERRUPT_CPU_CNTXSWTCH, true));
+            this.m_PrimedCntxtSwitch = true;
         }
 
         // Determines if rollout is necessary and performs it. Returns true if successful or didn't need to occur & false if error writing
@@ -114,9 +124,20 @@
                 var pcbIn: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(1);
                 if (pcbIn.m_SwapTSB != DeviceDriverHardDrive.TSB_INVALID) // PCB coming in is paged.
                 {
+                    this.m_RolloutOccured = true;
+                    if (this.m_PrimedCntxtSwitch)
+                    {
+                        Globals.m_KernelInterruptQueue.dequeue();
+                        this.OnContextSwitchInterrupt();
+                    }
                     return this.Roll(pcbIn, pcbOut, writeRollout);
                 }
+                else
+                {
+                    this.m_RolloutOccured = false;
+                }
             }
+            this.m_RolloutOccured = false;
             return true; // no error, no need to roll out
         }
 
@@ -125,12 +146,7 @@
         {
             // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
             var inData: string = Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
-            var outData: string = Globals.m_MemoryManager.SwapMemory(inData, pcbOut.m_MemBase, pcbOut.m_MemLimit);
-            pcbIn.m_MemBase = pcbOut.m_MemBase;
-            pcbIn.m_MemLimit = pcbOut.m_MemLimit;
-
-            pcbOut.m_MemBase = 0;
-            pcbOut.m_MemLimit = 0;
+            var outData: string = Globals.m_MemoryManager.SwapMemory(inData, pcbOut, pcbIn);
 
             Globals.m_Kernel.Trace("Program swap PID[" + pcbOut.m_PID.toString() + "] with PID[" +pcbIn.m_PID.toString() + "]");
             // Don't write out data to drive. E.g program has terminated, doesnt need to be put back into drive
@@ -147,13 +163,7 @@
                     return false;
                 }
             }
-        }
-
-        // Returns if rollout had occured based on the PCB
-        // CPU uses this to determine if memory needs to be erased.
-        public RolloutOccured(pcb: ProcessControlBlock): boolean
-        {
-            return pcb.m_SwapTSB == DeviceDriverHardDrive.TSB_INVALID ? true : false;
+            this.m_CPUCyles = 0;
         }
 
         // When a process is done executing, this is the callback from the CPU

@@ -1,12 +1,16 @@
 ﻿var CTOS;
 (function (CTOS) {
     var CPUScheduler = (function () {
-        function CPUScheduler(m_WaitingExe, m_Quantum, m_CPUCyles, m_SchedulerType) {
+        function CPUScheduler(m_WaitingExe, m_PrimedCntxtSwitch, m_RolloutOccured, m_Quantum, m_CPUCyles, m_SchedulerType) {
             if (typeof m_WaitingExe === "undefined") { m_WaitingExe = false; }
+            if (typeof m_PrimedCntxtSwitch === "undefined") { m_PrimedCntxtSwitch = false; }
+            if (typeof m_RolloutOccured === "undefined") { m_RolloutOccured = false; }
             if (typeof m_Quantum === "undefined") { m_Quantum = 6; }
             if (typeof m_CPUCyles === "undefined") { m_CPUCyles = 0; }
             if (typeof m_SchedulerType === "undefined") { m_SchedulerType = 0; }
             this.m_WaitingExe = m_WaitingExe;
+            this.m_PrimedCntxtSwitch = m_PrimedCntxtSwitch;
+            this.m_RolloutOccured = m_RolloutOccured;
             this.m_Quantum = m_Quantum;
             this.m_CPUCyles = m_CPUCyles;
             this.m_SchedulerType = m_SchedulerType;
@@ -29,6 +33,10 @@
 
         CPUScheduler.prototype.GetType = function () {
             return this.m_SchedulerType;
+        };
+
+        CPUScheduler.prototype.GetRolloutOccured = function () {
+            return this.m_RolloutOccured;
         };
 
         CPUScheduler.prototype.IsWaiting = function () {
@@ -70,6 +78,7 @@
             // Only switch if the CPU is executing and there are processes waiting in the ReadyQueue
             if (this.m_WaitingExe && CTOS.Globals.m_CPU.m_IsExecuting) {
                 CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH, false));
+                this.m_PrimedCntxtSwitch = true;
             } else {
                 this.m_CPUCyles = 0;
             }
@@ -79,12 +88,14 @@
         // Resets CPU cycles to 0.
         CPUScheduler.prototype.OnContextSwitchInterrupt = function () {
             this.m_CPUCyles = 0;
+            this.m_PrimedCntxtSwitch = false;
         };
 
         // Forcibly stops the currently running process on the CPU. Called from shellKill cmd
         // Executes context switch without any check
         CPUScheduler.prototype.ForceKillRunningProcess = function () {
             CTOS.Globals.m_KernelInterruptQueue.enqueue(new CTOS.Interrupt(CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH, true));
+            this.m_PrimedCntxtSwitch = true;
         };
 
         // Determines if rollout is necessary and performs it. Returns true if successful or didn't need to occur & false if error writing
@@ -94,9 +105,17 @@
                 var pcbOut = CTOS.Globals.m_KernelReadyQueue.peek(0);
                 var pcbIn = CTOS.Globals.m_KernelReadyQueue.peek(1);
                 if (pcbIn.m_SwapTSB != CTOS.DeviceDriverHardDrive.TSB_INVALID) {
+                    this.m_RolloutOccured = true;
+                    if (this.m_PrimedCntxtSwitch) {
+                        CTOS.Globals.m_KernelInterruptQueue.dequeue();
+                        this.OnContextSwitchInterrupt();
+                    }
                     return this.Roll(pcbIn, pcbOut, writeRollout);
+                } else {
+                    this.m_RolloutOccured = false;
                 }
             }
+            this.m_RolloutOccured = false;
             return true;
         };
 
@@ -104,12 +123,7 @@
         CPUScheduler.prototype.Roll = function (pcbIn, pcbOut, rollOut) {
             // Need to pull memory of pcbOut, write data of pcbIn to freed memory, write pcbOut data display
             var inData = CTOS.Globals.m_KrnHardDriveDriver.SwapReadClear(pcbIn);
-            var outData = CTOS.Globals.m_MemoryManager.SwapMemory(inData, pcbOut.m_MemBase, pcbOut.m_MemLimit);
-            pcbIn.m_MemBase = pcbOut.m_MemBase;
-            pcbIn.m_MemLimit = pcbOut.m_MemLimit;
-
-            pcbOut.m_MemBase = 0;
-            pcbOut.m_MemLimit = 0;
+            var outData = CTOS.Globals.m_MemoryManager.SwapMemory(inData, pcbOut, pcbIn);
 
             CTOS.Globals.m_Kernel.Trace("Program swap PID[" + pcbOut.m_PID.toString() + "] with PID[" + pcbIn.m_PID.toString() + "]");
 
@@ -123,12 +137,7 @@
                     return false;
                 }
             }
-        };
-
-        // Returns if rollout had occured based on the PCB
-        // CPU uses this to determine if memory needs to be erased.
-        CPUScheduler.prototype.RolloutOccured = function (pcb) {
-            return pcb.m_SwapTSB == CTOS.DeviceDriverHardDrive.TSB_INVALID ? true : false;
+            this.m_CPUCyles = 0;
         };
 
         // When a process is done executing, this is the callback from the CPU

@@ -162,9 +162,9 @@ var CTOS;
 
                     break;
                 case CTOS.Globals.INTERRUPT_CPU_CNTXSWTCH:
+                    CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
                     if (CTOS.Globals.m_CPUScheduler.CheckRollOut(true)) {
                         CTOS.Globals.m_CPU.ContextSwitch(params);
-                        CTOS.Globals.m_CPUScheduler.OnContextSwitchInterrupt();
                         if (params) {
                             this.Trace("Context switch occured. Forced PCB off ready queue");
                         } else {

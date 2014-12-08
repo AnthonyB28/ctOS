@@ -80,11 +80,24 @@ var CTOS;
             return pcb.m_PID;
         };
 
-        MemoryManager.prototype.SwapMemory = function (dataToWrite, memBase, memLimit) {
+        // Takes the PCB to find in memory and returns its data string after clearing out its memory and giving it,
+        // or a newer available memory, to the next PCB to save.
+        // This is a tricky bastard! Note that two scenarios occur.
+        MemoryManager.prototype.SwapMemory = function (dataToWrite, pcbToRead, pcbToSave) {
             var outData = "";
+            var memBase = -1;
+
+            // If newer memory is available, we should use it up.
+            // Make sure the pcbToRead has HIS data returned and the mem location unlocked too!
+            var memBlockAvailable = this.GetAvailableMemoryLocation();
+            if (memBlockAvailable != -1) {
+                memBase = memBlockAvailable * MemoryManager.MAX_MEMORY;
+            } else {
+                memBase = pcbToRead.m_MemBase;
+            }
 
             for (var i = 0; i < 256; ++i) {
-                var byte = this.GetByte(i, memBase);
+                var byte = this.GetByte(i, pcbToRead.m_MemBase);
                 var hex = byte.GetHex();
                 var hexPad = "";
                 if (hex.length == 1) {
@@ -94,6 +107,9 @@ var CTOS;
                 }
                 outData += hexPad;
             }
+            if (memBlockAvailable != -1) {
+                this.UnlockMemory(pcbToRead.m_MemBase);
+            }
 
             // Reset memory
             var memBlock = Math.floor(memBase / MemoryManager.MAX_MEMORY);
@@ -102,8 +118,13 @@ var CTOS;
             var bytesToWrite = dataToWrite.match(/.{2}/g);
 
             for (var i = 0; i < 256; ++i) {
-                this.SetByte(i, bytesToWrite[i]);
+                this.SetByte(i, bytesToWrite[i], memBase);
             }
+
+            pcbToSave.m_MemBase = memBase;
+            pcbToSave.m_MemLimit = memBase + MemoryManager.MAX_MEMORY - 1;
+            pcbToRead.m_MemBase = 0; //pcbToRead is either being tossed or going to the drive.
+            pcbToRead.m_MemLimit = 0;
 
             return outData;
         };
@@ -136,7 +157,7 @@ var CTOS;
             if (CTOS.Globals.m_CurrentPCBExe) {
                 memBase = CTOS.Globals.m_CurrentPCBExe.m_MemBase;
             }
-            if (base) {
+            if (base != null) {
                 memBase = base;
             }
             var physicalAddress = address + memBase;

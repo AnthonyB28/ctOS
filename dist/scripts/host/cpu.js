@@ -97,7 +97,7 @@ var CTOS;
             pcb.m_State = CTOS.ProcessControlBlock.STATE_TERMINATED;
 
             // Don't reset memory if rollout occured!!
-            if (!CTOS.Globals.m_CPUScheduler.RolloutOccured(pcb)) {
+            if (!CTOS.Globals.m_CPUScheduler.GetRolloutOccured()) {
                 CTOS.Globals.m_MemoryManager.UnlockMemory(pcb.m_MemBase);
             }
             CTOS.Globals.m_AchievementSystem.Unlock(16);
