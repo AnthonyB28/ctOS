@@ -1,8 +1,12 @@
 node_modules/
 bin/
 obj/
+Properties/
+Packages/
 .DS_Store
 /*.csproj.user
 /*.v12.suo
 *.map
 *.suo
+*.config
+*.sln
