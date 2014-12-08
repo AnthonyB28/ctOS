@@ -14,36 +14,14 @@ var CTOS;
         function HardDrive() {
             if (this.IsSupported()) {
                 HardDrive.Supported = true;
-
-                // May want to check storage size before continuing
-                this.Init();
             } else {
                 HardDrive.Supported = false;
             }
         }
-        // Sets all TSBs to default and setups the MBR at 000
-        HardDrive.prototype.Init = function () {
-            if (this.IsSupported()) {
-                localStorage.setItem("000", "1" + CTOS.DeviceDriverHardDrive.TSB_INVALID + "001100ctOS MBR");
-                for (var i = 1; i < 572; ++i) {
-                    var baseEight = parseInt(i.toString(8), 10);
-                    var tsb = "";
-                    if (baseEight <= 7) {
-                        tsb += "00" + baseEight.toString();
-                    } else if (baseEight >= 10 && baseEight < 100) {
-                        tsb += "0" + baseEight.toString();
-                    } else {
-                        tsb += baseEight.toString();
-                    }
-
-                    localStorage.setItem(tsb, CTOS.DeviceDriverHardDrive.TSB_INIT);
-                }
-            }
-        };
-
         // Write data to tsb in HTML5 storage
         HardDrive.prototype.SetTSB = function (tsb, data) {
             if (this.IsSupported()) {
+                ++HardDrive.Writes;
                 localStorage.setItem(tsb, data);
             }
         };
@@ -51,12 +29,8 @@ var CTOS;
         // Returns the TSB from HTML5 storage
         HardDrive.prototype.GetTSB = function (tsb) {
             if (this.IsSupported()) {
-                if (tsb != CTOS.DeviceDriverHardDrive.TSB_INVALID) {
-                    return localStorage.getItem(tsb);
-                } else {
-                    CTOS.Globals.m_OsShell.PutTextLine("Hard Drive tried to get " + CTOS.DeviceDriverHardDrive.TSB_INVALID + " TSB");
-                    return null;
-                }
+                ++HardDrive.Reads;
+                return localStorage.getItem(tsb);
             }
             return null;
         };
@@ -70,6 +44,8 @@ var CTOS;
             }
         };
         HardDrive.Supported = false;
+        HardDrive.Writes = 0;
+        HardDrive.Reads = 0;
         return HardDrive;
     })();
     CTOS.HardDrive = HardDrive;

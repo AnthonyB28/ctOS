@@ -415,6 +415,7 @@ var CTOS;
             }
         };
 
+        // Run all EXEs in ResidentQueue
         Shell.prototype.shellRunAll = function (args) {
             while (!CTOS.Globals.m_KernelResidentQueue.isEmpty()) {
                 var params = new Array();
@@ -424,6 +425,7 @@ var CTOS;
             }
         };
 
+        // Kills PID
         Shell.prototype.shellKill = function (args) {
             if (args.length > 0) {
                 for (var i = 0; i < CTOS.Globals.m_KernelReadyQueue.getSize(); ++i) {
@@ -431,6 +433,7 @@ var CTOS;
                     if (CTOS.Globals.m_KernelReadyQueue.peek(i)) {
                         var pcb = CTOS.Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) {
+                            CTOS.Globals.m_AchievementSystem.Unlock(21);
                             if (pcb.m_State == CTOS.ProcessControlBlock.STATE_READY) {
                                 // If process is just in the ready queue, kick it and terminate it.
                                 CTOS.Globals.m_KernelReadyQueue.remove(i);
@@ -472,6 +475,7 @@ var CTOS;
             }
         };
 
+        // Sets CPU Scheduler Round Robin Quantum
         Shell.prototype.shellQuantum = function (args) {
             if (args.length > 0) {
                 CTOS.Globals.m_CPUScheduler.SetQuantum(parseInt(args[0]));

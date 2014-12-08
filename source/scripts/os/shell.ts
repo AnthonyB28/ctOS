@@ -541,6 +541,7 @@ module CTOS
             }
         }
 
+        // Run all EXEs in ResidentQueue
         public shellRunAll(args): void
         {
             // Need to check to see if a PCB is in the Resident Queue
@@ -553,6 +554,7 @@ module CTOS
             }
         }
 
+        // Kills PID
         public shellKill(args): void
         {
             if (args.length > 0)
@@ -565,6 +567,7 @@ module CTOS
                         var pcb: ProcessControlBlock = Globals.m_KernelReadyQueue.peek(i);
                         if (pcb.m_PID == parseInt(args[0])) // Found the target PID
                         {
+                            Globals.m_AchievementSystem.Unlock(21);
                             if (pcb.m_State == ProcessControlBlock.STATE_READY)
                             {
                                 // If process is just in the ready queue, kick it and terminate it.
@@ -615,6 +618,7 @@ module CTOS
             }
         }
 
+        // Sets CPU Scheduler Round Robin Quantum
         public shellQuantum(args): void
         {
             if (args.length > 0)

@@ -71,14 +71,17 @@
 			{
 				// First Come First Serve
 				// Does anything even need to be done here?
+                Globals.m_AchievementSystem.Unlock(19);
 			}
 			else
 			{
-				// NonPreemptive Priority - smallest integer = greatest p
-				// Let the executing process finish before doing a context switch
-				// May want to implement something to help starvation (age the low priority processes)
-				
-				// Wait... do we need anything here either? LOL
+                // NonPreemptive Priority - smallest integer = greatest p
+                // Let the executing process finish before doing a context switch
+                // May want to implement something to help starvation (age the low priority processes)
+
+                // Wait... do we need anything here either? LOL
+
+                Globals.m_AchievementSystem.Unlock(18);
 			}
         }
 

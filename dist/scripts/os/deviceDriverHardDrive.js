@@ -17,13 +17,34 @@ var CTOS;
             // Override the base method pointers.
             _super.call(this, this.krnHdDriverEntry, this.krnHdDriverISR);
             this.Init();
+            this.InstallOS();
         }
+        // Simulating a fresh new drive and OS is installed, creates MBR and such
+        DeviceDriverHardDrive.prototype.InstallOS = function () {
+            // MBR
+            CTOS.Globals.m_HardDrive.SetTSB("000", "1" + DeviceDriverHardDrive.TSB_INVALID + "001100 ctOS MBR");
+
+            for (var i = 1; i <= 255; ++i) {
+                var baseEight = parseInt(i.toString(8), 10);
+                var tsb = "";
+                if (baseEight <= 7) {
+                    tsb += "00" + baseEight.toString();
+                } else if (baseEight >= 10 && baseEight < 100) {
+                    tsb += "0" + baseEight.toString();
+                } else {
+                    tsb += baseEight.toString();
+                }
+
+                this.SetTSB(tsb, DeviceDriverHardDrive.TSB_INIT);
+            }
+        };
+
         // Sets the available dictionaries and the display
         DeviceDriverHardDrive.prototype.Init = function () {
             CTOS.Control.HardDriveTableInit();
 
             // If hard drive has empty string, enable bootvideo
-            CTOS.Control.BootVideoSet(!Boolean(CTOS.Globals.m_HardDrive.GetTSB("bootVideo")));
+            CTOS.Control.BootVideoSet(!Boolean(this.GetTSB("bootVideo")));
 
             this.m_AvailableDir = new Array();
             for (var i = 1; i < 64; ++i) {
@@ -122,7 +143,8 @@ var CTOS;
                     return;
                 }
 
-                CTOS.Globals.m_HardDrive = new CTOS.HardDrive();
+                CTOS.Globals.m_AchievementSystem.Unlock(23);
+                this.InstallOS();
                 this.Init();
             }
         };
@@ -145,8 +167,8 @@ var CTOS;
                 var tsbData = this.GetNextAvailableData();
 
                 // As long as the directories are not in use, we can use them.
-                if (CTOS.Globals.m_HardDrive.GetTSB(tsbDir)[0] == "0") {
-                    if (CTOS.Globals.m_HardDrive.GetTSB(tsbData)[0] == "0") {
+                if (this.GetTSB(tsbDir)[0] == "0") {
+                    if (this.GetTSB(tsbData)[0] == "0") {
                         var fileNameStr = "1" + tsbData + hexString;
                         this.SetTSB(tsbDir, fileNameStr);
                         this.SetTSB(tsbData, "1@@@");
@@ -178,7 +200,7 @@ var CTOS;
                 if (!dirTSB) {
                     return;
                 }
-                var dataTSB = CTOS.Globals.m_HardDrive.GetTSB(dirTSB).substr(1, 3);
+                var dataTSB = this.GetTSB(dirTSB).substr(1, 3);
 
                 // Reset the dir and file data, mark as available
                 this.m_AvailableDir[dirTSB] = 0;
@@ -196,13 +218,13 @@ var CTOS;
                 var fileTSB = this.GetDirTSBFromFilename(file);
                 if (fileTSB) {
                     // Get the data TSB if it exists, loop through converting hex, and return.
-                    var firstDataTSB = CTOS.Globals.m_HardDrive.GetTSB(fileTSB).substr(1, 3);
+                    var firstDataTSB = this.GetTSB(fileTSB).substr(1, 3);
                     if (firstDataTSB) {
                         var hexData = "";
                         var data = "";
                         var dataTSB = firstDataTSB;
                         do {
-                            hexData = CTOS.Globals.m_HardDrive.GetTSB(dataTSB);
+                            hexData = this.GetTSB(dataTSB);
                             dataTSB = hexData.substr(1, 3);
                             data += CTOS.Utils.ConvertHexToString(hexData.substr(4, hexData.length - 4));
                         } while(dataTSB != DeviceDriverHardDrive.TSB_INVALID);
@@ -222,7 +244,7 @@ var CTOS;
                 var fileTSB = this.GetDirTSBFromFilename(file);
                 if (fileTSB) {
                     // Obtain where the start of the data should be if available
-                    var firstDataTSB = CTOS.Globals.m_HardDrive.GetTSB(fileTSB).substring(1, 4);
+                    var firstDataTSB = this.GetTSB(fileTSB).substring(1, 4);
                     if (firstDataTSB) {
                         // Figure out how many TSBs we need, and fill them.
                         var tsbNeededToFill = Math.ceil(data.length / 59);
@@ -267,7 +289,7 @@ var CTOS;
             var nextTSB = "";
             do {
                 // Get the next TSB, reset this TSB, set this to next
-                nextTSB = CTOS.Globals.m_HardDrive.GetTSB(tsb).substr(1, 3);
+                nextTSB = this.GetTSB(tsb).substr(1, 3);
                 this.m_AvailableData[tsb] = 0;
                 this.ResetTSB(tsb);
                 tsb = nextTSB;
@@ -287,7 +309,7 @@ var CTOS;
                     var baseEight = parseInt(i.toString(8), 10);
                     tsb += "0" + baseEight.toString();
                 }
-                var dirData = CTOS.Globals.m_HardDrive.GetTSB(tsb);
+                var dirData = this.GetTSB(tsb);
                 if (dirData[0] == "1") {
                     CTOS.Globals.m_OsShell.PutTextLine(CTOS.Utils.ConvertHexToString(dirData.substr(4, dirData.length - 4)));
                     ++numberOfFiles;
@@ -309,7 +331,7 @@ var CTOS;
                     var baseEight = parseInt(i.toString(8), 10);
                     tsb += "0" + baseEight.toString();
                 }
-                var dirData = CTOS.Globals.m_HardDrive.GetTSB(tsb);
+                var dirData = this.GetTSB(tsb);
                 if (dirData[0] == "1") {
                     var fileName = CTOS.Utils.ConvertHexToString(dirData.substr(4, dirData.length - 4)).replace(/\0/g, '');
 
@@ -341,8 +363,23 @@ var CTOS;
             for (var i = data.length; i < 124; ++i) {
                 data += "0";
             }
+            if (CTOS.HardDrive.Reads + 1 + CTOS.HardDrive.Writes >= 1200) {
+                CTOS.Globals.m_AchievementSystem.Unlock(25);
+            }
             CTOS.Globals.m_HardDrive.SetTSB(tsb, data);
             CTOS.Control.HardDriveTableUpdate(tsb, data);
+        };
+
+        // Reads data from TSB and traces if invalid
+        DeviceDriverHardDrive.prototype.GetTSB = function (tsb) {
+            if (tsb != DeviceDriverHardDrive.TSB_INVALID) {
+                if (CTOS.HardDrive.Reads + 1 + CTOS.HardDrive.Writes >= 1200) {
+                    CTOS.Globals.m_AchievementSystem.Unlock(25);
+                }
+                return CTOS.Globals.m_HardDrive.GetTSB(tsb);
+            } else {
+                CTOS.Globals.m_Kernel.Trace("Hard Drive tried to get " + DeviceDriverHardDrive.TSB_INVALID + " TSB");
+            }
         };
 
         // Sets a TSB back to INIT_TSB
@@ -375,6 +412,11 @@ var CTOS;
                     return baseEight;
                 }
             }
+
+            // Out of data?
+            CTOS.Globals.m_AchievementSystem.Unlock(24);
+            CTOS.Globals.m_Kernel.Trace("ERROR - Out of hard drive space.");
+            return -1;
         };
 
         // Retrieves the swap data for pcb from drive, and deletes it!
@@ -387,7 +429,7 @@ var CTOS;
 
                     do {
                         // Get data from this TSB, clear this TSB, get next TSB from data, loop
-                        hexData = CTOS.Globals.m_HardDrive.GetTSB(dataTSB);
+                        hexData = this.GetTSB(dataTSB);
                         this.m_AvailableData[dataTSB] = 0;
                         this.ResetTSB(dataTSB);
                         dataTSB = hexData.substr(1, 3);
@@ -434,6 +476,7 @@ var CTOS;
                         }
                     }
                     CTOS.Control.HardDriveMBRUpdate(this.SetNextAvailableData(nextAvailDataTSB));
+                    CTOS.Globals.m_AchievementSystem.Unlock(20);
                     return true;
                 }
             }
@@ -443,7 +486,7 @@ var CTOS;
         // Sets the MBR with the next available dir at TSB given
         DeviceDriverHardDrive.prototype.SetNextAvailableDir = function (tsb) {
             if (this.IsSupported()) {
-                var mbr = CTOS.Globals.m_HardDrive.GetTSB("000");
+                var mbr = this.GetTSB("000");
                 var newMbr = mbr.substr(0, 4) + tsb + mbr.substr(7, mbr.length);
                 CTOS.Globals.m_HardDrive.SetTSB("000", newMbr);
                 return newMbr;
@@ -454,7 +497,7 @@ var CTOS;
         // Gets the next available dir TSB from MBR
         DeviceDriverHardDrive.prototype.GetNextAvailableDir = function () {
             if (this.IsSupported()) {
-                var mbr = CTOS.Globals.m_HardDrive.GetTSB("000");
+                var mbr = this.GetTSB("000");
                 return mbr.substr(4, 3);
             }
             return null;
@@ -463,7 +506,7 @@ var CTOS;
         // Sets the MBR with the next available data at TSB given
         DeviceDriverHardDrive.prototype.SetNextAvailableData = function (tsb) {
             if (this.IsSupported()) {
-                var mbr = CTOS.Globals.m_HardDrive.GetTSB("000");
+                var mbr = this.GetTSB("000");
                 var newMbr = mbr.substr(0, 7) + tsb + mbr.substr(10, mbr.length);
                 CTOS.Globals.m_HardDrive.SetTSB("000", newMbr);
                 return newMbr;
@@ -473,7 +516,7 @@ var CTOS;
 
         // Returns the next available data TSB from MBR
         DeviceDriverHardDrive.prototype.GetNextAvailableData = function () {
-            var mbr = CTOS.Globals.m_HardDrive.GetTSB("000");
+            var mbr = this.GetTSB("000");
             return mbr.substr(7, 3);
         };
         DeviceDriverHardDrive.TSB_INIT = "0@@@000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
