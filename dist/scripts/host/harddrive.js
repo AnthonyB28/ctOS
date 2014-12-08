@@ -50,4 +50,4 @@ var CTOS;
     })();
     CTOS.HardDrive = HardDrive;
 })(CTOS || (CTOS = {}));
-//# sourceMappingURL=hardDrive.js.map
+//# sourceMappingURL=harddrive.js.map
