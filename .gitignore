@@ -4,5 +4,4 @@ obj/
 .DS_Store
 /*.csproj.user
 /*.v12.suo
-*.map
 *.suo
