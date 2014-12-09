@@ -163,6 +163,6 @@ function disableOther(button) {
         classie.toggle(showLeftPush, 'disabled');
     }
     if (button !== 'showRightPush') {
-        classie.toggle(showRightPush, 'disabled');*/
-    }
+        classie.toggle(showRightPush, 'disabled');
+    }*/
 }
