@@ -91,6 +91,7 @@ var CTOS;
 
         // Callback for boot video, removes element from DOM, restores hard drive table
         Control.BootVideoEnd = function () {
+            clearTimeout(CTOS.Globals.m_BootVidTimeout);
             var video = document.getElementById("bootVid");
             CTOS.Globals.m_Canvas.parentElement.parentElement.removeChild(video);
             CTOS.Globals.m_HardDriveTable.parentElement.parentElement.style.opacity = "100";
@@ -134,6 +135,9 @@ var CTOS;
         // Host Events
         //
         Control.hostBtnStartOS_click = function (btn) {
+            // Make sure boot video doesn't get stuck
+            CTOS.Globals.m_BootVidTimeout = window.setTimeout(this.BootVideoEnd, 11000);
+
             // Disable the (passed-in) start button...
             btn.disabled = true;
 

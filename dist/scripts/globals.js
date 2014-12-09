@@ -65,6 +65,7 @@ var CTOS;
         Globals.m_BSODColor = "#236B8E";
         Globals.m_ConsoleTextDefaultColor = "white";
         Globals.m_BootVideo = true;
+        Globals.m_BootVidTimeout = null;
 
         Globals.m_SarcasticMode = false;
 
