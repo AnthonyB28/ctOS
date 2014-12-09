@@ -23,7 +23,8 @@
 //
 // Control Services
 //
-module CTOS {
+module CTOS
+{
 
     export class Control
     {
@@ -65,14 +66,15 @@ module CTOS {
 
             // Clear the log text box.
             // Use the TypeScript cast to HTMLInputElement
-            (<HTMLInputElement> document.getElementById("taHostLog")).value="";
+            (<HTMLInputElement> document.getElementById("taHostLog")).value = "";
 
             // Set focus on the start button.
             // Use the TypeScript cast to HTMLInputElement
             (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
 
             // Check for our testing and enrichment core.
-            if (typeof Globals.m_Glados === "function") {
+            if (typeof Globals.m_Glados === "function")
+            {
                 Globals.m_GLaDOS = new Globals.m_Glados();
                 Globals.m_GLaDOS.init();
             }
@@ -109,6 +111,7 @@ module CTOS {
         // Callback for boot video, removes element from DOM, restores hard drive table
         public static BootVideoEnd(): void
         {
+            clearTimeout(Globals.m_BootVidTimeout);
             var video = document.getElementById("bootVid");
             Globals.m_Canvas.parentElement.parentElement.removeChild(video);
             Globals.m_HardDriveTable.parentElement.parentElement.style.opacity = "100";
@@ -124,7 +127,7 @@ module CTOS {
             var now: number = new Date().getTime();
 
             // Build the log string.
-            var str: string = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
+            var str: string = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now + " })" + "\n";
 
             // Update the log console.
             var taLog: any = document.getElementById("taHostLog");
@@ -149,8 +152,8 @@ module CTOS {
                 taLog.value = str + taLog.value;
             }
             else
-            {  
-                taLog.value = taLog.value.replace(lastMsg+"\n", str);
+            {
+                taLog.value = taLog.value.replace(lastMsg + "\n", str);
             }
             // Optionally update a log database or some streaming service.
         }
@@ -161,6 +164,9 @@ module CTOS {
         //
         public static hostBtnStartOS_click(btn): void
         {
+            // Make sure boot video doesn't get stuck
+            Globals.m_BootVidTimeout = window.setTimeout(this.BootVideoEnd, 11000);
+
             // Disable the (passed-in) start button...
             btn.disabled = true;
 
@@ -277,7 +283,7 @@ module CTOS {
         }*/
 
         // Adds the unlocked achievement to the side menu
-        public static AchievementAddDisplay(id : number, achievement: Achievement): void
+        public static AchievementAddDisplay(id: number, achievement: Achievement): void
         {
             var achievementElement = document.createElement("achievement" + id.toString());
             achievementElement.innerHTML = "</br> " + achievement.m_Description + " " + achievement.m_Score.toString();
@@ -326,9 +332,9 @@ module CTOS {
 
         // Creates the initial memory table display
         // Currently only ONE block of memory for P2, will have to do for P3
-        public static MemoryTableCreate() : void
+        public static MemoryTableCreate(): void
         {
-            for (var i : number = 0; i < MemoryManager.MAX_MEMORY*MemoryManager.MAX_MEMORY_BLOCKS / 8; ++i)
+            for (var i: number = 0; i < MemoryManager.MAX_MEMORY * MemoryManager.MAX_MEMORY_BLOCKS / 8; ++i)
             {
                 var row = Globals.m_MemTable.insertRow(i);
                 for (var x = 0; x < 9; ++x)
@@ -361,7 +367,7 @@ module CTOS {
         }
 
         // Clears previous set memory addresses and then sets new ones. Provide null to skip.
-        public static MemoryTableColorMemoryAddress(address1: number, address2:number): void
+        public static MemoryTableColorMemoryAddress(address1: number, address2: number): void
         {
 
             if (this.m_LastMemoryAddress1Pos.length > 0)
@@ -466,7 +472,7 @@ module CTOS {
 
         // Updates a single byte in memory
         // Currently only the first block in memory, might have to change for P3
-        public static MemoryTableUpdateByte(address: number, hexValue: string) : void
+        public static MemoryTableUpdateByte(address: number, hexValue: string): void
         {
             var columnRow: Array<number> = this.MemoryTableTranslateAddress(address);
             if (hexValue == "0")
@@ -503,7 +509,7 @@ module CTOS {
             }
             for (var i: number = 1; i <= q.getSize(); ++i)
             {
-                var pcb: ProcessControlBlock = q.peek(i-1);
+                var pcb: ProcessControlBlock = q.peek(i - 1);
                 var row = Globals.m_ReadyQTable.insertRow(i);
                 var cell = row.insertCell(0);
                 cell.innerText = pcb.m_PID;
@@ -553,7 +559,7 @@ module CTOS {
             {
                 var tsb: string = "";
                 var baseEight: number = parseInt(i.toString(8), 10);
-                var row = Globals.m_HardDriveTable.insertRow(i+1);
+                var row = Globals.m_HardDriveTable.insertRow(i + 1);
                 var cell = row.insertCell(0);
                 if (baseEight <= 7)
                 {
@@ -582,7 +588,7 @@ module CTOS {
 
         public static HardDriveTableUpdate(tsb: string, data: string)
         {
-            var row = Globals.m_HardDriveTable.rows[parseInt(tsb, 8)+1];
+            var row = Globals.m_HardDriveTable.rows[parseInt(tsb, 8) + 1];
             row.cells[1].innerText = data;
         }
 

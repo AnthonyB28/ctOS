@@ -82,6 +82,7 @@ module CTOS
         static m_BSODColor: string = "#236B8E"; // Inner circle
         static m_ConsoleTextDefaultColor: string = "white";
         static m_BootVideo: boolean = true;
+        static m_BootVidTimeout: any = null;
 
         // At least this OS is not trying to kill you. (Yet.)
         static m_AchievementSystem: AchievementSystem;

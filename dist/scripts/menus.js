@@ -153,7 +153,7 @@ function disableOther(button) {
     if (button !== 'showRight') {
         classie.toggle(showRight, 'disabled');
     }
-    if (button !== 'showTop') {
+    /*if (button !== 'showTop') {
         classie.toggle(showTop, 'disabled');
     }
     if (button !== 'showBottom') {
@@ -164,5 +164,5 @@ function disableOther(button) {
     }
     if (button !== 'showRightPush') {
         classie.toggle(showRightPush, 'disabled');
-    }
+    }*/
 }
